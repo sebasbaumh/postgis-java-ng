@@ -1,12 +1,12 @@
 /*
  * LineString.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - geometry model
- * 
+ *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
- * 
+ *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
  *
  * This library is free software; you can redistribute it and/or
@@ -22,82 +22,169 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 
-public class LineString extends PointComposedGeom implements LineBasedGeom {
-    /* JDK 1.5 Serialization */
-    private static final long serialVersionUID = 0x100;
+/**
+ * Linestring.
+ * @author Sebastian Baumhekel
+ */
+public class LineString extends Geometry implements LineBasedGeom, Iterable<Point>
+{
+	/* JDK 1.5 Serialization */
+	private static final long serialVersionUID = 0x100;
 
-    double len = -1.;
+	private final ArrayList<Point> points = new ArrayList<Point>();
 
-    public LineString() {
-        super(LINESTRING);
-    }
+	/**
+	 * Constructs an instance.
+	 */
+	public LineString()
+	{
+		super(LINESTRING);
+	}
 
-    public LineString(Point[] points) {
-        super(LINESTRING, points);
-    }
+	/**
+	 * Constructor for subclasses.
+	 * @param type has to be given by all subclasses.
+	 */
+	protected LineString(int type)
+	{
+		super(type);
+	}
 
-    public LineString(String value) throws SQLException {
-        super(LINESTRING, value);
-    }
+	/**
+	 * Constructor for subclasses.
+	 * @param type has to be given by all subclasses.
+	 * @param points {@link Point}s
+	 */
+	protected LineString(int type, Iterable<Point> points)
+	{
+		super(type);
+		addAll(points);
+	}
 
-    public LineString(String value, boolean haveM) throws SQLException {
-        super(LINESTRING, value, haveM);
-    }
+	/**
+	 * Constructs an instance.
+	 * @param points points
+	 */
+	public LineString(Iterable<Point> points)
+	{
+		super(LINESTRING);
+		addAll(points);
+	}
 
-    public LineString reverse() {
-        Point[] points = this.getPoints();
-        int l = points.length;
-        int i, j;
-        Point[] p = new Point[l];
-        for (i = 0, j = l - 1; i < l; i++, j--) {
-            p[i] = points[j];
-        }
-        return new LineString(p);
-    }
+	/**
+	 * Adds the given point.
+	 * @param p point
+	 */
+	public void add(Point p)
+	{
+		points.add(p);
+	}
 
-    public LineString concat(LineString other) {
-        Point[] points = this.getPoints();
-        Point[] opoints = other.getPoints();
+	/**
+	 * Adds all given points.
+	 * @param geoms points
+	 */
+	public final void addAll(Iterable<Point> geoms)
+	{
+		for (Point geom : geoms)
+		{
+			points.add(geom);
+		}
+	}
 
-        boolean cutPoint = this.getLastPoint() == null
-                || this.getLastPoint().equals(other.getFirstPoint());
-        int count = points.length + opoints.length - (cutPoint ? 1 : 0);
-        Point[] p = new Point[count];
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#equalsintern(io.github.sebasbaumh.postgis.Geometry)
+	 */
+	@Override
+	protected boolean equalsintern(Geometry other)
+	{
+		// FIX
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-        // Maybe we should use System.arrayCopy here?
-        int i, j;
-        for (i = 0; i < points.length; i++) {
-            p[i] = points[i];
-        }
-        if (!cutPoint) {
-            p[i++] = other.getFirstPoint();
-        }
-        for (j = 1; j < opoints.length; j++, i++) {
-            p[i] = opoints[j];
-        }
-        return new LineString(p);
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getFirstPoint()
+	 */
+	@Override
+	public Point getFirstPoint()
+	{
+		return this.points.get(0);
+	}
 
-    public double length() {
-        if (len < 0) {
-            Point[] points = this.getPoints();
-            if ((points == null) || (points.length < 2)) {
-                len = 0;
-            } else {
-                double sum = 0;
-                for (int i = 1; i < points.length; i++) {
-                    sum += points[i - 1].distance(points[i]);
-                }
-                len = sum;
-            }
-        }
-        return len;
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getLastPoint()
+	 */
+	@Override
+	public Point getLastPoint()
+	{
+		return this.points.get(points.size() - 1);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getPoint(int)
+	 */
+	@Override
+	public Point getPoint(int n)
+	{
+		return this.points.get(n);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<Point> iterator()
+	{
+		return this.points.iterator();
+	}
+
+	@Override
+	public double length()
+	{
+		double len = 0;
+		if (points.size() > 1)
+		{
+			Point p0 = points.get(0);
+			for (int i = 1; i < points.size(); i++)
+			{
+				Point p = points.get(i);
+				len += p0.distance(p);
+				p = p0;
+			}
+		}
+		return len;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#numPoints()
+	 */
+	@Override
+	public int numPoints()
+	{
+		return this.points.size();
+	}
+
+	/**
+	 * Reverses this linestring.
+	 */
+	public void reverse()
+	{
+		Collections.reverse(this.points);
+	}
 }

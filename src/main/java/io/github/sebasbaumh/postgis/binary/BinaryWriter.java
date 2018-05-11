@@ -24,8 +24,9 @@
  */
 package io.github.sebasbaumh.postgis.binary;
 
+import java.util.Iterator;
+
 import io.github.sebasbaumh.postgis.CircularString;
-import io.github.sebasbaumh.postgis.ComposedGeom;
 import io.github.sebasbaumh.postgis.CurvePolygon;
 import io.github.sebasbaumh.postgis.Geometry;
 import io.github.sebasbaumh.postgis.GeometryCollection;
@@ -36,7 +37,6 @@ import io.github.sebasbaumh.postgis.MultiLineString;
 import io.github.sebasbaumh.postgis.MultiPoint;
 import io.github.sebasbaumh.postgis.MultiPolygon;
 import io.github.sebasbaumh.postgis.Point;
-import io.github.sebasbaumh.postgis.PointComposedGeom;
 import io.github.sebasbaumh.postgis.Polygon;
 
 /**
@@ -92,14 +92,14 @@ public class BinaryWriter {
      *            endianness to write the bytes with
      * @return String containing the hex encoded geometry
      */
-    public synchronized String writeHexed(Geometry geom, byte REP) {
+    public synchronized static String writeHexed(Geometry geom, byte REP) {
 	int length = estimateBytes(geom);
 	ByteSetter.StringByteSetter bytes = new ByteSetter.StringByteSetter(length);
 	writeGeometry(geom, valueSetterForEndian(bytes, REP));
 	return bytes.result();
     }
 
-    public synchronized String writeHexed(Geometry geom) {
+    public synchronized static String writeHexed(Geometry geom) {
 	return writeHexed(geom, ValueSetter.NDR.NUMBER);
     }
 
@@ -120,14 +120,14 @@ public class BinaryWriter {
      *            endianness to write the bytes with
      * @return byte array containing the encoded geometry
      */
-    public synchronized byte[] writeBinary(Geometry geom, byte REP) {
+    public synchronized static byte[] writeBinary(Geometry geom, byte REP) {
 	int length = estimateBytes(geom);
 	ByteSetter.BinaryByteSetter bytes = new ByteSetter.BinaryByteSetter(length);
 	writeGeometry(geom, valueSetterForEndian(bytes, REP));
 	return bytes.result();
     }
 
-    public synchronized byte[] writeBinary(Geometry geom) {
+    public synchronized static byte[] writeBinary(Geometry geom) {
 	return writeBinary(geom, ValueSetter.NDR.NUMBER);
     }
 
@@ -226,15 +226,32 @@ public class BinaryWriter {
      * @param dest
      *            writer
      */
-    private static void writeOnlyPoints(PointComposedGeom geom, ValueSetter dest) {
-	Point[] points = geom.getPoints();
+    private static void writeOnlyPoints(Iterable<Point> geom, ValueSetter dest) {
 	// number of points
-	dest.setInt(points.length);
-	for (Point p : points) {
+	dest.setInt(count(geom));
+	for (Point p : geom) {
 	    writePoint(p, dest);
 	}
     }
 
+    /**
+     * Gets the number of items.
+     * @param items items
+     * @return number of items
+     */
+    private static <T> int count(Iterable<T> items)
+    {
+		// walk through all elements
+		Iterator<T> it = items.iterator();
+		int i = 0;
+		while (it.hasNext())
+		{
+			it.next();
+			i++;
+		}
+		return i;
+    }
+    
     /**
      * Writes multiple geometries preceded by their count.
      * 
@@ -302,144 +319,4 @@ public class BinaryWriter {
 	writeMultiGeometry(geom.getGeometries(), dest);
     }
 
-    /**
-     * Estimate how much bytes a geometry will need in WKB.
-     *
-     * @param geom
-     *            Geometry to estimate.
-     * @return estimated number of bytes
-     */
-    protected static int estimateBytes(Geometry geom) {
-	int result = 0;
-
-	// write endian flag
-	result += 1;
-
-	// write typeword
-	result += 4;
-
-	if (geom.srid != Geometry.UNKNOWN_SRID) {
-	    result += 4;
-	}
-
-	switch (geom.type) {
-	case Geometry.POINT:
-	    result += estimatePoint((Point) geom);
-	    break;
-	case Geometry.LINESTRING:
-	    result += estimateLineString((LineString) geom);
-	    break;
-	case Geometry.POLYGON:
-	    result += estimatePolygon((Polygon) geom);
-	    break;
-	case Geometry.MULTIPOINT:
-	    result += estimateMultiPoint((MultiPoint) geom);
-	    break;
-	case Geometry.MULTILINESTRING:
-	    result += estimateMultiLineString((MultiLineString) geom);
-	    break;
-	case Geometry.MULTIPOLYGON:
-	    result += estimateMultiPolygon((MultiPolygon) geom);
-	    break;
-	case Geometry.GEOMETRYCOLLECTION:
-	    result += estimateCollection((GeometryCollection) geom);
-	    break;
-	case Geometry.CIRCULARSTRING:
-	    result += estimatePointComposedGeom((CircularString) geom);
-	    break;
-	case Geometry.CURVEPOLYGON:
-	    result += estimateCurvePolygon((CurvePolygon) geom);
-	    break;
-	// FIX: add curve types here
-	default:
-	    throw new IllegalArgumentException("Unknown Geometry Type: " + geom.type);
-	}
-	return result;
-    }
-
-    private static int estimatePoint(Point geom) {
-	// x, y both have 8 bytes
-	int result = 16;
-	if (geom.dimension == 3) {
-	    result += 8;
-	}
-
-	if (geom.haveMeasure) {
-	    result += 8;
-	}
-	return result;
-    }
-
-    /**
-     * Write an Array of "slim" Points (without endianness and type, part of
-     * LinearRing and Linestring, but not MultiPoint!
-     */
-    private static int estimatePointComposedGeom(PointComposedGeom geom) {
-	Point[] points = geom.getPoints();
-	// number of points
-	int result = 4;
-
-	// And the amount of the points itsself, in consistent geometries
-	// all points have equal size.
-	if (points.length > 0) {
-	    result += points.length * estimatePoint(points[0]);
-	}
-	return result;
-    }
-
-    private static int estimateLineString(LineString geom) {
-	return estimatePointComposedGeom(geom);
-    }
-
-    private static int estimateLinearRing(LinearRing geom) {
-	return estimatePointComposedGeom(geom);
-    }
-
-    private static int estimatePolygon(Polygon geom) {
-	// int length
-	int result = 4;
-	for (int i = 0; i < geom.numRings(); i++) {
-	    result += estimateLinearRing(geom.getRing(i));
-	}
-	return result;
-    }
-
-    private static int estimateCurvePolygon(CurvePolygon geom) {
-	// int length
-	int result = 4;
-	for (int i = 0; i < geom.numRings(); i++) {
-	    Geometry ring=(Geometry) geom.getRing(i);
-	    if(ring instanceof PointComposedGeom) {
-	    result += estimatePointComposedGeom((PointComposedGeom)ring);
-	    }else if(ring instanceof MultiCurve) {
-		    result += estimateMultiGeometry(((MultiCurve)ring).getLines());
-	    }
-	}
-	return result;
-    }
-
-    private static int estimateMultiGeometry(Geometry[] geoms) {
-	// 4-byte count + subgeometries
-	int result = 4;
-	for (Geometry geom : geoms) {
-	    result += estimateBytes(geom);
-	}
-	return result;
-    }
-
-    private static int estimateMultiPoint(MultiPoint geom) {
-	return estimateMultiGeometry(geom.getPoints());
-    }
-
-    private static int estimateMultiLineString(MultiLineString geom) {
-	return estimateMultiGeometry(geom.getLines());
-    }
-
-    private static int estimateMultiPolygon(MultiPolygon geom) {
-	return estimateMultiGeometry(geom.getPolygons());
-    }
-
-    private static int estimateCollection(GeometryCollection geom) {
-	return estimateMultiGeometry(geom.getGeometries());
-    }
 }

@@ -28,8 +28,13 @@
 package io.github.sebasbaumh.postgis;
 
 import java.sql.SQLException;
+import java.util.Collection;
 
-public class Polygon extends ComposedGeom {
+/**
+ * A polygon.
+ * @author Sebastian Baumhekel
+ */
+public class Polygon extends PolygonBase<LinearRing> {
     /* JDK 1.5 Serialization */
     private static final long serialVersionUID = 0x100;
 
@@ -37,35 +42,57 @@ public class Polygon extends ComposedGeom {
         super(POLYGON);
     }
 
-    public Polygon(LinearRing[] rings) {
+    public Polygon(Collection<LinearRing> rings) {
         super(POLYGON, rings);
     }
 
-    public Polygon(String value) throws SQLException {
-        this(value, false);
-    }
+	/* (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#equalsintern(io.github.sebasbaumh.postgis.Geometry)
+	 */
+	@Override
+	protected boolean equalsintern(Geometry other)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-    public Polygon(String value, boolean haveM) throws SQLException {
-        super(POLYGON, value, haveM);
-    }
+	/* (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#numPoints()
+	 */
+	@Override
+	public int numPoints()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    protected Geometry createSubGeomInstance(String token, boolean haveM) throws SQLException {
-        return new LinearRing(token, haveM);
-    }
+	/* (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getPoint(int)
+	 */
+	@Override
+	public Point getPoint(int n)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    protected Geometry[] createSubGeomArray(int ringcount) {
-        return new LinearRing[ringcount];
-    }
+	/* (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getFirstPoint()
+	 */
+	@Override
+	public Point getFirstPoint()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    public int numRings() {
-        return subgeoms.length;
-    }
-
-    public LinearRing getRing(int idx) {
-        if (idx >= 0 & idx < subgeoms.length) {
-            return (LinearRing) subgeoms[idx];
-        } else {
-            return null;
-        }
-    }
+	/* (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getLastPoint()
+	 */
+	@Override
+	public Point getLastPoint()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

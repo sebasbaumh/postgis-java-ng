@@ -151,7 +151,7 @@ public class DriverWrapper extends Driver
 		Connection result = super.connect(url, info);
 		PGConnection pgconn = (PGConnection) result;
 		// add geometry and box types
-		pgconn.addDataType("geometry", io.github.sebasbaumh.postgis.PGgeometryLW.class);
+		pgconn.addDataType("geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
 		pgconn.addDataType("box3d", io.github.sebasbaumh.postgis.PGbox3d.class);
 		pgconn.addDataType("box2d", io.github.sebasbaumh.postgis.PGbox2d.class);
 		return result;

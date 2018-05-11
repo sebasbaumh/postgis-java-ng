@@ -1,13 +1,13 @@
 /*
- * Polygon.java
+ * ServerTest.java
  *
- * PostGIS extension for PostgreSQL JDBC driver - geometry model
+ * PostGIS extension for PostgreSQL JDBC driver - example and test classes
  *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
  *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
  *
- * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
+ * (C) 2017 Phillip Ross, phillip.w.g.ross@gmail.com
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,34 +27,28 @@
 
 package io.github.sebasbaumh.postgis;
 
-import java.util.Collection;
 
-/**
- * A CURVEPOLYGON is just like a polygon, with an outer ring and zero or more inner rings. The difference is that a ring
- * can take the form of a circular string, linear string or compound string.
- * @author Sebastian Baumhekel
- */
-public class CurvePolygon extends PolygonBase<Geometry>
-{
-	/* JDK 1.5 Serialization */
-	private static final long serialVersionUID = 0x100;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-	/**
-	 * Constructs an instance.
-	 */
-	public CurvePolygon()
-	{
-		super(CURVEPOLYGON);
-	}
+import java.io.ByteArrayOutputStream;
+import java.io.NotSerializableException;
+import java.io.ObjectOutputStream;
 
-	/**
-	 * Constructs an instance.
-	 * @param rings rings
-	 */
-	public CurvePolygon(Collection<? extends Geometry> rings)
-	{
-		super(CURVEPOLYGON, rings);
-		// FIX: check rings
-	}
+
+public class SerializationTest {
+
+
+    @Test
+    public void serializationCheckPGgeometry() throws Exception {
+        try {
+            new ObjectOutputStream(new ByteArrayOutputStream())
+                    .writeObject(new PGgeometry("MULTIPOLYGON(((1 1,1 2,2 1,1 1)))"));
+        }
+        catch (NotSerializableException ex) {
+            Assert.fail("serialization of PGgeometry failed: " + ex);
+        }
+    }
+
 
 }

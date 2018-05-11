@@ -45,7 +45,7 @@ public class GeometryTokenizer {
                       ) {
                 stack.pop();
             }
-            if ((character == delimiter) && (stack.size() == 0)) {
+            if ((character == delimiter) && stack.isEmpty()) {
                 tokens.add(string.substring(consumed, position));
                 consumed = position + 1;
             }

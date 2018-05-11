@@ -1,12 +1,12 @@
 /*
  * GeometryCollection.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - geometry model
- * 
+ *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
- * 
+ *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
  *
  * This library is free software; you can redistribute it and/or
@@ -22,60 +22,34 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis;
 
-import java.sql.SQLException;
-
 /**
- * Geometry Collection class WARNING: Currently only implements empty
- * collections
- * 
+ * Geometry Collection.
  * @author markus.schaber@logix-tt.com
- * 
  */
+public class GeometryCollection extends MultiGeometry<Geometry>
+{
+	/* JDK 1.5 Serialization */
+	private static final long serialVersionUID = 0x100;
 
-public class GeometryCollection extends ComposedGeom {
-    /* JDK 1.5 Serialization */
-    private static final long serialVersionUID = 0x100;
+	/**
+	 * Constructs an instance.
+	 */
+	public GeometryCollection()
+	{
+		super(GEOMETRYCOLLECTION);
+	}
 
-    public static final String GeoCollID = "GEOMETRYCOLLECTION";
-
-    public GeometryCollection() {
-        super(GEOMETRYCOLLECTION);
-    }
-
-    public GeometryCollection(Geometry[] geoms) {
-        super(GEOMETRYCOLLECTION, geoms);
-    }
-
-    public GeometryCollection(String value) throws SQLException {
-        this(value, false);
-    }
-
-    public GeometryCollection(String value, boolean haveM) throws SQLException {
-        super(GEOMETRYCOLLECTION, value, haveM);
-    }
-
-    protected Geometry[] createSubGeomArray(int ngeoms) {
-        return new Geometry[ngeoms];
-    }
-
-    protected Geometry createSubGeomInstance(String token, boolean haveM) throws SQLException {
-        return PGgeometry.geomFromString(token, haveM);
-    }
-
-    protected void innerWKT(StringBuffer SB) {
-        subgeoms[0].outerWKT(SB, true);
-        for (int i = 1; i < subgeoms.length; i++) {
-            SB.append(',');
-            subgeoms[i].outerWKT(SB, true);
-        }
-    }
-
-    public Geometry[] getGeometries() {
-        return subgeoms;
-    }
+	/**
+	 * Constructs an instance.
+	 * @param geoms geometries
+	 */
+	public GeometryCollection(Iterable<Geometry> geoms)
+	{
+		super(GEOMETRYCOLLECTION, geoms);
+	}
 }

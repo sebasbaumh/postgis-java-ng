@@ -1,12 +1,12 @@
 /*
  * MultiLineString.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - geometry model
- * 
+ *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
- * 
+ *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
  *
  * This library is free software; you can redistribute it and/or
@@ -22,76 +22,35 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis;
 
-import java.sql.SQLException;
+/**
+ * A multi line.
+ * @author Sebastian Baumhekel
+ */
+public class MultiLineString extends MultiGeometry<LineString>
+{
+	/* JDK 1.5 Serialization */
+	private static final long serialVersionUID = 0x100;
 
-public class MultiLineString extends ComposedGeom {
-    /* JDK 1.5 Serialization */
-    private static final long serialVersionUID = 0x100;
+	/**
+	 * Constructs an instance.
+	 */
+	public MultiLineString()
+	{
+		super(MULTILINESTRING);
+	}
 
-    double len = -1;
+	/**
+	 * Constructs an instance.
+	 * @param lines lines
+	 */
+	public MultiLineString(Iterable<LineString> lines)
+	{
+		super(MULTILINESTRING, lines);
+	}
 
-    public int hashCode() {
-        return super.hashCode() ^ (int) this.length();
-    }
-
-    public MultiLineString() {
-        super(MULTILINESTRING);
-    }
-
-    public MultiLineString(LineString[] lines) {
-        super(MULTILINESTRING, lines);
-    }
-
-    public MultiLineString(String value) throws SQLException {
-        this(value, false);
-    }
-
-    public MultiLineString(String value, boolean haveM) throws SQLException {
-        super(MULTILINESTRING, value, haveM);
-    }
-
-    protected Geometry createSubGeomInstance(String token, boolean haveM) throws SQLException {
-        return new LineString(token, haveM);
-    }
-
-    protected Geometry[] createSubGeomArray(int nlines) {
-        return new LineString[nlines];
-    }
-
-    public int numLines() {
-        return subgeoms.length;
-    }
-
-    public LineString[] getLines() {
-        return (LineString[]) subgeoms.clone();
-    }
-
-    public LineString getLine(int idx) {
-        if (idx >= 0 & idx < subgeoms.length) {
-            return (LineString) subgeoms[idx];
-        } else {
-            return null;
-        }
-    }
-
-    public double length() {
-        if (len < 0) {
-            LineString[] lines = (LineString[]) subgeoms;
-            if (lines.length < 1) {
-                len = 0;
-            } else {
-                double sum = 0;
-                for (int i = 0; i < lines.length; i++) {
-                    sum += lines[i].length();
-                }
-                len = sum;
-            }
-        }
-        return len;
-    }
 }

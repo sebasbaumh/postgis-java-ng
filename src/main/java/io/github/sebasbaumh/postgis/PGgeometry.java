@@ -27,155 +27,106 @@
 
 package io.github.sebasbaumh.postgis;
 
-import io.github.sebasbaumh.postgis.binary.BinaryParser;
-import org.postgresql.util.PGobject;
-
 import java.sql.SQLException;
 
-public class PGgeometry extends PGobject {
-    /* JDK 1.5 Serialization */
-    private static final long serialVersionUID = 0x100;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.postgresql.util.PGobject;
 
-    Geometry geom;
+import io.github.sebasbaumh.postgis.binary.BinaryParser;
+import io.github.sebasbaumh.postgis.binary.BinaryWriter;
 
-    public PGgeometry() {
-        this.setType("geometry");
-    }
+/**
+ * Basic geometry class.
+ * @author Sebastian Baumhekel
+ */
+@NonNullByDefault
+public class PGgeometry extends PGobject
+{
+	/* JDK 1.5 Serialization */
+	private static final long serialVersionUID = 0x100;
 
-    public PGgeometry(Geometry geom) {
-        this();
-        this.geom = geom;
-    }
+	private Geometry geom;
 
-    public PGgeometry(String value) throws SQLException {
-        this();
-        setValue(value);
-    }
+	/**
+	 * Constructs an instance.
+	 */
+	@SuppressWarnings("null")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
+	public PGgeometry()
+	{
+		this.setType("geometry");
+	}
 
-    public void setValue(String value) throws SQLException {
-        geom = geomFromString(value, new BinaryParser());
-    }
+	/**
+	 * Constructs an instance.
+	 * @param geom {@link Geometry}
+	 */
+	public PGgeometry(Geometry geom)
+	{
+		this();
+		this.geom = geom;
+	}
 
-    public static Geometry geomFromString(String value) throws SQLException {
-        return geomFromString(value, false);
-    }
+	/**
+	 * Constructs an instance.
+	 * @param value geometry
+	 * @throws SQLException
+	 */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS")
+	public PGgeometry(String value) throws SQLException
+	{
+		this();
+		setValue(value);
+	}
 
-    public static Geometry geomFromString(String value, boolean haveM) throws SQLException {
-        BinaryParser bp = new BinaryParser();
+	@Override
+	public Object clone()
+	{
+		return new PGgeometry(geom);
+	}
 
-        return geomFromString(value, bp, haveM);
-    }
+	/**
+	 * Gets the underlying {@link Geometry}.
+	 * @return {@link Geometry}
+	 */
+	public Geometry getGeometry()
+	{
+		return geom;
+	}
 
-    /**
-     * Maybe we could add more error checking here?
-     *
-     * @param value String representing the geometry
-     * @param bp BinaryParser to use whe parsing
-     * @return Geometry object parsed from the specified string value
-     * @throws SQLException when a SQLException occurs
-     */
-    public static Geometry geomFromString(String value, BinaryParser bp) throws SQLException {
-        return geomFromString(value, bp, false);
-    }
+	/**
+	 * Gets the OGIS geometry type.
+	 * @return geometry type
+	 */
+	public int getGeoType()
+	{
+		return geom.type;
+	}
 
-    public static Geometry geomFromString(String value, BinaryParser bp, boolean haveM)
-            throws SQLException {
-        value = value.trim();
+	@Override
+	public String getValue()
+	{
+		return BinaryWriter.writeHexed(geom);
+	}
 
-        int srid = Geometry.UNKNOWN_SRID;
+	/**
+	 * Sets the underlying {@link Geometry}.
+	 * @param newgeom {@link Geometry}
+	 */
+	public void setGeometry(Geometry newgeom)
+	{
+		this.geom = newgeom;
+	}
 
-        if (value.startsWith(SRIDPREFIX)) {
-            // break up geometry into srid and wkt
-            String[] parts = PGgeometry.splitSRID(value);
-            value = parts[1].trim();
-            srid = Geometry.parseSRID(Integer.parseInt(parts[0].substring(5)));
-        }
+	@Override
+	public void setValue(@SuppressWarnings("null") String value) throws SQLException
+	{
+		geom = BinaryParser.parse(value);
+	}
 
-        Geometry result;
-        if (value.startsWith("00") || value.startsWith("01")) {
-            result = BinaryParser.parse(value);
-        } else if (value.endsWith("EMPTY")) {
-            // We have a standard conforming representation for an empty
-            // geometry which is to be parsed as an empty GeometryCollection.
-            result = new GeometryCollection();
-        } else if (value.startsWith("MULTIPOLYGON")) {
-            result = new MultiPolygon(value, haveM);
-        } else if (value.startsWith("MULTILINESTRING")) {
-            result = new MultiLineString(value, haveM);
-        } else if (value.startsWith("MULTIPOINT")) {
-            result = new MultiPoint(value, haveM);
-        } else if (value.startsWith("POLYGON")) {
-            result = new Polygon(value, haveM);
-        } else if (value.startsWith("LINESTRING")) {
-            result = new LineString(value, haveM);
-        } else if (value.startsWith("POINT")) {
-            result = new Point(value, haveM);
-        } else if (value.startsWith("CIRCULARSTRING")) {
-            result = new CircularString(value, haveM);
-        } else if (value.startsWith("GEOMETRYCOLLECTION")) {
-            result = new GeometryCollection(value, haveM);
-        } else if (value.startsWith("CURVEPOLYGON")) {
-            result = new CurvePolygon(value, haveM);
-        } else {
-            throw new SQLException("Unknown type: " + value);
-        }
-        //FIX: add curve types here
-
-        if (srid != Geometry.UNKNOWN_SRID) {
-            result.srid = srid;
-        }
-
-        return result;
-    }
-
-    public Geometry getGeometry() {
-        return geom;
-    }
-
-    public void setGeometry(Geometry newgeom) {
-        this.geom = newgeom;
-    }
-
-    public int getGeoType() {
-        return geom.type;
-    }
-
-    public String toString() {
-        return geom.toString();
-    }
-
-    public String getValue() {
-        return geom.toString();
-    }
-
-    public Object clone() {
-        return new PGgeometry(geom);
-    }
-
-    /** The prefix that indicates SRID presence */
-    public static final String SRIDPREFIX = "SRID=";
-
-    /**
-     * Splits a String at the first occurrence of border character.
-     *
-     * Poor man's String.split() replacement, as String.split() was invented at
-     * jdk1.4, and the Debian PostGIS Maintainer had problems building the woody
-     * backport of his package using DFSG-free compilers. In all the cases we
-     * used split() in the io.github.sebasbaumh.postgis package, we only needed to split at the
-     * first occurence, and thus this code could even be faster.
-     *
-     * @param whole the String to be split
-     * @return String array containing the split elements
-     * @throws SQLException when a SQLException occurrs
-     */
-    public static String[] splitSRID(String whole) throws SQLException {
-        int index = whole.indexOf(';', 5); // sridprefix length is 5
-        if (index == -1) {
-            throw new SQLException("Error parsing Geometry - SRID not delimited with ';' ");
-        } else {
-            return new String[]{
-                whole.substring(0, index),
-                whole.substring(index + 1)};
-        }
-    }
+	@Override
+	public String toString()
+	{
+		return geom.toString();
+	}
 }

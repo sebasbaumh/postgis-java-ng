@@ -26,57 +26,36 @@
  */
 package io.github.sebasbaumh.postgis;
 
-import java.sql.SQLException;
+import java.util.Collection;
 
 /**
- * A compound curve is a single, continuous curve that has both curved
- * (circular) segments and linear segments. That means that in addition to
- * having well-formed components, the end point of every component (except the
- * last) must be coincident with the start point of the following component.
- * Just note: here it is treated as a special {@link MultiCurve} where the end
- * points of all contained lines match.
- * 
- * @author sbaumhekel
+ * A compound curve is a single, continuous curve that has both curved (circular) segments and linear segments. That
+ * means that in addition to having well-formed components, the end point of every component (except the last) must be
+ * coincident with the start point of the following component. Just note: here it is treated as a special
+ * {@link MultiCurve} where the end points of all contained lines match.
+ * @author Sebastian Baumhekel
  */
-public class CompoundCurve extends MultiCurve {
-    /* JDK 1.5 Serialization */
-    private static final long serialVersionUID = 0x100;
+public class CompoundCurve extends MultiGeometry<Geometry>
+{
+	/* JDK 1.5 Serialization */
+	private static final long serialVersionUID = 0x100;
 
-    /**
-     * Constructs an instance.
-     */
-    public CompoundCurve() {
-	super();
-    }
+	/**
+	 * Constructs an instance.
+	 */
+	public CompoundCurve()
+	{
+		super(COMPOUNDCURVE);
+	}
 
-    /**
-     * Constructs an instance.
-     * 
-     * @param lines
-     */
-    public CompoundCurve(LineString[] lines) {
-	super(lines);
-    }
-
-    /**
-     * Constructs an instance.
-     * 
-     * @param value
-     * @throws SQLException
-     */
-    public CompoundCurve(String value) throws SQLException {
-	super(value);
-    }
-
-    /**
-     * Constructs an instance.
-     * 
-     * @param value
-     * @param haveM
-     * @throws SQLException
-     */
-    public CompoundCurve(String value, boolean haveM) throws SQLException {
-	super(value, haveM);
-    }
+	/**
+	 * Constructs an instance.
+	 * @param geoms geometries
+	 */
+	public CompoundCurve(Collection<? extends Geometry> geoms)
+	{
+		super(COMPOUNDCURVE, geoms);
+		// FIX: check curves
+	}
 
 }

@@ -29,8 +29,12 @@ package io.github.sebasbaumh.postgis;
 
 import java.io.Serializable;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /** The base class of all geometries */
-public abstract class Geometry implements Serializable {
+@NonNullByDefault
+public abstract class Geometry implements Serializable
+{
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
 
@@ -74,14 +78,15 @@ public abstract class Geometry implements Serializable {
 	 * The OGIS geometry type number for feature collections.
 	 */
 	public static final int GEOMETRYCOLLECTION = 7;
-	
+
 	/**
 	 * The OGIS geometry type number for arcs/circles.
 	 */
 	public static final int CIRCULARSTRING = 8;
 
 	/**
-	 * The OGIS geometry type number for single, continuous curves that have both curved (circular) segments and linear segments.
+	 * The OGIS geometry type number for single, continuous curves that have both curved (circular) segments and linear
+	 * segments.
 	 */
 	public static final int COMPOUNDCURVE = 9;
 
@@ -91,26 +96,31 @@ public abstract class Geometry implements Serializable {
 	public static final int CURVEPOLYGON = 10;
 
 	/**
-	 * The OGIS geometry type number for aggregate curves, which can include linear strings, circular strings or compound strings.
+	 * The OGIS geometry type number for aggregate curves, which can include linear strings, circular strings or
+	 * compound strings.
 	 */
 	public static final int MULTICURVE = 11;
 
-	public static final String[] ALLTYPES = new String[] {
-			"", // internally used LinearRing does not have any text in front of
-				// it
-			"POINT", "LINESTRING", "POLYGON", "MULTIPOINT", "MULTILINESTRING",
-			"MULTIPOLYGON", "GEOMETRYCOLLECTION", "CIRCULARSTRING", "COMPOUNDCURVE", "CURVEPOLYGON", "MULTICURVE" };
+	// FIX
+	private static final String[] ALLTYPES = new String[] { "", // internally used LinearRing does not have any text in
+																// front of
+																// it
+			"POINT", "LINESTRING", "POLYGON", "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION",
+			"CIRCULARSTRING", "COMPOUNDCURVE", "CURVEPOLYGON", "MULTICURVE" };
 
 	/**
 	 * The Text representations of the geometry types
-     *
-     * @param type int value of the type to lookup
-     * @return String reprentation of the type.
+	 * @param type int value of the type to lookup
+	 * @return String reprentation of the type.
 	 */
-	public static String getTypeString(int type) {
-		if (type >= 0 && type < ALLTYPES.length) {
+	public static String getTypeString(int type)
+	{
+		if (type >= 0 && type < ALLTYPES.length)
+		{
 			return ALLTYPES[type];
-		} else {
+		}
+		else
+		{
 			throw new IllegalArgumentException("Unknown Geometry type" + type);
 		}
 	}
@@ -127,8 +137,8 @@ public abstract class Geometry implements Serializable {
 	public boolean haveMeasure = false;
 
 	/**
-	 * The OGIS geometry type of this feature. this is final as it never
-	 * changes, it is bound to the subclass of the instance.
+	 * The OGIS geometry type of this feature. this is final as it never changes, it is bound to the subclass of the
+	 * instance.
 	 */
 	public final int type;
 
@@ -144,82 +154,79 @@ public abstract class Geometry implements Serializable {
 
 	/**
 	 * Parse a SRID value, anything {@code <= 0} is unknown
-     *
-     * @param srid the SRID to parse
-     * @return parsed SRID value
+	 * @param srid the SRID to parse
+	 * @return parsed SRID value
 	 */
-	public static int parseSRID(int srid) {
-		if (srid < 0) {
-			/* TODO: raise a warning ? */
+	public static int parseSRID(int srid)
+	{
+		if (srid < 0)
+		{
 			srid = 0;
 		}
 		return srid;
 	}
 
 	/**
-	 * Constructor for subclasses
-	 * 
-	 * @param type
-	 *            has to be given by all subclasses.
+	 * Constructor for subclasses.
+	 * @param type has to be given by all subclasses
 	 */
-	protected Geometry(int type) {
+	protected Geometry(int type)
+	{
 		this.type = type;
 	}
 
 	/**
 	 * java.lang.Object hashCode implementation
 	 */
-	public int hashCode() {
+	//FIX
+	@Override
+	public int hashCode()
+	{
 		return dimension | (type * 4) | (srid * 32);
 	}
 
 	/**
 	 * java.lang.Object equals implementation
-     *
-     * @param other geometry to compare
-     * @return true if equal, false otherwise
+	 * @param other geometry to compare
+	 * @return true if equal, false otherwise
 	 */
-	public boolean equals(Object other) {
-		return (other != null) && (other instanceof Geometry)
-				&& equals((Geometry) other);
+	//FIX
+	@Override
+	public boolean equals(@SuppressWarnings("null") Object other)
+	{
+		return (other instanceof Geometry) && equals((Geometry) other);
 	}
 
 	/**
-	 * geometry specific equals implementation - only defined for non-null
-	 * values
-     *
-     * @param other geometry to compare
-     * @return true if equal, false otherwise
+	 * geometry specific equals implementation - only defined for non-null values
+	 * @param other geometry to compare
+	 * @return true if equal, false otherwise
 	 */
-	public boolean equals(Geometry other) {
-		return (other != null) && (this.dimension == other.dimension)
-				&& (this.type == other.type) && (this.srid == other.srid)
-				&& (this.haveMeasure == other.haveMeasure)
-				&& other.getClass().equals(this.getClass())
+	//FIX
+	public boolean equals(Geometry other)
+	{
+		return (this.dimension == other.dimension) && (this.type == other.type) && (this.srid == other.srid)
+				&& (this.haveMeasure == other.haveMeasure) && other.getClass().equals(this.getClass())
 				&& this.equalsintern(other);
 	}
 
 	/**
-	 * Whether test coordinates for geometry - subclass specific code
-	 * 
-	 * Implementors can assume that dimensin, type, srid and haveMeasure are
-	 * equal, other != null and other is the same subclass.
-	 *
-     * @param other geometry to compare
+	 * Whether test coordinates for geometry - subclass specific code Implementors can assume that dimensin, type, srid
+	 * and haveMeasure are equal, other != null and other is the same subclass.
+	 * @param other geometry to compare
 	 * @return true if equal, false otherwise
 	 */
+	//FIX
 	protected abstract boolean equalsintern(Geometry other);
 
 	/**
 	 * Return the number of Points of the geometry
-	 *
 	 * @return number of points in the geometry
 	 */
 	public abstract int numPoints();
 
 	/**
 	 * Get the nth Point of the geometry
-	 * 
 	 * @param n the index of the point, from 0 to numPoints()-1;
 	 * @return nth point in the geometry
 	 * @throws ArrayIndexOutOfBoundsException in case of an emtpy geometry or bad index.
@@ -228,172 +235,82 @@ public abstract class Geometry implements Serializable {
 
 	/**
 	 * Same as getPoint(0);
-	 *
 	 * @return the initial Point in this geometry
 	 */
 	public abstract Point getFirstPoint();
 
 	/**
 	 * Same as getPoint(numPoints()-1);
-	 *
 	 * @return the final Point in this geometry
 	 */
 	public abstract Point getLastPoint();
 
 	/**
 	 * The OGIS geometry type number of this geometry.
-	 *
 	 * @return int value representation for the type of this geometry
 	 */
-	public int getType() {
+	public int getType()
+	{
 		return this.type;
 	}
 
 	/**
 	 * Return the Type as String
-	 *
 	 * @return String representation for the type of this geometry
 	 */
-	public String getTypeString() {
+	public String getTypeString()
+	{
 		return getTypeString(this.type);
 	}
 
 	/**
 	 * Returns whether we have a measure
-	 *
 	 * @return true if the geometry has a measure, false otherwise
 	 */
-	public boolean isMeasured() {
+	public boolean isMeasured()
+	{
 		return haveMeasure;
 	}
 
 	/**
-	 * Queries the number of geometric dimensions of this geometry. This does
-	 * not include measures, as opposed to the server.
-	 * 
+	 * Queries the number of geometric dimensions of this geometry. This does not include measures, as opposed to the
+	 * server.
 	 * @return The dimensionality (eg, 2D or 3D) of this geometry.
 	 */
-	public int getDimension() {
+	public int getDimension()
+	{
 		return this.dimension;
 	}
 
 	/**
 	 * The OGIS geometry type number of this geometry.
-	 *
 	 * @return the SRID of this geometry
 	 */
-	public int getSrid() {
+	public int getSrid()
+	{
 		return this.srid;
 	}
 
 	/**
-	 * Recursively sets the srid on this geometry and all contained
-	 * subgeometries
-	 *
+	 * Recursively sets the srid on this geometry and all contained subgeometries
 	 * @param srid the SRID for this geometry
 	 */
-	public void setSrid(int srid) {
+	public void setSrid(int srid)
+	{
 		this.srid = srid;
 	}
 
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		if (srid != UNKNOWN_SRID) {
-			sb.append("SRID=");
-			sb.append(srid);
-			sb.append(';');
-		}
-		outerWKT(sb, true);
-		return sb.toString();
-	}
-
 	/**
-	 * Render the WKT version of this Geometry (without SRID) into the given
-	 * StringBuffer.
-	 *
-	 * @param sb StringBuffer to render into
-	 * @param putM flag to indicate if the M character should be used.
-	 */
-	public void outerWKT(StringBuffer sb, boolean putM) {
-		sb.append(getTypeString());
-		if (putM && haveMeasure && dimension == 2) {
-			sb.append('M');
-		}
-		mediumWKT(sb);
-	}
-
-	public final void outerWKT(StringBuffer sb) {
-		outerWKT(sb, true);
-	}
-
-	/**
-	 * Render the WKT without the type name, but including the brackets into the
-	 * StringBuffer
-	 *
-	 * @param sb StringBuffer to render into
-	 */
-	protected void mediumWKT(StringBuffer sb) {
-		sb.append('(');
-		innerWKT(sb);
-		sb.append(')');
-	}
-
-	/**
-	 * Render the "inner" part of the WKT (inside the brackets) into the
-	 * StringBuffer.
-	 *
-	 * @param SB StringBuffer to render into
-	 */
-	protected abstract void innerWKT(StringBuffer SB);
-
-	/**
-	 * backwards compatibility method
-	 *
-	 * @return String representation of the value for the geometry.
-	 */
-	public String getValue() {
-		StringBuffer sb = new StringBuffer();
-		mediumWKT(sb);
-		return sb.toString();
-	}
-
-	/**
-	 * Do some internal consistency checks on the geometry.
-	 * 
-	 * Currently, all Geometries must have a valid dimension (2 or 3) and a
-	 * valid type. 2-dimensional Points must have Z=0.0, as well as non-measured
-	 * Points must have m=0.0. Composed geometries must have all equal SRID,
-	 * dimensionality and measures, as well as that they do not contain NULL or
-	 * inconsistent subgeometries.
-	 * 
-	 * BinaryParser and WKTParser should only generate consistent geometries.
+	 * Do some internal consistency checks on the geometry. Currently, all Geometries must have a valid dimension (2 or
+	 * 3) and a valid type. 2-dimensional Points must have Z=0.0, as well as non-measured Points must have m=0.0.
+	 * Composed geometries must have all equal SRID, dimensionality and measures, as well as that they do not contain
+	 * NULL or inconsistent subgeometries. BinaryParser and WKTParser should only generate consistent geometries.
 	 * BinaryWriter may produce invalid results on inconsistent geometries.
-	 * 
 	 * @return true if all checks are passed.
 	 */
-	public boolean checkConsistency() {
+	public boolean checkConsistency()
+	{
 		return (dimension >= 2 && dimension <= 3) && (type >= 0 && type < ALLTYPES.length);
 	}
 
-	/**
-	 * Splits the SRID=4711; part of a EWKT rep if present and sets the srid.
-	 *
-	 * @param value String value to extract the SRID from
-	 * @return value without the SRID=4711; part
-	 */
-	protected String initSRID(String value) {
-		value = value.trim();
-		if (value.startsWith("SRID=")) {
-			int index = value.indexOf(';', 5); // sridprefix length is 5
-			if (index == -1) {
-				throw new IllegalArgumentException(
-						"Error parsing Geometry - SRID not delimited with ';' ");
-			} else {
-				this.srid = Integer.parseInt(value.substring(5, index));
-				return value.substring(index + 1).trim();
-			}
-		} else {
-			return value;
-		}
-	}
 }

@@ -29,6 +29,10 @@ package io.github.sebasbaumh.postgis;
 
 import java.sql.SQLException;
 
+/**
+ * BOX2D representing the maximum extents of the geometry.
+ * @author Sebastian Baumhekel
+ */
 public class PGbox2d extends PGboxbase {
     /* JDK 1.5 Serialization */
     private static final long serialVersionUID = 0x100;
@@ -45,7 +49,8 @@ public class PGbox2d extends PGboxbase {
         super(value);
     }
 
-    public void setValue(String value) throws SQLException {
+    @Override
+	public void setValue(String value) throws SQLException {
         super.setValue(value);
 
         if (llb.dimension != 2 || urt.dimension != 2) {
@@ -53,15 +58,18 @@ public class PGbox2d extends PGboxbase {
         }
     }
 
-    public String getPrefix() {
+    @Override
+	public String getPrefix() {
         return "BOX";
     }
 
-    public String getPGtype() {
+    @Override
+	public String getPGtype() {
         return "box2d";
     }
 
-    protected PGboxbase newInstance() {
+    @Override
+	protected PGboxbase newInstance() {
         return new PGbox2d();
     }
 }

@@ -1,12 +1,12 @@
 /*
  * CircularString.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - geometry model
- * 
+ *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
- * 
+ *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
  *
  * This library is free software; you can redistribute it and/or
@@ -22,12 +22,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis;
-
-import java.sql.SQLException;
 
 /**
  * The CIRCULARSTRING is the basic curve type, similar to a LINESTRING in the linear world. A single segment required
@@ -38,33 +36,49 @@ import java.sql.SQLException;
  * points greater than 1.
  * @author Sebastian Baumhekel
  */
-public class CircularString extends PointComposedGeom implements LineBasedGeom {
-    /* JDK 1.5 Serialization */
-    private static final long serialVersionUID = 0x100;
+public class CircularString extends LineString
+{
+	/* JDK 1.5 Serialization */
+	private static final long serialVersionUID = 0x100;
 
-    public CircularString() {
-        super(CIRCULARSTRING);
-    }
+	/**
+	 * Constructs an instance.
+	 */
+	public CircularString()
+	{
+		super(CIRCULARSTRING);
+	}
 
-    public CircularString(Point[] points) {
-        super(CIRCULARSTRING, points);
-    }
+	/**
+	 * Constructs an instance.
+	 * @param points points
+	 */
+	public CircularString(Iterable<Point> points)
+	{
+		super(CIRCULARSTRING);
+		addAll(points);
+	}
 
-    public CircularString(String value) throws SQLException {
-        super(CIRCULARSTRING, value);
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeom#length()
+	 */
+	@Override
+	public double length()
+	{
+		// FIX: calculate length
+		return 0;
+	}
 
-    public CircularString(String value, boolean haveM) throws SQLException {
-        super(CIRCULARSTRING, value, haveM);
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineString#reverse()
+	 */
+	@Override
+	public void reverse()
+	{
+		// TODO Auto-generated method stub
+		super.reverse();
+	}
 
-    /* (non-Javadoc)
-     * @see io.github.sebasbaumh.postgis.LineBasedGeom#length()
-     */
-    @Override
-    public double length() {
-	//FIX: calculate length
-	return 0;
-    }
-    
 }

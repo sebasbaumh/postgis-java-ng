@@ -1,12 +1,12 @@
 /*
  * MultiPoint.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - geometry model
- * 
+ *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
- * 
+ *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
  *
  * This library is free software; you can redistribute it and/or
@@ -22,30 +22,36 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis;
 
-import java.sql.SQLException;
+import java.util.Collection;
 
-public class MultiPoint extends PointComposedGeom {
-    /* JDK 1.5 Serialization */
-    private static final long serialVersionUID = 0x100;
+/**
+ * A multi point.
+ * @author Sebastian Baumhekel
+ */
+public class MultiPoint extends MultiGeometry<Point>
+{
+	/* JDK 1.5 Serialization */
+	private static final long serialVersionUID = 0x100;
 
-    public MultiPoint() {
-        super(MULTIPOINT);
-    }
+	/**
+	 * Constructs an instance.
+	 */
+	public MultiPoint()
+	{
+		super(MULTIPOINT);
+	}
 
-    public MultiPoint(Point[] points) {
-        super(MULTIPOINT, points);
-    }
-
-    public MultiPoint(String value) throws SQLException {
-        this(value, false);
-    }
-
-    protected MultiPoint(String value, boolean haveM) throws SQLException {
-        super(MULTIPOINT, value, haveM);
-    }
+	/**
+	 * Constructs an instance.
+	 * @param points points
+	 */
+	public MultiPoint(Collection<Point> points)
+	{
+		super(MULTIPOINT, points);
+	}
 }

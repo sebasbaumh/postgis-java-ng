@@ -30,6 +30,10 @@ package io.github.sebasbaumh.postgis;
 
 import java.sql.SQLException;
 
+/**
+ * BOX3D representing the maximum extents of the geometry.
+ * @author Sebastian Baumhekel
+ */
 public class PGbox3d extends PGboxbase {
     /* JDK 1.5 Serialization */
     private static final long serialVersionUID = 0x100;
@@ -46,15 +50,18 @@ public class PGbox3d extends PGboxbase {
         super(value);
     }
 
-    public String getPrefix() {
+    @Override
+	public String getPrefix() {
         return ("BOX3D");
     }
 
-    public String getPGtype() {
+    @Override
+	public String getPGtype() {
         return ("box3d");
     }
 
-    protected PGboxbase newInstance() {
+    @Override
+	protected PGboxbase newInstance() {
         return new PGbox3d();
     }
 }

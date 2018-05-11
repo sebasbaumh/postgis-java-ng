@@ -1,5 +1,5 @@
 # PostGIS Java bindings (Next Generation)
-This project contains Java bindings for using PostGIS geometries coming from a PostgreSQL database.
+This project contains Java bindings for using [PostGIS](https://postgis.net/) geometries coming from a [PostgreSQL](https://www.postgresql.org/) database.
 
 This project is based on [postgis-java](https://github.com/postgis/postgis-java) and I want to thank its authors for their work.
 

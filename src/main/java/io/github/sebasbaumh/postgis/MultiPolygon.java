@@ -1,12 +1,12 @@
 /*
  * MultiPolygon.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - geometry model
- * 
+ *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
- * 
+ *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
  *
  * This library is free software; you can redistribute it and/or
@@ -22,54 +22,35 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis;
 
-import java.sql.SQLException;
+/**
+ * A multi polygon.
+ * @author Sebastian Baumhekel
+ */
+public class MultiPolygon extends MultiGeometry<Polygon>
+{
+	/* JDK 1.5 Serialization */
+	private static final long serialVersionUID = 0x100;
 
-public class MultiPolygon extends ComposedGeom {
-    /* JDK 1.5 Serialization */
-    private static final long serialVersionUID = 0x100;
+	/**
+	 * Constructs an instance.
+	 */
+	public MultiPolygon()
+	{
+		super(MULTIPOLYGON);
+	}
 
-    public MultiPolygon() {
-        super(MULTIPOLYGON);
-    }
+	/**
+	 * Constructs an instance.
+	 * @param polygons polygons
+	 */
+	public MultiPolygon(Iterable<Polygon> polygons)
+	{
+		super(MULTIPOLYGON, polygons);
+	}
 
-    public MultiPolygon(Polygon[] polygons) {
-        super(MULTIPOLYGON, polygons);
-    }
-
-    public MultiPolygon(String value) throws SQLException {
-        this(value, false);
-    }
-
-    protected MultiPolygon(String value, boolean haveM) throws SQLException {
-        super(MULTIPOLYGON, value, haveM);
-    }
-
-    protected Geometry[] createSubGeomArray(int npolygons) {
-        return new Polygon[npolygons];
-    }
-
-    protected Geometry createSubGeomInstance(String token, boolean haveM) throws SQLException {
-        return new Polygon(token, haveM);
-    }
-
-    public int numPolygons() {
-        return subgeoms.length;
-    }
-
-    public Polygon getPolygon(int idx) {
-        if (idx >= 0 & idx < subgeoms.length) {
-            return (Polygon) subgeoms[idx];
-        } else {
-            return null;
-        }
-    }
-    
-    public Polygon[] getPolygons() {
-        return (Polygon[]) subgeoms;
-    }
 }
