@@ -33,6 +33,24 @@ public abstract class DatabaseTest
 	private String jdbcUsername;
 
 	/**
+	 * Will be called after the database has been setup.
+	 * @throws SQLException
+	 */
+	@SuppressWarnings("unused")
+	protected void afterDatabaseSetup() throws SQLException
+	{
+	}
+
+	/**
+	 * Will be called before the database will be shutdown.
+	 * @throws SQLException
+	 */
+	@SuppressWarnings("unused")
+	protected void beforeDatabaseShutdown() throws SQLException
+	{
+	}
+
+	/**
 	 * Gets a {@link Connection} to the database.
 	 * @return {@link Connection}
 	 * @throws SQLException
@@ -83,6 +101,7 @@ public abstract class DatabaseTest
 			ds = DataSources.unpooledDataSource(jdbcUrl);
 		}
 		Assert.assertNotNull(ds);
+		afterDatabaseSetup();
 	}
 
 	/**
@@ -92,6 +111,7 @@ public abstract class DatabaseTest
 	@After
 	public void shutdownDatabase() throws Exception
 	{
+		beforeDatabaseShutdown();
 		if (ds instanceof AutoCloseable)
 		{
 			((AutoCloseable) ds).close();
