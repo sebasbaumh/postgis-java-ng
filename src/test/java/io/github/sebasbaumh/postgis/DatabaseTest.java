@@ -1,6 +1,8 @@
 package io.github.sebasbaumh.postgis;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
@@ -58,6 +60,31 @@ public abstract class DatabaseTest
 	protected Connection getConnection() throws SQLException
 	{
 		return ds.getConnection();
+	}
+
+	/**
+	 * Converts the given WKT string to WKB.
+	 * @param wkt WKT
+	 * @return WKB on success, else null
+	 * @throws SQLException
+	 */
+	protected String getWKBFromWKT(String wkt) throws SQLException
+	{
+		try (Connection conn = getConnection())
+		{
+			try (PreparedStatement pst = conn.prepareStatement("SELECT st_geomfromewkt(?)"))
+			{
+				pst.setString(1, wkt);
+				try (ResultSet rs = pst.executeQuery())
+				{
+					if (rs.next())
+					{
+						return rs.getString(1);
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

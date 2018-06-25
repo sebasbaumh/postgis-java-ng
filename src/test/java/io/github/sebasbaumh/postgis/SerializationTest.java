@@ -34,7 +34,8 @@ import java.io.ObjectOutputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SerializationTest
+@SuppressWarnings("javadoc")
+public class SerializationTest extends DatabaseTest
 {
 
 	@Test
@@ -43,7 +44,7 @@ public class SerializationTest
 		try
 		{
 			new ObjectOutputStream(new ByteArrayOutputStream())
-					.writeObject(new PGgeometry("MULTIPOLYGON(((1 1,1 2,2 1,1 1)))"));
+					.writeObject(new PGgeometry(getWKBFromWKT("MULTIPOLYGON(((1 1,1 2,2 1,1 1)))")));
 		}
 		catch (NotSerializableException ex)
 		{

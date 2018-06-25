@@ -33,7 +33,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,8 +49,6 @@ public class ParserTest extends DatabaseTest
 	private static final Logger logger = LoggerFactory.getLogger(ParserTest.class);
 
 	private static final String DRIVER_WRAPPER_CLASS_NAME = "io.github.sebasbaumh.postgis.DriverWrapper";
-
-	private static final String DRIVER_WRAPPER_AUTOPROBE_CLASS_NAME = "io.github.sebasbaumh.postgis.DriverWrapperAutoprobe";
 
 	/** The srid we use for the srid tests */
 	public static final int SRID = 4326;
@@ -120,17 +117,17 @@ public class ParserTest extends DatabaseTest
 			{ ONLY10, // Cannot be parsed by 0.X servers, OGC conformant
 					"GEOMETRYCOLLECTION(MULTIPOINT((10 10 10), (20 20 20)),MULTIPOINT((10 10 10), (20 20 20)))" },
 			{ EQUAL10, // PostGIs 0.X "flattens" this geometry, so it is not
-					// equal after reparsing.
+						// equal after reparsing.
 					"GEOMETRYCOLLECTION(MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
 			{ EQUAL10, // PostGIs 0.X "flattens" this geometry, so it is not equal
-					// after reparsing.
+						// after reparsing.
 					"GEOMETRYCOLLECTION(MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))))" },
 			{ ALL, "GEOMETRYCOLLECTION(POINT(10 10 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
 			{ ONLY10, // Collections that contain both X and MultiX do not work on
-					// PostGIS 0.x, broken format
+						// PostGIS 0.x, broken format
 					"GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT(10 10 10, 20 20 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
 			{ ONLY10, // Collections that contain both X and MultiX do not work on
-					// PostGIS 0.x, OGC conformant
+						// PostGIS 0.x, OGC conformant
 					"GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT((10 10 10), (20 20 20)),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
 			{ ALL, // new (correct) representation
 					"GEOMETRYCOLLECTION EMPTY" },
@@ -184,137 +181,86 @@ public class ParserTest extends DatabaseTest
 		Geometry regeom = PGgeometry.geomFromString(parsed);
 		String reparsed = regeom.toString();
 		logger.debug("Re-Parsed: {}", reparsed);
-		Assert.assertEquals(geom, regeom, "Geometries are not equal");
-		Assert.assertEquals(reparsed, parsed, "Text Reps are not equal");
+		Assert.assertEquals("Geometries are not equal", geom, regeom);
+		Assert.assertEquals("Text Reps are not equal", reparsed, parsed);
 
 		String hexNWKT = binaryWriter.writeHexed(regeom, ValueSetter.NDR.NUMBER);
 		logger.debug("NDRHex: {}", hexNWKT);
 		regeom = PGgeometry.geomFromString(hexNWKT);
 		logger.debug("ReNDRHex: {}", regeom);
-		Assert.assertEquals(geom, regeom, "Geometries are not equal");
+		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
 		String hexXWKT = binaryWriter.writeHexed(regeom, ValueSetter.XDR.NUMBER);
 		logger.debug("XDRHex: {}", hexXWKT);
 		regeom = PGgeometry.geomFromString(hexXWKT);
 		logger.debug("ReXDRHex: {}", regeom);
-		Assert.assertEquals(geom, regeom, "Geometries are not equal");
+		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
 		byte[] NWKT = binaryWriter.writeBinary(regeom, ValueSetter.NDR.NUMBER);
 		regeom = binaryParser.parse(NWKT);
 		logger.debug("NDR: {}", regeom);
-		Assert.assertEquals(geom, regeom, "Geometries are not equal");
+		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
 		byte[] XWKT = binaryWriter.writeBinary(regeom, ValueSetter.XDR.NUMBER);
 		regeom = binaryParser.parse(XWKT);
 		logger.debug("XDR: {}", regeom);
-		Assert.assertEquals(geom, regeom, "Geometries are not equal");
+		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
-		if (testWithDatabase)
+		logger.debug("Testing on connection {}", connection.getCatalog());
+
+		Geometry sqlGeom = viaSQL(WKT);
+		logger.debug("SQLin: {}", sqlGeom);
+		if (!geom.equals(sqlGeom))
 		{
-			int serverPostgisMajor = AutoRegistrationTest.getPostgisMajor(statement);
-
-			if ((Objects.equals(flags, ONLY10)) && serverPostgisMajor < 1)
-			{
-				logger.info("PostGIS server too old, skipping test on database connection {}", connection.getCatalog());
-			}
-			else
-			{
-				logger.debug("Testing on connection {}", connection.getCatalog());
-
-				Geometry sqlGeom = viaSQL(WKT);
-				logger.debug("SQLin: {}", sqlGeom);
-				if (!geom.equals(sqlGeom))
-				{
-					logger.warn("Geometries after SQL are not equal");
-					if (Objects.equals(flags, EQUAL10) && serverPostgisMajor < 1)
-					{
-						logger.info("This is expected with PostGIS {}.X", serverPostgisMajor);
-					}
-					else
-					{
-						Assert.fail();
-					}
-				}
-
-				Geometry sqlreGeom = viaSQL(parsed);
-				logger.debug("SQLout: {}", sqlreGeom);
-				if (!geom.equals(sqlreGeom))
-				{
-					logger.warn("Reparsed Geometries after SQL are not equal!");
-					if (Objects.equals(flags, EQUAL10) && serverPostgisMajor < 1)
-					{
-						logger.info("This is expected with PostGIS {}.X", serverPostgisMajor);
-					}
-					else
-					{
-						Assert.fail();
-					}
-				}
-
-				sqlreGeom = viaPrepSQL(geom, connection);
-				logger.debug("Prepared: {}", sqlreGeom.toString());
-				if (!geom.equals(sqlreGeom))
-				{
-					logger.warn("Reparsed Geometries after prepared StatementSQL are not equal!");
-					if (Objects.equals(flags, EQUAL10) && serverPostgisMajor < 1)
-					{
-						logger.info("This is expected with PostGIS {}.X", serverPostgisMajor);
-					}
-					else
-					{
-						Assert.fail();
-					}
-				}
-
-				// asEWKT() function is not present on PostGIS 0.X, and the test
-				// is pointless as 0.X uses EWKT as canonical rep so the same
-				// functionality was already tested above.
-				if (serverPostgisMajor >= 1)
-				{
-					sqlGeom = ewktViaSQL(WKT, statement);
-					logger.debug("asEWKT: {}", sqlGeom);
-					Assert.assertEquals(geom, sqlGeom);
-				}
-
-				// asEWKB() function is not present on PostGIS 0.X.
-				if (serverPostgisMajor >= 1)
-				{
-					sqlGeom = ewkbViaSQL(WKT, statement);
-					logger.debug("asEWKB: {}", sqlGeom);
-					Assert.assertEquals(geom, sqlGeom);
-				}
-
-				// HexEWKB parsing is not present on PostGIS 0.X.
-				if (serverPostgisMajor >= 1)
-				{
-					sqlGeom = viaSQL(hexNWKT);
-					logger.debug("hexNWKT: {}", sqlGeom);
-					Assert.assertEquals(geom, sqlGeom);
-				}
-
-				if (serverPostgisMajor >= 1)
-				{
-					sqlGeom = viaSQL(hexXWKT);
-					logger.debug("hexXWKT: {}", sqlGeom);
-					Assert.assertEquals(geom, sqlGeom);
-				}
-
-				// Canonical binary input is not present before 1.0
-				if (serverPostgisMajor >= 1)
-				{
-					sqlGeom = binaryViaSQL(NWKT, connection);
-					logger.debug("NWKT: {}", sqlGeom);
-					Assert.assertEquals(geom, sqlGeom);
-				}
-
-				if (serverPostgisMajor >= 1)
-				{
-					sqlGeom = binaryViaSQL(XWKT, connection);
-					logger.debug("XWKT: {}", sqlGeom);
-					Assert.assertEquals(geom, sqlGeom);
-				}
-			}
+			logger.warn("Geometries after SQL are not equal");
+			Assert.fail();
 		}
+
+		Geometry sqlreGeom = viaSQL(parsed);
+		logger.debug("SQLout: {}", sqlreGeom);
+		if (!geom.equals(sqlreGeom))
+		{
+			logger.warn("Reparsed Geometries after SQL are not equal!");
+			Assert.fail();
+		}
+
+		sqlreGeom = viaPrepSQL(geom, connection);
+		logger.debug("Prepared: {}", sqlreGeom.toString());
+		if (!geom.equals(sqlreGeom))
+		{
+			logger.warn("Reparsed Geometries after prepared StatementSQL are not equal!");
+			Assert.fail();
+		}
+
+		// asEWKT() function is not present on PostGIS 0.X, and the test
+		// is pointless as 0.X uses EWKT as canonical rep so the same
+		// functionality was already tested above.
+		sqlGeom = ewktViaSQL(WKT, statement);
+		logger.debug("asEWKT: {}", sqlGeom);
+		Assert.assertEquals(geom, sqlGeom);
+
+		// asEWKB() function is not present on PostGIS 0.X.
+		sqlGeom = ewkbViaSQL(WKT, statement);
+		logger.debug("asEWKB: {}", sqlGeom);
+		Assert.assertEquals(geom, sqlGeom);
+
+		// HexEWKB parsing is not present on PostGIS 0.X.
+		sqlGeom = viaSQL(hexNWKT);
+		logger.debug("hexNWKT: {}", sqlGeom);
+		Assert.assertEquals(geom, sqlGeom);
+
+		sqlGeom = viaSQL(hexXWKT);
+		logger.debug("hexXWKT: {}", sqlGeom);
+		Assert.assertEquals(geom, sqlGeom);
+
+		// Canonical binary input is not present before 1.0
+		sqlGeom = binaryViaSQL(NWKT, connection);
+		logger.debug("NWKT: {}", sqlGeom);
+		Assert.assertEquals(geom, sqlGeom);
+
+		sqlGeom = binaryViaSQL(XWKT, connection);
+		logger.debug("XWKT: {}", sqlGeom);
+		Assert.assertEquals(geom, sqlGeom);
 	}
 
 	/** Pass a geometry representation through the SQL server */
