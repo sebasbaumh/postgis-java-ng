@@ -25,32 +25,10 @@
 
 package io.github.sebasbaumh.postgis.binary;
 
-public abstract class ByteGetter {
-    /**
-     * Get a byte.
-     *
-     * @param index the index to get the value from
-     * @return The result is returned as Int to eliminate sign problems when
-     *         or'ing several values together.
-     */
-    public abstract int get(int index);
-
-    public static class BinaryByteGetter extends ByteGetter {
-        private final byte[] array;
-
-        public BinaryByteGetter(byte[] array) {
-            this.array = array;
-        }
-
-        public int get(int index) {
-            return array[index] & 0xFF; // mask out sign-extended bits.
-        }
-    }
-
-    public static class StringByteGetter extends ByteGetter {
+public class ByteGetter {
         private final String rep;
 
-        public StringByteGetter(String rep) {
+        public ByteGetter(String rep) {
             this.rep = rep;
         }
 
@@ -72,5 +50,15 @@ public abstract class ByteGetter {
                 throw new IllegalArgumentException("No valid Hex char " + c);
             }
         }
-    }
+        
+        public byte[] getBytes()
+        {
+        	byte[] data=new byte[rep.length()/2];
+        	for(int i=0;i<rep.length()/2;i++)
+        	{
+        		data[i]=(byte)get(i);
+        	}
+        	return data;
+        }
+        
 }

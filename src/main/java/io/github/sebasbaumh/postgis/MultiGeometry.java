@@ -1,6 +1,7 @@
 package io.github.sebasbaumh.postgis;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -136,6 +137,25 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 		return subgeoms.get(0).getFirstPoint();
 	}
 
+	/**
+	 * Gets all geometries.
+	 * @return geometries
+	 */
+	public Collection<T> getGeometries()
+	{
+		return subgeoms;
+	}
+
+	/**
+	 * Gets the sub geometry at the given index.
+	 * @param index index
+	 * @return sub geometry
+	 */
+	public T getGeometry(int index)
+	{
+		return subgeoms.get(index);
+	}
+
 	@Override
 	public Point getLastPoint()
 	{
@@ -169,16 +189,6 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 			}
 			throw new ArrayIndexOutOfBoundsException("Index too large!");
 		}
-	}
-
-	/**
-	 * Gets the sub geometry at the given index.
-	 * @param index index
-	 * @return sub geometry
-	 */
-	public Geometry getSubGeometry(int index)
-	{
-		return subgeoms.get(index);
 	}
 
 	@Override

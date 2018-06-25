@@ -59,7 +59,37 @@ public abstract class DatabaseTest
 	 */
 	protected Connection getConnection() throws SQLException
 	{
+		Assert.assertNotNull("the following property need to be configured for using a connection: "+CONFIG_JDBC_URL,ds);
 		return ds.getConnection();
+	}
+
+	/**
+	 * Converts the given WKT string to a {@link Geometry}.
+	 * @param wkt WKT
+	 * @return {@link Geometry}
+	 * @throws SQLException
+	 */
+	protected Geometry getGeometryFromWKT(String wkt) throws SQLException
+	{
+		try (Connection conn = getConnection())
+		{
+			try (PreparedStatement pst = conn.prepareStatement("SELECT st_geomfromewkt(?)"))
+			{
+				pst.setString(1, wkt);
+				try (ResultSet rs = pst.executeQuery())
+				{
+					if (rs.next())
+					{
+						Object o = rs.getObject(1);
+						if (o instanceof PGgeometry)
+						{
+							return ((PGgeometry) o).getGeometry();
+						}
+					}
+				}
+			}
+		}
+		throw new IllegalArgumentException("could not get geometry for wkt: " + wkt);
 	}
 
 	/**
@@ -88,6 +118,41 @@ public abstract class DatabaseTest
 	}
 
 	/**
+	 * Converts the given {@link Geometry} to a WKT string.
+	 * @param geom {@link Geometry}
+	 * @return WKT string
+	 * @throws SQLException
+	 */
+	protected String getWKTFromGeometry(Geometry geom) throws SQLException
+	{
+		PGgeometry pgeom = new PGgeometry(geom);
+		try (Connection conn = getConnection())
+		{
+			try (PreparedStatement pst = conn.prepareStatement("SELECT st_astext(?)"))
+			{
+				pst.setObject(1, pgeom);
+				try (ResultSet rs = pst.executeQuery())
+				{
+					if (rs.next())
+					{
+						return rs.getString(1);
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Checks, if a database is available.
+	 * @return true on success, else false
+	 */
+	protected boolean hasDatabase()
+	{
+		return ds!=null;
+	}
+
+	/**
 	 * Initializes the database.
 	 * @throws SQLException
 	 */
@@ -98,37 +163,39 @@ public abstract class DatabaseTest
 	{
 		// load connection details
 		jdbcUrl = System.getProperty(CONFIG_JDBC_URL);
-		Assert.assertNotNull("JDBC Url needs to be configured using " + CONFIG_JDBC_URL, jdbcUrl);
-		jdbcUsername = System.getProperty(CONFIG_JDBC_USERNAME);
-		jdbcPassword = System.getProperty(CONFIG_JDBC_PASSWORD);
-		// load driver
-		try
+		if(jdbcUrl!=null)
 		{
-			Class.forName(DRIVER_CLASS_NAME);
+			jdbcUsername = System.getProperty(CONFIG_JDBC_USERNAME);
+			jdbcPassword = System.getProperty(CONFIG_JDBC_PASSWORD);
+			// load driver
+			try
+			{
+				Class.forName(DRIVER_CLASS_NAME);
+			}
+			catch (ClassNotFoundException e)
+			{
+				throw new SQLException(e);
+			}
+	
+			// disable C3p0 log spamming
+			// the function is still working and the only workaround would be to set properties on the log4j logger, but it
+			// could also be another type if log4j is not available...
+			MLog.getLogger("com.mchange.v2").setLevel(MLevel.WARNING);
+			System.setProperty("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "WARNING");
+			System.setProperty("com.mchange.v2.log.MLog", "log4j");
+	
+			// construct datasource
+			if ((jdbcUsername != null) && !jdbcUsername.trim().isEmpty())
+			{
+				ds = DataSources.unpooledDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
+			}
+			else
+			{
+				ds = DataSources.unpooledDataSource(jdbcUrl);
+			}
+			Assert.assertNotNull(ds);
+			afterDatabaseSetup();
 		}
-		catch (ClassNotFoundException e)
-		{
-			throw new SQLException(e);
-		}
-
-		// disable C3p0 log spamming
-		// the function is still working and the only workaround would be to set properties on the log4j logger, but it
-		// could also be another type if log4j is not available...
-		MLog.getLogger("com.mchange.v2").setLevel(MLevel.WARNING);
-		System.setProperty("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "WARNING");
-		System.setProperty("com.mchange.v2.log.MLog", "log4j");
-
-		// construct datasource
-		if ((jdbcUsername != null) && !jdbcUsername.trim().isEmpty())
-		{
-			ds = DataSources.unpooledDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
-		}
-		else
-		{
-			ds = DataSources.unpooledDataSource(jdbcUrl);
-		}
-		Assert.assertNotNull(ds);
-		afterDatabaseSetup();
 	}
 
 	/**

@@ -39,51 +39,21 @@ import org.slf4j.LoggerFactory;
  * This class contains tests for handling of empty geometries.
  * @author Phillip Ross {@literal <phillip.r.g.ross@gmail.com>}
  */
+@SuppressWarnings("javadoc")
 public class EmptyGeometriesTest extends DatabaseTest
 {
+	private static final String[] castTypes = new String[] { "bytea", "text", "geometry" };
 
-	private static final Logger logger = LoggerFactory.getLogger(EmptyGeometriesTest.class);
-
-	private static final String DRIVER_WRAPPER_CLASS_NAME = "io.github.sebasbaumh.postgis.DriverWrapper";
-
-	public static final String[] geometriesToTest = new String[] { "POINT", "LINESTRING", "POLYGON", "MULTIPOINT",
+	private static final String[] geometriesToTest = new String[] { "POINT", "LINESTRING", "POLYGON", "MULTIPOINT",
 			"MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION", };
 
-	public static final String[] castTypes = new String[] { "bytea", "text", "geometry" };
-
-	private boolean testWithDatabase = false;
+	private static final Logger logger = LoggerFactory.getLogger(EmptyGeometriesTest.class);
 
 	private Connection connection = null;
 
 	private Statement statement = null;
 
-	@Test
-	public void testSqlStatements() throws SQLException
-	{
-		if (testWithDatabase)
-		{
-			for (String sqlStatement : generateSqlStatements())
-			{
-				logger.debug("**********");
-				logger.debug("* Executing sql statemnent => [{}]", sqlStatement);
-				logger.debug("**********");
-				try (PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-						ResultSet resultSet = preparedStatement.executeQuery())
-				{
-					resultSet.next();
-					for (int i = 1; i <= 3; i++)
-					{
-						Object resultSetObject = resultSet.getObject(i);
-						logger.debug("returned resultSetObject {} => (class=[{}]) {}", i,
-								resultSetObject.getClass().getName(), resultSetObject);
-					}
-					resultSet.close();
-				}
-			}
-		}
-	}
-
-	private List<String> generateSqlStatements()
+	private static List<String> generateSqlStatements()
 	{
 		List<String> sqlStatementList = new ArrayList<>();
 		for (String geometry : geometriesToTest)
@@ -126,6 +96,33 @@ public class EmptyGeometriesTest extends DatabaseTest
 		if ((connection != null) && (!connection.isClosed()))
 		{
 			connection.close();
+		}
+	}
+
+	@Test
+	public void testSqlStatements() throws SQLException
+	{
+		if (!hasDatabase())
+		{
+			return;
+		}
+		for (String sqlStatement : generateSqlStatements())
+		{
+			logger.debug("**********");
+			logger.debug("* Executing sql statemnent => [{}]", sqlStatement);
+			logger.debug("**********");
+			try (PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+					ResultSet resultSet = preparedStatement.executeQuery())
+			{
+				resultSet.next();
+				for (int i = 1; i <= 3; i++)
+				{
+					Object resultSetObject = resultSet.getObject(i);
+					logger.debug("returned resultSetObject {} => (class=[{}]) {}", i,
+							resultSetObject.getClass().getName(), resultSetObject);
+				}
+				resultSet.close();
+			}
 		}
 	}
 

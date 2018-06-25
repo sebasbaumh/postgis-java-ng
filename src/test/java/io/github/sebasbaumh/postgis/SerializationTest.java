@@ -41,6 +41,10 @@ public class SerializationTest extends DatabaseTest
 	@Test
 	public void serializationCheckPGgeometry() throws Exception
 	{
+		if (!hasDatabase())
+		{
+			return;
+		}
 		try
 		{
 			new ObjectOutputStream(new ByteArrayOutputStream())

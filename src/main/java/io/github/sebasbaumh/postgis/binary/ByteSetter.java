@@ -1,12 +1,12 @@
 /*
  * ByteSetter.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - Binary Parser
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
  *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -20,69 +20,37 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis.binary;
 
-public abstract class ByteSetter {
+public class ByteSetter
+{
+	/**
+	 * Characters for converting data to hex strings.
+	 */
+	private static final char[] HEX_CHAR = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C',
+			'D', 'E', 'F' };
+	private final StringBuilder sb = new StringBuilder();
 
-    /**
-     * Set a byte.
-     *
-     * @param b byte value to set with
-     * @param index index to set
-     */
-    public abstract void set(byte b, int index);
+	public ByteSetter()
+	{
+	}
 
-    public static class BinaryByteSetter extends ByteSetter {
-        private byte[] array;
+	/**
+	 * Writes a byte.
+	 * @param b byte value to set with
+	 */
+	public void write(byte b)
+	{
+		sb.append(HEX_CHAR[(b >>> 4) & 0xF]);
+		sb.append(HEX_CHAR[b & 0xF]);
+	}
 
-        public BinaryByteSetter(int length) {
-            this.array = new byte[length];
-        }
-
-        public void set(byte b, int index) {
-            array[index] = b; // mask out sign-extended bits.
-        }
-
-        public byte[] result() {
-            return array;
-        }
-        
-        public String toString() {
-            char[] arr = new char[array.length];
-            for (int i=0; i<array.length; i++) {
-                arr[i] = (char)(array[i]&0xFF);
-            }
-            return new String(arr);
-        }
-    }
-
-    public static class StringByteSetter extends ByteSetter {
-        protected static final char[] hextypes = "0123456789ABCDEF".toCharArray();
-        private char[] rep;
-
-        public StringByteSetter(int length) {
-            this.rep = new char[length * 2];
-        }
-
-        public void set(byte b, int index) {
-            index *= 2;
-            rep[index] = hextypes[(b >>> 4) & 0xF];
-            rep[index + 1] = hextypes[b & 0xF];
-        }
-
-        public char[] resultAsArray() {
-            return rep;
-        }
-
-        public String result() {
-            return new String(rep);
-        }
-        
-        public String toString() {
-            return new String(rep);
-        }
-    }
+	@Override
+	public String toString()
+	{
+		return sb.toString();
+	}
 }

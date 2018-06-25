@@ -41,6 +41,8 @@ import org.slf4j.LoggerFactory;
 
 import io.github.sebasbaumh.postgis.binary.BinaryParser;
 import io.github.sebasbaumh.postgis.binary.BinaryWriter;
+import io.github.sebasbaumh.postgis.binary.ByteGetter;
+import io.github.sebasbaumh.postgis.binary.ByteSetter;
 import io.github.sebasbaumh.postgis.binary.ValueSetter;
 
 public class ParserTest extends DatabaseTest
@@ -48,23 +50,21 @@ public class ParserTest extends DatabaseTest
 
 	private static final Logger logger = LoggerFactory.getLogger(ParserTest.class);
 
-	private static final String DRIVER_WRAPPER_CLASS_NAME = "io.github.sebasbaumh.postgis.DriverWrapper";
-
 	/** The srid we use for the srid tests */
-	public static final int SRID = 4326;
+	private static final int SRID = 4326;
 
 	/** The string prefix we get for the srid tests */
-	public static final String SRIDPREFIX = "SRID=" + SRID + ";";
+	private static final String SRIDPREFIX = "SRID=" + SRID + ";";
 
 	// FIX: add tests here
 
 	/**
 	 * Our set of geometries to test.
 	 */
-	public static final String ALL = "ALL";
-	public static final String ONLY10 = "ONLY10";
-	public static final String EQUAL10 = "EQUAL10";
-	public static final String[][] testset = new String[][] { { ALL, // 2D
+	private static final String ALL = "ALL";
+	private static final String ONLY10 = "ONLY10";
+	private static final String EQUAL10 = "EQUAL10";
+	private static final String[][] testset = new String[][] { { ALL, // 2D
 			"POINT(10 10)" },
 			{ ALL, // 3D with 3rd coordinate set to 0
 					"POINT(10 10 0)" },
@@ -137,7 +137,7 @@ public class ParserTest extends DatabaseTest
 			// end
 	};
 
-	public static final String[][] testSetNonWorking = new String[][] { { ALL, // Old (bad) PostGIS 0.X Representation
+	private static final String[][] testSetNonWorking = new String[][] { { ALL, // Old (bad) PostGIS 0.X Representation
 			"GEOMETRYCOLLECTION(EMPTY)" },
 			{ ONLY10, // new (correct) representation - does not work on 0.X
 					"POINT EMPTY" },
@@ -152,12 +152,6 @@ public class ParserTest extends DatabaseTest
 			{ ONLY10, // new (correct) representation - does not work on 0.X
 					"MULTIPOLYGON EMPTY" } };
 
-	private static BinaryParser binaryParser = new BinaryParser();
-
-	private static final BinaryWriter binaryWriter = new BinaryWriter();
-
-	private boolean testWithDatabase = false;
-
 	private Connection connection = null;
 
 	private Statement statement = null;
@@ -165,6 +159,10 @@ public class ParserTest extends DatabaseTest
 	@Test
 	public void testParser() throws Exception
 	{
+		if (!hasDatabase())
+		{
+			return;
+		}
 		for (String[] aTestset : testset)
 		{
 			test(aTestset[1], aTestset[0]);
@@ -172,37 +170,37 @@ public class ParserTest extends DatabaseTest
 		}
 	}
 
-	public void test(String WKT, String flags) throws SQLException
+	private void test(String WKT, String flags) throws SQLException
 	{
 		logger.debug("Original: {} ", WKT);
-		Geometry geom = PGgeometry.geomFromString(WKT);
-		String parsed = geom.toString();
+		Geometry geom = getGeometryFromWKT(WKT);
+		String parsed = getWKTFromGeometry(geom);
 		logger.debug("Parsed: {}", parsed);
-		Geometry regeom = PGgeometry.geomFromString(parsed);
-		String reparsed = regeom.toString();
+		Geometry regeom = getGeometryFromWKT(parsed);
+		String reparsed = getWKTFromGeometry(regeom);
 		logger.debug("Re-Parsed: {}", reparsed);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 		Assert.assertEquals("Text Reps are not equal", reparsed, parsed);
 
-		String hexNWKT = binaryWriter.writeHexed(regeom, ValueSetter.NDR.NUMBER);
+		String hexNWKT = BinaryWriter.writeHexed(regeom, ValueSetter.NDR.NUMBER);
 		logger.debug("NDRHex: {}", hexNWKT);
-		regeom = PGgeometry.geomFromString(hexNWKT);
+		regeom = getGeometryFromWKT(hexNWKT);
 		logger.debug("ReNDRHex: {}", regeom);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
-		String hexXWKT = binaryWriter.writeHexed(regeom, ValueSetter.XDR.NUMBER);
+		String hexXWKT = BinaryWriter.writeHexed(regeom, ValueSetter.XDR.NUMBER);
 		logger.debug("XDRHex: {}", hexXWKT);
-		regeom = PGgeometry.geomFromString(hexXWKT);
+		regeom = getGeometryFromWKT(hexXWKT);
 		logger.debug("ReXDRHex: {}", regeom);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
-		byte[] NWKT = binaryWriter.writeBinary(regeom, ValueSetter.NDR.NUMBER);
-		regeom = binaryParser.parse(NWKT);
+		byte[] NWKT = hexToEWKB(BinaryWriter.writeHexed(regeom, ValueSetter.NDR.NUMBER));
+		regeom = BinaryParser.parse(EWKBToHex(NWKT));
 		logger.debug("NDR: {}", regeom);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
-		byte[] XWKT = binaryWriter.writeBinary(regeom, ValueSetter.XDR.NUMBER);
-		regeom = binaryParser.parse(XWKT);
+		byte[] XWKT = hexToEWKB(BinaryWriter.writeHexed(regeom, ValueSetter.XDR.NUMBER));
+		regeom = BinaryParser.parse(EWKBToHex(XWKT));
 		logger.debug("XDR: {}", regeom);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
@@ -225,7 +223,7 @@ public class ParserTest extends DatabaseTest
 		}
 
 		sqlreGeom = viaPrepSQL(geom, connection);
-		logger.debug("Prepared: {}", sqlreGeom.toString());
+		logger.debug("Prepared: {}", getWKTFromGeometry(sqlreGeom));
 		if (!geom.equals(sqlreGeom))
 		{
 			logger.warn("Reparsed Geometries after prepared StatementSQL are not equal!");
@@ -288,12 +286,28 @@ public class ParserTest extends DatabaseTest
 	}
 
 	/** Pass a geometry representation through the SQL server via EWKT */
-	private static Geometry ewktViaSQL(String rep, Statement stat) throws SQLException
+	private Geometry ewktViaSQL(String rep, Statement stat) throws SQLException
 	{
 		ResultSet resultSet = stat.executeQuery("SELECT ST_AsEWKT(geometry_in('" + rep + "'))");
 		resultSet.next();
 		String resrep = resultSet.getString(1);
-		return PGgeometry.geomFromString(resrep);
+		return getGeometryFromWKT(resrep);
+	}
+	
+	private static String EWKBToHex(byte[] data)
+	{
+		ByteSetter s=new ByteSetter();
+		for(byte b: data)
+		{
+			s.write(b);
+		}
+		return s.toString();
+	}
+	
+	private static byte[] hexToEWKB(String data)
+	{
+		ByteGetter s=new ByteGetter(data);
+		return s.getBytes();
 	}
 
 	/** Pass a geometry representation through the SQL server via EWKB */
@@ -302,7 +316,7 @@ public class ParserTest extends DatabaseTest
 		ResultSet resultSet = stat.executeQuery("SELECT ST_AsEWKB(geometry_in('" + rep + "'))");
 		resultSet.next();
 		byte[] resrep = resultSet.getBytes(1);
-		return binaryParser.parse(resrep);
+		return BinaryParser.parse(EWKBToHex(resrep));
 	}
 
 	/** Pass a EWKB geometry representation through the server */

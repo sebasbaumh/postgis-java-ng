@@ -24,6 +24,8 @@
  */
 package io.github.sebasbaumh.postgis.binary;
 
+import java.util.ArrayList;
+
 import io.github.sebasbaumh.postgis.CircularString;
 import io.github.sebasbaumh.postgis.CurvePolygon;
 import io.github.sebasbaumh.postgis.Geometry;
@@ -35,8 +37,6 @@ import io.github.sebasbaumh.postgis.MultiPoint;
 import io.github.sebasbaumh.postgis.MultiPolygon;
 import io.github.sebasbaumh.postgis.Point;
 import io.github.sebasbaumh.postgis.Polygon;
-import io.github.sebasbaumh.postgis.binary.ByteGetter.BinaryByteGetter;
-import io.github.sebasbaumh.postgis.binary.ByteGetter.StringByteGetter;
 
 /**
  * Parse binary representation of geometries.
@@ -80,19 +80,7 @@ public class BinaryParser {
      * @return resulting geometry for the parsed data
      */
     public static Geometry parse(String value) {
-	StringByteGetter bytes = new ByteGetter.StringByteGetter(value);
-	return parseGeometry(valueGetterForEndian(bytes));
-    }
-
-    /**
-     * Parse a binary encoded geometry.
-     * 
-     * @param value
-     *            byte array containing the data to be parsed
-     * @return resulting geometry for the parsed data
-     */
-    public static Geometry parse(byte[] value) {
-	BinaryByteGetter bytes = new ByteGetter.BinaryByteGetter(value);
+	ByteGetter bytes = new ByteGetter(value);
 	return parseGeometry(valueGetterForEndian(bytes));
     }
 
@@ -188,6 +176,22 @@ public class BinaryParser {
 	}
     }
 
+    /** Parse an Array of "full" Geometries */
+    @SuppressWarnings("unchecked")
+	private static <T extends Geometry> ArrayList<T> parseGeometries(Class<T> clazz, ValueGetter data, int count) {
+    	ArrayList<T> l=new ArrayList<T>(count);
+	for (int i = 0; i < count; i++) {
+		Geometry geom=parseGeometry(data);
+		if(clazz.isInstance(geom))
+		{
+	    l.add((T) geom);
+		}else {
+			throw new IllegalArgumentException("expected: "+clazz.getCanonicalName()+" got: "+geom.getClass().getCanonicalName());
+		}
+	}
+	return l;
+    }
+
     /**
      * Parse an Array of "slim" Points (without endianness and type, part of
      * LinearRing and Linestring, but not MultiPoint!
@@ -204,32 +208,44 @@ public class BinaryParser {
 	return result;
     }
 
+    /**
+     * Parse an Array of "slim" Points (without endianness and type, part of
+     * LinearRing and Linestring, but not MultiPoint!
+     * 
+     * @param haveZ
+     * @param haveM
+     */
+    private static ArrayList<Point> parsePoints(ValueGetter data, boolean haveZ, boolean haveM) {
+	int count = data.getInt();
+	ArrayList<Point> l=new ArrayList<Point>(count);
+	for (int i = 0; i < count; i++) {
+	    l.add(parsePoint(data, haveZ, haveM));
+	}
+	return l;
+    }
+
     private static MultiPoint parseMultiPoint(ValueGetter data) {
-	Point[] points = new Point[data.getInt()];
-	parseGeometryArray(data, points);
-	return new MultiPoint(points);
+    	int count=data.getInt();
+    	return new MultiPoint(parseGeometries(Point.class, data, count));
     }
 
     private static LineString parseLineString(ValueGetter data, boolean haveZ, boolean haveM) {
-	Point[] points = parsePointArray(data, haveZ, haveM);
-	return new LineString(points);
+	return new LineString(parsePoints(data, haveZ, haveM));
     }
 
     private static CircularString parseCircularString(ValueGetter data, boolean haveZ, boolean haveM) {
-	Point[] points = parsePointArray(data, haveZ, haveM);
-	return new CircularString(points);
+	return new CircularString(parsePoints(data, haveZ, haveM));
     }
 
     private static LinearRing parseLinearRing(ValueGetter data, boolean haveZ, boolean haveM) {
-	Point[] points = parsePointArray(data, haveZ, haveM);
-	return new LinearRing(points);
+	return new LinearRing(parsePoints(data, haveZ, haveM));
     }
 
     private static Polygon parsePolygon(ValueGetter data, boolean haveZ, boolean haveM) {
 	int count = data.getInt();
-	LinearRing[] rings = new LinearRing[count];
+	ArrayList<LinearRing> rings = new ArrayList<LinearRing>(count);
 	for (int i = 0; i < count; i++) {
-	    rings[i] = parseLinearRing(data, haveZ, haveM);
+	    rings.add(parseLinearRing(data, haveZ, haveM));
 	}
 	return new Polygon(rings);
     }
@@ -239,27 +255,23 @@ public class BinaryParser {
 	Geometry[] geoms = new Geometry[count];
 	//FIX: wrong
 	parseGeometryArray(data, geoms);
-	return new CurvePolygon(geoms);
+//	return new CurvePolygon(geoms);
+	//FIX
+	throw new UnsupportedOperationException();
     }
 
     private static MultiLineString parseMultiLineString(ValueGetter data) {
-	int count = data.getInt();
-	LineString[] strings = new LineString[count];
-	parseGeometryArray(data, strings);
-	return new MultiLineString(strings);
+	int count=data.getInt();
+	return new MultiLineString(parseGeometries(LineString.class, data, count));
     }
 
     private static MultiPolygon parseMultiPolygon(ValueGetter data) {
-	int count = data.getInt();
-	Polygon[] polys = new Polygon[count];
-	parseGeometryArray(data, polys);
-	return new MultiPolygon(polys);
+	int count=data.getInt();
+	return new MultiPolygon(parseGeometries(Polygon.class, data, count));
     }
 
     private static GeometryCollection parseCollection(ValueGetter data) {
-	int count = data.getInt();
-	Geometry[] geoms = new Geometry[count];
-	parseGeometryArray(data, geoms);
-	return new GeometryCollection(geoms);
+	int count=data.getInt();
+	return new GeometryCollection(parseGeometries(Geometry.class, data, count));
     }
 }

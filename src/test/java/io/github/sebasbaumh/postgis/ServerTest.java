@@ -78,6 +78,11 @@ public class ServerTest extends DatabaseTest
 	@Test
 	public void testServer() throws Exception
 	{
+		if (!hasDatabase())
+		{
+			return;
+		}
+
 		String dbtable = DATABASE_TABLE_NAME_PREFIX + "_" + UUID.randomUUID().toString().replaceAll("-", "");
 
 		String dropSQL = "drop table " + dbtable;

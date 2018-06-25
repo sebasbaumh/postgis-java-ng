@@ -19,6 +19,10 @@ public class PostgisDatabaseTest extends DatabaseTest
 	@Test
 	public void test() throws SQLException
 	{
+		if (!hasDatabase())
+		{
+			return;
+		}
 		try (Connection conn = getConnection())
 		{
 			try (Statement st = conn.createStatement())
