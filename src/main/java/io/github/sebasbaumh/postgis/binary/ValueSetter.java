@@ -25,15 +25,17 @@
 
 package io.github.sebasbaumh.postgis.binary;
 
-public abstract class ValueSetter
+public class ValueSetter
 {
-	protected final ByteSetter data;
-	public final byte endian;
+	/**
+	 * NDR (little endian).
+	 */
+	public static final byte endian = 1;
+	private final ByteSetter data;
 
-	public ValueSetter(ByteSetter data, byte endian)
+	public ValueSetter(ByteSetter data)
 	{
 		this.data = data;
-		this.endian = endian;
 	}
 
 	/**
@@ -59,84 +61,33 @@ public abstract class ValueSetter
 	 * Set a 32-Bit integer
 	 * @param value int value to be set with
 	 */
-	protected abstract void setInt(int value);
+	public void setInt(int value)
+	{
+		data.write((byte) value);
+		data.write((byte) (value >>> 8));
+		data.write((byte) (value >>> 16));
+		data.write((byte) (value >>> 24));
+	}
 
 	/**
 	 * Set a long value. This is not needed directly, but as a nice side-effect from GetDouble.
-	 * @param data int value to be set with
+	 * @param value value value to be set with
 	 */
-	protected abstract void setLong(long data);
+	public void setLong(long value)
+	{
+		data.write((byte) value);
+		data.write((byte) (value >>> 8));
+		data.write((byte) (value >>> 16));
+		data.write((byte) (value >>> 24));
+		data.write((byte) (value >>> 32));
+		data.write((byte) (value >>> 40));
+		data.write((byte) (value >>> 48));
+		data.write((byte) (value >>> 56));
+	}
 
 	@Override
 	public String toString()
 	{
-		String name = getClass().getName();
-		int pointpos = name.lastIndexOf('.');
-		String klsName = name.substring(pointpos + 1);
-		return klsName + "('" + (data == null ? "NULL" : data.toString() + "')");
-	}
-
-	public static class NDR extends ValueSetter
-	{
-		public static final byte NUMBER = 1;
-
-		public NDR(ByteSetter data)
-		{
-			super(data, NUMBER);
-		}
-
-		@Override
-		protected void setInt(int value)
-		{
-			data.write((byte) value);
-			data.write((byte) (value >>> 8));
-			data.write((byte) (value >>> 16));
-			data.write((byte) (value >>> 24));
-		}
-
-		@Override
-		protected void setLong(long value)
-		{
-			data.write((byte) value);
-			data.write((byte) (value >>> 8));
-			data.write((byte) (value >>> 16));
-			data.write((byte) (value >>> 24));
-			data.write((byte) (value >>> 32));
-			data.write((byte) (value >>> 40));
-			data.write((byte) (value >>> 48));
-			data.write((byte) (value >>> 56));
-		}
-	}
-
-	public static class XDR extends ValueSetter
-	{
-		public static final byte NUMBER = 0;
-
-		public XDR(ByteSetter data)
-		{
-			super(data, NUMBER);
-		}
-
-		@Override
-		protected void setInt(int value)
-		{
-			data.write((byte) (value >>> 24));
-			data.write((byte) (value >>> 16));
-			data.write((byte) (value >>> 8));
-			data.write((byte) value);
-		}
-
-		@Override
-		protected void setLong(long value)
-		{
-			data.write((byte) (value >>> 56));
-			data.write((byte) (value >>> 48));
-			data.write((byte) (value >>> 40));
-			data.write((byte) (value >>> 32));
-			data.write((byte) (value >>> 24));
-			data.write((byte) (value >>> 16));
-			data.write((byte) (value >>> 8));
-			data.write((byte) value);
-		}
+		return "ValueSetter('" + (data == null ? "NULL" : data.toString() + "')");
 	}
 }

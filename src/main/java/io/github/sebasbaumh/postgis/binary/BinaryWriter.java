@@ -51,43 +51,6 @@ public class BinaryWriter
 {
 
 	/**
-	 * Get the appropriate ValueGetter for my endianness
-	 * @param bytes The ByteSetter to use
-	 * @param endian the endian for the ValueSetter to use
-	 * @return the ValueGetter
-	 */
-	public static ValueSetter valueSetterForEndian(ByteSetter bytes, byte endian)
-	{
-		if (endian == ValueSetter.XDR.NUMBER)
-		{ // XDR
-			return new ValueSetter.XDR(bytes);
-		}
-		else if (endian == ValueSetter.NDR.NUMBER)
-		{
-			return new ValueSetter.NDR(bytes);
-		}
-		else
-		{
-			throw new IllegalArgumentException("Unknown Endian type:" + endian);
-		}
-	}
-
-	/**
-	 * Write a hex encoded geometry The geometry you put in must be consistent, geom.checkConsistency() must return
-	 * true. If not, the result may be invalid WKB.
-	 * @see Geometry#checkConsistency() the consistency checker
-	 * @param geom the geometry to be written
-	 * @param REP endianness to write the bytes with
-	 * @return String containing the hex encoded geometry
-	 */
-	public static String writeHexed(Geometry geom, byte REP)
-	{
-		ByteSetter bytes = new ByteSetter();
-		writeGeometry(geom, valueSetterForEndian(bytes, REP));
-		return bytes.toString();
-	}
-
-	/**
 	 * Write a hex encoded geometry The geometry you put in must be consistent, geom.checkConsistency() must return
 	 * true. If not, the result may be invalid WKB.
 	 * @see Geometry#checkConsistency() the consistency checker
@@ -96,7 +59,9 @@ public class BinaryWriter
 	 */
 	public static String writeHexed(Geometry geom)
 	{
-		return writeHexed(geom, ValueSetter.NDR.NUMBER);
+		ByteSetter bytes = new ByteSetter();
+		writeGeometry(geom, new ValueSetter(bytes));
+		return bytes.toString();
 	}
 
 	/**

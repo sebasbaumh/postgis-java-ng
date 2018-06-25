@@ -49,8 +49,6 @@ public class DatatypesTest extends DatabaseTest
 
 	private static final String ptg_str = "POINT(10 10 20)";
 
-	private static final String lr_str = "(10 10 20,34 34 34, 23 19 23 , 10 10 11)";
-
 	private static final String cr_str = "CIRCULARSTRING(-9 2,-8 3,-7 2)";
 
 	private static final String cr_str2 = "CIRCULARSTRING(0 -1,-1 0,0 1,1 0,0 -1)";
@@ -67,19 +65,6 @@ public class DatatypesTest extends DatabaseTest
 		}
 		throw new IllegalArgumentException(
 				"expected: " + clazz.getCanonicalName() + " got: " + geom.getClass().getCanonicalName());
-	}
-
-	@Test
-	public void testLinearRing() throws SQLException
-	{
-		if (!hasDatabase())
-		{
-			return;
-		}
-		logger.trace("void testLinearRing()");
-		logger.info(lr_str);
-		LinearRing lr = assertGeometry(LinearRing.class, lr_str);
-		logger.info(lr.toString());
 	}
 
 	@Test

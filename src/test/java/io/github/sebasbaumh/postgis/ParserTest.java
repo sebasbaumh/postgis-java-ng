@@ -236,26 +236,15 @@ public class ParserTest extends DatabaseTest
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 		Assert.assertEquals("Text Reps are not equal", reparsed, parsed);
 
-		String hexNWKT = BinaryWriter.writeHexed(regeom, ValueSetter.NDR.NUMBER);
+		String hexNWKT = BinaryWriter.writeHexed(regeom);
 		logger.debug("NDRHex: {}", hexNWKT);
 		regeom = getGeometryFromWKT(hexNWKT);
 		logger.debug("ReNDRHex: {}", regeom);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
-		String hexXWKT = BinaryWriter.writeHexed(regeom, ValueSetter.XDR.NUMBER);
-		logger.debug("XDRHex: {}", hexXWKT);
-		regeom = getGeometryFromWKT(hexXWKT);
-		logger.debug("ReXDRHex: {}", regeom);
-		Assert.assertEquals("Geometries are not equal", geom, regeom);
-
-		byte[] NWKT = hexToEWKB(BinaryWriter.writeHexed(regeom, ValueSetter.NDR.NUMBER));
+		byte[] NWKT = hexToEWKB(BinaryWriter.writeHexed(regeom));
 		regeom = BinaryParser.parse(EWKBToHex(NWKT));
 		logger.debug("NDR: {}", regeom);
-		Assert.assertEquals("Geometries are not equal", geom, regeom);
-
-		byte[] XWKT = hexToEWKB(BinaryWriter.writeHexed(regeom, ValueSetter.XDR.NUMBER));
-		regeom = BinaryParser.parse(EWKBToHex(XWKT));
-		logger.debug("XDR: {}", regeom);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
 		logger.debug("Testing on connection {}", connection.getCatalog());
@@ -301,17 +290,9 @@ public class ParserTest extends DatabaseTest
 		logger.debug("hexNWKT: {}", sqlGeom);
 		Assert.assertEquals(geom, sqlGeom);
 
-		sqlGeom = viaSQL(hexXWKT);
-		logger.debug("hexXWKT: {}", sqlGeom);
-		Assert.assertEquals(geom, sqlGeom);
-
 		// Canonical binary input is not present before 1.0
 		sqlGeom = binaryViaSQL(NWKT, connection);
 		logger.debug("NWKT: {}", sqlGeom);
-		Assert.assertEquals(geom, sqlGeom);
-
-		sqlGeom = binaryViaSQL(XWKT, connection);
-		logger.debug("XWKT: {}", sqlGeom);
 		Assert.assertEquals(geom, sqlGeom);
 	}
 
