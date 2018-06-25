@@ -26,8 +26,8 @@
 package io.github.sebasbaumh.postgis.binary;
 
 public abstract class ValueGetter {
-    ByteGetter data;
-    int position;
+    protected final ByteGetter data;
+    protected int position;
     public final byte endian;
 
     public ValueGetter(ByteGetter data, byte endian) {
@@ -90,12 +90,14 @@ public abstract class ValueGetter {
             super(data, NUMBER);
         }
 
-        protected int getInt(int index) {
+        @Override
+		protected int getInt(int index) {
             return (data.get(index) << 24) + (data.get(index + 1) << 16)
                     + (data.get(index + 2) << 8) + data.get(index + 3);
         }
 
-        protected long getLong(int index) {
+        @Override
+		protected long getLong(int index) {
             return ((long) data.get(index) << 56) + ((long) data.get(index + 1) << 48)
                     + ((long) data.get(index + 2) << 40) + ((long) data.get(index + 3) << 32)
                     + ((long) data.get(index + 4) << 24) + ((long) data.get(index + 5) << 16)
@@ -110,12 +112,14 @@ public abstract class ValueGetter {
             super(data, NUMBER);
         }
 
-        protected int getInt(int index) {
+        @Override
+		protected int getInt(int index) {
             return (data.get(index + 3) << 24) + (data.get(index + 2) << 16)
                     + (data.get(index + 1) << 8) + data.get(index);
         }
 
-        protected long getLong(int index) {
+        @Override
+		protected long getLong(int index) {
             return ((long) data.get(index + 7) << 56) + ((long) data.get(index + 6) << 48)
                     + ((long) data.get(index + 5) << 40) + ((long) data.get(index + 4) << 32)
                     + ((long) data.get(index + 3) << 24) + ((long) data.get(index + 2) << 16)

@@ -128,7 +128,7 @@ public abstract class DatabaseTest
 		PGgeometry pgeom = new PGgeometry(geom);
 		try (Connection conn = getConnection())
 		{
-			try (PreparedStatement pst = conn.prepareStatement("SELECT st_astext(?)"))
+			try (PreparedStatement pst = conn.prepareStatement("SELECT st_asewkt(?)"))
 			{
 				pst.setObject(1, pgeom);
 				try (ResultSet rs = pst.executeQuery())

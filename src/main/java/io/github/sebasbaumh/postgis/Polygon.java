@@ -27,26 +27,29 @@
 
 package io.github.sebasbaumh.postgis;
 
-import java.sql.SQLException;
 import java.util.Collection;
 
 /**
  * A polygon.
  * @author Sebastian Baumhekel
  */
-public class Polygon extends PolygonBase<LinearRing> {
-    /* JDK 1.5 Serialization */
-    private static final long serialVersionUID = 0x100;
+public class Polygon extends PolygonBase<LinearRing>
+{
+	/* JDK 1.5 Serialization */
+	private static final long serialVersionUID = 0x100;
 
-    public Polygon() {
-        super(POLYGON);
-    }
+	public Polygon()
+	{
+		super(POLYGON);
+	}
 
-    public Polygon(Collection<LinearRing> rings) {
-        super(POLYGON, rings);
-    }
+	public Polygon(Collection<LinearRing> rings)
+	{
+		super(POLYGON, rings);
+	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.Geometry#equalsintern(io.github.sebasbaumh.postgis.Geometry)
 	 */
 	@Override
@@ -56,7 +59,8 @@ public class Polygon extends PolygonBase<LinearRing> {
 		return false;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.Geometry#numPoints()
 	 */
 	@Override
@@ -66,7 +70,8 @@ public class Polygon extends PolygonBase<LinearRing> {
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.Geometry#getPoint(int)
 	 */
 	@Override
@@ -76,7 +81,8 @@ public class Polygon extends PolygonBase<LinearRing> {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.Geometry#getFirstPoint()
 	 */
 	@Override
@@ -86,7 +92,8 @@ public class Polygon extends PolygonBase<LinearRing> {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.Geometry#getLastPoint()
 	 */
 	@Override

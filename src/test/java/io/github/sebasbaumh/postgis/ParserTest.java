@@ -1,14 +1,14 @@
 /*
  * ParserTest.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - example and test classes
- * 
+ *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
  *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis;
@@ -45,132 +45,186 @@ import io.github.sebasbaumh.postgis.binary.ByteGetter;
 import io.github.sebasbaumh.postgis.binary.ByteSetter;
 import io.github.sebasbaumh.postgis.binary.ValueSetter;
 
+@SuppressWarnings("javadoc")
 public class ParserTest extends DatabaseTest
 {
-
 	private static final Logger logger = LoggerFactory.getLogger(ParserTest.class);
-
+	// FIX: add tests here
 	/** The srid we use for the srid tests */
 	private static final int SRID = 4326;
-
 	/** The string prefix we get for the srid tests */
 	private static final String SRIDPREFIX = "SRID=" + SRID + ";";
-
-	// FIX: add tests here
-
-	/**
-	 * Our set of geometries to test.
-	 */
-	private static final String ALL = "ALL";
-	private static final String ONLY10 = "ONLY10";
-	private static final String EQUAL10 = "EQUAL10";
-	private static final String[][] testset = new String[][] { { ALL, // 2D
-			"POINT(10 10)" },
-			{ ALL, // 3D with 3rd coordinate set to 0
-					"POINT(10 10 0)" },
-			{ ALL, // 3D
-					"POINT(10 10 20)" },
-			{ ALL, // 3D with scientific notation
-					"POINT(1e100 1.2345e-100 -2e-5)" },
-			{ ONLY10, // 2D + Measures
-					"POINTM(10 10 20)" },
-			{ ONLY10, // 3D + Measures
-					"POINT(10 10 20 30)" },
-			{ ALL, // broken format, see http://lists.jump-project.org/pipermail/jts-devel/2006-April/001572.html
-					"MULTIPOINT(11 12, 20 20)" },
-			{ ALL, // broken format
-					"MULTIPOINT(11 12 13, 20 20 20)" },
-			{ ONLY10, // broken format
-					"MULTIPOINTM(11 12 13, 20 20 20)" },
-			{ ONLY10, // broken format
-					"MULTIPOINT(11 12 13 14,20 20 20 20)" },
-			{ ALL, // OGC conforming format
-					"MULTIPOINT((11 12), (20 20))" },
-			{ ALL, "MULTIPOINT((11 12 13), (20 20 20))" }, { ONLY10, "MULTIPOINTM((11 12 13), (20 20 20))" },
-			{ ONLY10, "MULTIPOINT((11 12 13 14),(20 20 20 20))" }, { ALL, "LINESTRING(10 10,20 20,50 50,34 34)" },
-			{ ALL, "LINESTRING(10 10 20,20 20 20,50 50 50,34 34 34)" },
-			{ ONLY10, "LINESTRINGM(10 10 20,20 20 20,50 50 50,34 34 34)" },
-			{ ONLY10, "LINESTRING(10 10 20 20,20 20 20 20,50 50 50 50,34 34 34 50)" },
-			{ ALL, "POLYGON((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5))" },
-			{ ALL, "POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))" },
-			{ ONLY10, "POLYGONM((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))" },
-			{ ONLY10,
-					"POLYGON((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7))" },
-			{ ALL, "MULTIPOLYGON(((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5)),((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5)))" },
-			{ ALL, "MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
-			{ ONLY10,
-					"MULTIPOLYGONM(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
-			{ ONLY10,
-					"MULTIPOLYGON(((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7)),((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7)))" },
-			{ ALL, "MULTILINESTRING((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5))" },
-			{ ALL, "MULTILINESTRING((10 10 5,20 10 5,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))" },
-			{ ONLY10, "MULTILINESTRINGM((10 10 7,20 10 7,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))" },
-			{ ONLY10,
-					"MULTILINESTRING((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7))" },
-			{ ALL, "GEOMETRYCOLLECTION(POINT(10 10),POINT(20 20))" },
-			{ ALL, "GEOMETRYCOLLECTION(POINT(10 10 20),POINT(20 20 20))" },
-			{ ONLY10, "GEOMETRYCOLLECTION(POINT(10 10 20 7),POINT(20 20 20 7))" },
-			{ ALL, "GEOMETRYCOLLECTION(LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34))" },
-			{ ALL, "GEOMETRYCOLLECTION(POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
-			{ ONLY10, // Cannot be parsed by 0.X servers, broken format
-					"GEOMETRYCOLLECTION(MULTIPOINT(10 10 10, 20 20 20),MULTIPOINT(10 10 10, 20 20 20))" },
-			{ ONLY10, // Cannot be parsed by 0.X servers, OGC conformant
-					"GEOMETRYCOLLECTION(MULTIPOINT((10 10 10), (20 20 20)),MULTIPOINT((10 10 10), (20 20 20)))" },
-			{ EQUAL10, // PostGIs 0.X "flattens" this geometry, so it is not
-						// equal after reparsing.
-					"GEOMETRYCOLLECTION(MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
-			{ EQUAL10, // PostGIs 0.X "flattens" this geometry, so it is not equal
-						// after reparsing.
-					"GEOMETRYCOLLECTION(MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))))" },
-			{ ALL, "GEOMETRYCOLLECTION(POINT(10 10 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
-			{ ONLY10, // Collections that contain both X and MultiX do not work on
-						// PostGIS 0.x, broken format
-					"GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT(10 10 10, 20 20 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
-			{ ONLY10, // Collections that contain both X and MultiX do not work on
-						// PostGIS 0.x, OGC conformant
-					"GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT((10 10 10), (20 20 20)),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))" },
-			{ ALL, // new (correct) representation
-					"GEOMETRYCOLLECTION EMPTY" },
-			{ ALL, "GEOMETRYCOLLECTIONM(POINTM(10 10 20),POINTM(20 20 20))" },
-			{ ALL, "CIRCULARSTRING(-9 2,-8 3,-7 2)" }, { ALL, "CIRCULARSTRING(0 -1,-1 0,0 1,1 0,0 -1)" },
-			{ ALL, "CURVEPOLYGON(CIRCULARSTRING(0 0, 4 0, 4 4, 0 4, 0 0),(1 1, 3 3, 3 1, 1 1))" },
+	private static final String[] testset = new String[] { // 2D
+			"POINT(10 10)",
+			// 3D with 3rd coordinate set to 0
+			"POINT(10 10 0)",
+			// 3D
+			"POINT(10 10 20)",
+			// 3D with scientific notation
+			"POINT(1e100 1.2345e-100 -2e-5)",
+			// 2D + Measures
+			"POINTM(10 10 20)",
+			// 3D + Measures
+			"POINT(10 10 20 30)",
+			// broken format, see http://lists.jump-project.org/pipermail/jts-devel/2006-April/001572.html
+			"MULTIPOINT(11 12, 20 20)",
+			// broken format
+			"MULTIPOINT(11 12 13, 20 20 20)",
+			// broken format
+			"MULTIPOINTM(11 12 13, 20 20 20)",
+			// broken format
+			"MULTIPOINT(11 12 13 14,20 20 20 20)",
+			// OGC conforming format
+			"MULTIPOINT((11 12), (20 20))", "MULTIPOINT((11 12 13), (20 20 20))", "MULTIPOINTM((11 12 13), (20 20 20))",
+			"MULTIPOINT((11 12 13 14),(20 20 20 20))", "LINESTRING(10 10,20 20,50 50,34 34)",
+			"LINESTRING(10 10 20,20 20 20,50 50 50,34 34 34)", "LINESTRINGM(10 10 20,20 20 20,50 50 50,34 34 34)",
+			"LINESTRING(10 10 20 20,20 20 20 20,50 50 50 50,34 34 34 50)",
+			"POLYGON((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5))",
+			"POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))",
+			"POLYGONM((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))",
+			"POLYGON((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7))",
+			"MULTIPOLYGON(((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5)),((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5)))",
+			"MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
+			"MULTIPOLYGONM(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
+			"MULTIPOLYGON(((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7)),((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7)))",
+			"MULTILINESTRING((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5))",
+			"MULTILINESTRING((10 10 5,20 10 5,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))",
+			"MULTILINESTRINGM((10 10 7,20 10 7,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))",
+			"MULTILINESTRING((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7))",
+			"GEOMETRYCOLLECTION(POINT(10 10),POINT(20 20))", "GEOMETRYCOLLECTION(POINT(10 10 20),POINT(20 20 20))",
+			"GEOMETRYCOLLECTION(POINT(10 10 20 7),POINT(20 20 20 7))",
+			"GEOMETRYCOLLECTION(LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34))",
+			"GEOMETRYCOLLECTION(POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
+			// Cannot be parsed by 0.X servers, broken format
+			"GEOMETRYCOLLECTION(MULTIPOINT(10 10 10, 20 20 20),MULTIPOINT(10 10 10, 20 20 20))",
+			// Cannot be parsed by 0.X servers, OGC conformant
+			"GEOMETRYCOLLECTION(MULTIPOINT((10 10 10), (20 20 20)),MULTIPOINT((10 10 10), (20 20 20)))",
+			// PostGIs 0.X "flattens" this geometry, so it is not
+			// equal after reparsing.
+			"GEOMETRYCOLLECTION(MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
+			// PostGIs 0.X "flattens" this geometry, so it is not equal
+			// after reparsing.
+			"GEOMETRYCOLLECTION(MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))))",
+			"GEOMETRYCOLLECTION(POINT(10 10 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
+			// Collections that contain both X and MultiX do not work on
+			// PostGIS 0.x, broken format
+			"GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT(10 10 10, 20 20 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
+			// Collections that contain both X and MultiX do not work on
+			// PostGIS 0.x, OGC conformant
+			"GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT((10 10 10), (20 20 20)),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
+			// new (correct) representation
+			"GEOMETRYCOLLECTION EMPTY", "GEOMETRYCOLLECTIONM(POINTM(10 10 20),POINTM(20 20 20))",
+			"CIRCULARSTRING(-9 2,-8 3,-7 2)", "CIRCULARSTRING(0 -1,-1 0,0 1,1 0,0 -1)",
+			"CURVEPOLYGON(CIRCULARSTRING(0 0, 4 0, 4 4, 0 4, 0 0),(1 1, 3 3, 3 1, 1 1))",
 			// end
 	};
-
-	private static final String[][] testSetNonWorking = new String[][] { { ALL, // Old (bad) PostGIS 0.X Representation
-			"GEOMETRYCOLLECTION(EMPTY)" },
-			{ ONLY10, // new (correct) representation - does not work on 0.X
-					"POINT EMPTY" },
-			{ ONLY10, // new (correct) representation - does not work on 0.X
-					"LINESTRING EMPTY" },
-			{ ONLY10, // new (correct) representation - does not work on 0.X
-					"POLYGON EMPTY" },
-			{ ONLY10, // new (correct) representation - does not work on 0.X
-					"MULTIPOINT EMPTY" },
-			{ ONLY10, // new (correct) representation - does not work on 0.X
-					"MULTILINESTRING EMPTY" },
-			{ ONLY10, // new (correct) representation - does not work on 0.X
-					"MULTIPOLYGON EMPTY" } };
 
 	private Connection connection = null;
 
 	private Statement statement = null;
 
-	@Test
-	public void testParser() throws Exception
+	/** Pass a EWKB geometry representation through the server */
+	private static Geometry binaryViaSQL(byte[] rep, Connection conn) throws SQLException
 	{
-		if (!hasDatabase())
+		try (PreparedStatement preparedStatement = conn.prepareStatement("SELECT ?::bytea::geometry"))
 		{
-			return;
-		}
-		for (String[] aTestset : testset)
-		{
-			test(aTestset[1], aTestset[0]);
-			test(SRIDPREFIX + aTestset[1], aTestset[0]);
+			preparedStatement.setBytes(1, rep);
+			try (ResultSet resultSet = preparedStatement.executeQuery())
+			{
+				resultSet.next();
+				PGgeometry resultwrapper = ((PGgeometry) resultSet.getObject(1));
+				return resultwrapper.getGeometry();
+			}
 		}
 	}
 
-	private void test(String WKT, String flags) throws SQLException
+	private static String EWKBToHex(byte[] data)
+	{
+		ByteSetter s = new ByteSetter();
+		for (byte b : data)
+		{
+			s.write(b);
+		}
+		return s.toString();
+	}
+
+	/** Pass a geometry representation through the SQL server via EWKB */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE")
+	private static Geometry ewkbViaSQL(String rep, Statement stat) throws SQLException
+	{
+		try (ResultSet resultSet = stat.executeQuery("SELECT ST_AsEWKB(geometry_in('" + rep + "'))"))
+		{
+			resultSet.next();
+			byte[] resrep = resultSet.getBytes(1);
+			return BinaryParser.parse(EWKBToHex(resrep));
+		}
+	}
+
+	private static byte[] hexToEWKB(String data)
+	{
+		ByteGetter s = new ByteGetter(data);
+		return s.getBytes();
+	}
+
+	/**
+	 * Pass a geometry representation through the SQL server via prepared statement
+	 */
+	private static Geometry viaPrepSQL(Geometry geom, Connection conn) throws SQLException
+	{
+		try (PreparedStatement preparedStatement = conn.prepareStatement("SELECT ?::geometry"))
+		{
+			PGgeometry wrapper = new PGgeometry(geom);
+			preparedStatement.setObject(1, wrapper, Types.OTHER);
+			try (ResultSet resultSet = preparedStatement.executeQuery())
+			{
+				resultSet.next();
+				PGgeometry resultwrapper = (PGgeometry) resultSet.getObject(1);
+				return resultwrapper.getGeometry();
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.DatabaseTest#afterDatabaseSetup()
+	 */
+	@Override
+	protected void afterDatabaseSetup() throws SQLException
+	{
+		connection = getConnection();
+		statement = connection.createStatement();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.DatabaseTest#beforeDatabaseShutdown()
+	 */
+	@Override
+	protected void beforeDatabaseShutdown() throws SQLException
+	{
+		if ((statement != null) && (!statement.isClosed()))
+		{
+			statement.close();
+		}
+		if ((connection != null) && (!connection.isClosed()))
+		{
+			connection.close();
+		}
+	}
+
+	/** Pass a geometry representation through the SQL server via EWKT */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE")
+	private Geometry ewktViaSQL(String rep, Statement stat) throws SQLException
+	{
+		try (ResultSet resultSet = stat.executeQuery("SELECT ST_AsEWKT(geometry_in('" + rep + "'))"))
+		{
+			resultSet.next();
+			String resrep = resultSet.getString(1);
+			return getGeometryFromWKT(resrep);
+		}
+	}
+
+	private void test(String WKT) throws SQLException
 	{
 		logger.debug("Original: {} ", WKT);
 		Geometry geom = getGeometryFromWKT(WKT);
@@ -261,100 +315,30 @@ public class ParserTest extends DatabaseTest
 		Assert.assertEquals(geom, sqlGeom);
 	}
 
+	@Test
+	public void testParser() throws Exception
+	{
+		if (!hasDatabase())
+		{
+			return;
+		}
+		for (String aTestset : testset)
+		{
+			test(aTestset);
+			test(SRIDPREFIX + aTestset);
+		}
+	}
+
 	/** Pass a geometry representation through the SQL server */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE")
 	private Geometry viaSQL(String rep) throws SQLException
 	{
 		logger.trace("Geometry viaSQL(String rep)");
 		logger.trace("[P] rep => {}", rep);
-		ResultSet resultSet = statement.executeQuery("SELECT geometry_in('" + rep + "')");
-		resultSet.next();
-		return ((PGgeometry) resultSet.getObject(1)).getGeometry();
-	}
-
-	/**
-	 * Pass a geometry representation through the SQL server via prepared statement
-	 */
-	private static Geometry viaPrepSQL(Geometry geom, Connection conn) throws SQLException
-	{
-		PreparedStatement preparedStatement = conn.prepareStatement("SELECT ?::geometry");
-		PGgeometry wrapper = new PGgeometry(geom);
-		preparedStatement.setObject(1, wrapper, Types.OTHER);
-		ResultSet resultSet = preparedStatement.executeQuery();
-		resultSet.next();
-		PGgeometry resultwrapper = (PGgeometry) resultSet.getObject(1);
-		return resultwrapper.getGeometry();
-	}
-
-	/** Pass a geometry representation through the SQL server via EWKT */
-	private Geometry ewktViaSQL(String rep, Statement stat) throws SQLException
-	{
-		ResultSet resultSet = stat.executeQuery("SELECT ST_AsEWKT(geometry_in('" + rep + "'))");
-		resultSet.next();
-		String resrep = resultSet.getString(1);
-		return getGeometryFromWKT(resrep);
-	}
-	
-	private static String EWKBToHex(byte[] data)
-	{
-		ByteSetter s=new ByteSetter();
-		for(byte b: data)
+		try (ResultSet resultSet = statement.executeQuery("SELECT geometry_in('" + rep + "')"))
 		{
-			s.write(b);
-		}
-		return s.toString();
-	}
-	
-	private static byte[] hexToEWKB(String data)
-	{
-		ByteGetter s=new ByteGetter(data);
-		return s.getBytes();
-	}
-
-	/** Pass a geometry representation through the SQL server via EWKB */
-	private static Geometry ewkbViaSQL(String rep, Statement stat) throws SQLException
-	{
-		ResultSet resultSet = stat.executeQuery("SELECT ST_AsEWKB(geometry_in('" + rep + "'))");
-		resultSet.next();
-		byte[] resrep = resultSet.getBytes(1);
-		return BinaryParser.parse(EWKBToHex(resrep));
-	}
-
-	/** Pass a EWKB geometry representation through the server */
-	private static Geometry binaryViaSQL(byte[] rep, Connection conn) throws SQLException
-	{
-		PreparedStatement preparedStatement = conn.prepareStatement("SELECT ?::bytea::geometry");
-		preparedStatement.setBytes(1, rep);
-		ResultSet resultSet = preparedStatement.executeQuery();
-		resultSet.next();
-		PGgeometry resultwrapper = ((PGgeometry) resultSet.getObject(1));
-		return resultwrapper.getGeometry();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.DatabaseTest#afterDatabaseSetup()
-	 */
-	@Override
-	protected void afterDatabaseSetup() throws SQLException
-	{
-		connection = getConnection();
-		statement = connection.createStatement();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.DatabaseTest#beforeDatabaseShutdown()
-	 */
-	@Override
-	protected void beforeDatabaseShutdown() throws SQLException
-	{
-		if ((statement != null) && (!statement.isClosed()))
-		{
-			statement.close();
-		}
-		if ((connection != null) && (!connection.isClosed()))
-		{
-			connection.close();
+			resultSet.next();
+			return ((PGgeometry) resultSet.getObject(1)).getGeometry();
 		}
 	}
 

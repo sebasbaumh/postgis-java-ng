@@ -27,7 +27,7 @@ package io.github.sebasbaumh.postgis.binary;
 
 public abstract class ValueSetter
 {
-	ByteSetter data;
+	protected final ByteSetter data;
 	public final byte endian;
 
 	public ValueSetter(ByteSetter data, byte endian)

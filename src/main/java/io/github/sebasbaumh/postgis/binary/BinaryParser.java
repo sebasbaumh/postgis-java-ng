@@ -199,22 +199,6 @@ public class BinaryParser {
      * @param haveZ
      * @param haveM
      */
-    private static Point[] parsePointArray(ValueGetter data, boolean haveZ, boolean haveM) {
-	int count = data.getInt();
-	Point[] result = new Point[count];
-	for (int i = 0; i < count; i++) {
-	    result[i] = parsePoint(data, haveZ, haveM);
-	}
-	return result;
-    }
-
-    /**
-     * Parse an Array of "slim" Points (without endianness and type, part of
-     * LinearRing and Linestring, but not MultiPoint!
-     * 
-     * @param haveZ
-     * @param haveM
-     */
     private static ArrayList<Point> parsePoints(ValueGetter data, boolean haveZ, boolean haveM) {
 	int count = data.getInt();
 	ArrayList<Point> l=new ArrayList<Point>(count);

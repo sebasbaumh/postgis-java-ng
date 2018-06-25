@@ -33,11 +33,6 @@ import java.util.List;
 
 import org.postgresql.util.PGobject;
 
-/*
- * Updates Oct 2002 - data members made private - getLLB() and getURT() methods
- * added
- */
-
 /**
  * Base class for bounding boxes.
  * @author Sebastian Baumhekel
@@ -73,6 +68,7 @@ public abstract class PGboxbase extends PGobject
 	/**
 	 * Constructs an instance.
 	 */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS")
 	protected PGboxbase()
 	{
 		this.setType(getPGtype());
@@ -95,6 +91,7 @@ public abstract class PGboxbase extends PGobject
 	 * @param value WKT
 	 * @throws SQLException
 	 */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS")
 	protected PGboxbase(String value) throws SQLException
 	{
 		this();
