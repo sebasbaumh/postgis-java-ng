@@ -27,10 +27,6 @@ package io.github.sebasbaumh.postgis.binary;
 
 public class ValueSetter
 {
-	/**
-	 * NDR (little endian).
-	 */
-	public static final byte endian = 1;
 	private final ByteSetter data;
 
 	public ValueSetter(ByteSetter data)

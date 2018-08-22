@@ -27,7 +27,6 @@
 
 package io.github.sebasbaumh.postgis;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -104,40 +103,6 @@ public class Point extends Geometry
 			return true;
 		}
 		return (a == b);
-	}
-
-	/**
-	 * Formats a coordinate to a string omitting empty decimal places.
-	 * @param d coordinate
-	 * @return string
-	 */
-	private static String formatCoord(double d)
-	{
-		if (d % 1.0 != 0)
-		{
-			return String.format("%s", d);
-		}
-		return String.format("%.0f", d);
-	}
-
-	/**
-	 * Gets a point from an inner WKT string like "1 2" or "1 2 3".
-	 * @param wkt WKT
-	 * @return {@link Point} on success, else null
-	 * @throws NumberFormatException if a coordinate is invalid
-	 */
-	public static Point fromInnerWKT(String wkt)
-	{
-		List<String> tokens = GeometryTokenizer.tokenize(wkt.trim(), ' ');
-		double x = Double.parseDouble(tokens.get(0));
-		double y = Double.parseDouble(tokens.get(1));
-		// 3d?
-		if (tokens.size() == 3)
-		{
-			double z = Double.parseDouble(tokens.get(2));
-			return new Point(x, y, z);
-		}
-		return new Point(x, y);
 	}
 
 	@Override
@@ -266,26 +231,5 @@ public class Point extends Geometry
 	public void setZ(double z)
 	{
 		this.z = z;
-	}
-
-	/**
-	 * Converts a point to an inner WKT string like "1 2" or "1 2 3".
-	 * @param sb {@link StringBuilder}
-	 */
-	public void toInnerWKT(StringBuffer sb)
-	{
-		sb.append(formatCoord(x));
-		sb.append(' ');
-		sb.append(formatCoord(y));
-		if (dimension == 3)
-		{
-			sb.append(' ');
-			sb.append(formatCoord(z));
-		}
-		if (haveMeasure)
-		{
-			sb.append(' ');
-			sb.append(formatCoord(m));
-		}
 	}
 }

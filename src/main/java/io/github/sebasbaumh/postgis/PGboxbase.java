@@ -1,15 +1,15 @@
 /*
  * PGboxbase.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - bounding box model
- * 
- * 
+ *
+ *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
  *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -23,7 +23,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis;
@@ -51,19 +51,6 @@ public abstract class PGboxbase extends PGobject
 	 * The upper right top corner of the box.
 	 */
 	protected Point urt;
-
-	/**
-	 * The Prefix we have in WKT rep. I use an abstract method here so we do not need to replicate the String object in
-	 * every instance.
-	 * @return the prefix, as a string
-	 */
-	protected abstract String getPrefix();
-
-	/**
-	 * The Postgres type we have (same construct as getPrefix())
-	 * @return String containing the name of the type for this box.
-	 */
-	public abstract String getPGtype();
 
 	/**
 	 * Constructs an instance.
@@ -98,92 +85,6 @@ public abstract class PGboxbase extends PGobject
 		setValue(value);
 	}
 
-	@Override
-	public void setValue(String value) throws SQLException
-	{
-		int srid = Geometry.UNKNOWN_SRID;
-		value = value.trim();
-		if (value.startsWith("SRID="))
-		{
-			String[] temp = PGboxbase.splitSRID(value);
-			value = temp[1].trim();
-			srid = Geometry.parseSRID(Integer.parseInt(temp[0].substring(5)));
-		}
-		String myPrefix = getPrefix();
-		if (value.startsWith(myPrefix))
-		{
-			value = value.substring(myPrefix.length()).trim();
-		}
-		String valueNoParans = GeometryTokenizer.removeLeadingAndTrailingStrings(value, "(", ")");
-		List<String> tokens = GeometryTokenizer.tokenize(valueNoParans, ',');
-		try
-		{
-			llb = Point.fromInnerWKT(tokens.get(0));
-			urt = Point.fromInnerWKT(tokens.get(1));
-			if (srid != Geometry.UNKNOWN_SRID)
-			{
-				llb.setSrid(srid);
-				urt.setSrid(srid);
-			}
-		}
-		catch (NumberFormatException ex)
-		{
-			throw new SQLException("Error parsing Point: " + ex, ex);
-		}
-	}
-
-	@Override
-	public String getValue()
-	{
-		StringBuffer sb = new StringBuffer();
-		sb.append(getPrefix());
-		sb.append('(');
-		llb.toInnerWKT(sb);
-		sb.append(',');
-		urt.toInnerWKT(sb);
-		sb.append(')');
-		return sb.toString();
-	}
-
-	/**
-	 * Unlike geometries, toString() does _not_ contain the srid, as server-side PostGIS cannot parse this.
-	 * @return String representation of this box
-	 */
-	@Override
-	public String toString()
-	{
-		return getValue();
-	}
-
-	/**
-	 * Returns the lower left bottom corner of the box as a Point object
-	 * @return lower left bottom corner of this box
-	 */
-	public Point getLLB()
-	{
-		return llb;
-	}
-
-	/**
-	 * Returns the upper right top corner of the box as a Point object
-	 * @return upper right top corner of this box
-	 */
-	public Point getURT()
-	{
-		return urt;
-	}
-
-	@Override
-	public boolean equals(Object other)
-	{
-		if (other instanceof PGboxbase)
-		{
-			PGboxbase otherbox = (PGboxbase) other;
-			return (compareLazyDim(this.llb, otherbox.llb) && compareLazyDim(this.urt, otherbox.urt));
-		}
-		return false;
-	}
-
 	/**
 	 * Compare two coordinates with lazy dimension checking. As the Server always returns Box3D with three dimensions,
 	 * z==0 equals dimensions==2
@@ -198,24 +99,56 @@ public abstract class PGboxbase extends PGobject
 						|| (first.z == second.z));
 	}
 
-	@Override
-	public Object clone()
+	/**
+	 * Formats a coordinate to a string omitting empty decimal places.
+	 * @param d coordinate
+	 * @return string
+	 */
+	private static String formatCoord(double d)
 	{
-		PGboxbase obj = newInstance();
-		obj.llb = this.llb;
-		obj.urt = this.urt;
-		obj.setType(type);
-		return obj;
+		if (d % 1.0 != 0)
+		{
+			return String.format("%s", d);
+		}
+		return String.format("%.0f", d);
 	}
 
 	/**
-	 * Obtain a new instance of a PGboxbase We could have used this.getClass().newInstance() here, but this forces us
-	 * dealing with InstantiationException and IllegalAccessException. Due to the PGObject.clone() brokennes that does
-	 * not allow clone() to throw CloneNotSupportedException, we cannot even pass this exceptions down to callers in a
-	 * sane way.
-	 * @return a new instance of PGboxbase
+	 * Converts a point to an inner WKT string like "1 2" or "1 2 3".
+	 * @param sb {@link StringBuilder}
+	 * @param p {@link Point}
 	 */
-	protected abstract PGboxbase newInstance();
+	private static void formatPoint(StringBuffer sb, Point p)
+	{
+		sb.append(formatCoord(p.x));
+		sb.append(' ');
+		sb.append(formatCoord(p.y));
+		if (p.dimension == 3)
+		{
+			sb.append(' ');
+			sb.append(formatCoord(p.z));
+		}
+	}
+
+	/**
+	 * Gets a point from an inner WKT string like "1 2" or "1 2 3".
+	 * @param wkt WKT
+	 * @return {@link Point} on success, else null
+	 * @throws NumberFormatException if a coordinate is invalid
+	 */
+	private static Point pointFromWKT(String wkt)
+	{
+		List<String> tokens = GeometryTokenizer.tokenize(wkt.trim(), ' ');
+		double x = Double.parseDouble(tokens.get(0));
+		double y = Double.parseDouble(tokens.get(1));
+		// 3d?
+		if (tokens.size() == 3)
+		{
+			double z = Double.parseDouble(tokens.get(2));
+			return new Point(x, y, z);
+		}
+		return new Point(x, y);
+	}
 
 	/**
 	 * Splits a String at the first occurrence of border character. Poor man's String.split() replacement, as
@@ -237,5 +170,123 @@ public abstract class PGboxbase extends PGobject
 		{
 			return new String[] { whole.substring(0, index), whole.substring(index + 1) };
 		}
+	}
+
+	@Override
+	public Object clone()
+	{
+		PGboxbase obj = newInstance();
+		obj.llb = this.llb;
+		obj.urt = this.urt;
+		obj.setType(type);
+		return obj;
+	}
+
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other instanceof PGboxbase)
+		{
+			PGboxbase otherbox = (PGboxbase) other;
+			return (compareLazyDim(this.llb, otherbox.llb) && compareLazyDim(this.urt, otherbox.urt));
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the lower left bottom corner of the box as a Point object
+	 * @return lower left bottom corner of this box
+	 */
+	public Point getLLB()
+	{
+		return llb;
+	}
+
+	/**
+	 * The Postgres type we have (same construct as getPrefix())
+	 * @return String containing the name of the type for this box.
+	 */
+	public abstract String getPGtype();
+
+	/**
+	 * The Prefix we have in WKT rep. I use an abstract method here so we do not need to replicate the String object in
+	 * every instance.
+	 * @return the prefix, as a string
+	 */
+	protected abstract String getPrefix();
+
+	/**
+	 * Returns the upper right top corner of the box as a Point object
+	 * @return upper right top corner of this box
+	 */
+	public Point getURT()
+	{
+		return urt;
+	}
+
+	@Override
+	public String getValue()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append(getPrefix());
+		sb.append('(');
+		PGboxbase.formatPoint(sb, llb);
+		sb.append(',');
+		PGboxbase.formatPoint(sb, urt);
+		sb.append(')');
+		return sb.toString();
+	}
+
+	/**
+	 * Obtain a new instance of a PGboxbase We could have used this.getClass().newInstance() here, but this forces us
+	 * dealing with InstantiationException and IllegalAccessException. Due to the PGObject.clone() brokennes that does
+	 * not allow clone() to throw CloneNotSupportedException, we cannot even pass this exceptions down to callers in a
+	 * sane way.
+	 * @return a new instance of PGboxbase
+	 */
+	protected abstract PGboxbase newInstance();
+
+	@Override
+	public void setValue(String value) throws SQLException
+	{
+		int srid = Geometry.UNKNOWN_SRID;
+		value = value.trim();
+		if (value.startsWith("SRID="))
+		{
+			String[] temp = PGboxbase.splitSRID(value);
+			value = temp[1].trim();
+			srid = Geometry.parseSRID(Integer.parseInt(temp[0].substring(5)));
+		}
+		String myPrefix = getPrefix();
+		if (value.startsWith(myPrefix))
+		{
+			value = value.substring(myPrefix.length()).trim();
+		}
+		String valueNoParans = GeometryTokenizer.removeLeadingAndTrailingStrings(value, "(", ")");
+		List<String> tokens = GeometryTokenizer.tokenize(valueNoParans, ',');
+		try
+		{
+			llb = PGboxbase.pointFromWKT(tokens.get(0));
+			urt = PGboxbase.pointFromWKT(tokens.get(1));
+			if (srid != Geometry.UNKNOWN_SRID)
+			{
+				llb.setSrid(srid);
+				urt.setSrid(srid);
+			}
+		}
+		catch (NumberFormatException ex)
+		{
+			throw new SQLException("Error parsing Point: " + ex, ex);
+		}
+	}
+
+	/**
+	 * Unlike geometries, toString() does _not_ contain the srid, as server-side PostGIS cannot parse this.
+	 * @return String representation of this box
+	 */
+	@Override
+	public String toString()
+	{
+		return getValue();
 	}
 }

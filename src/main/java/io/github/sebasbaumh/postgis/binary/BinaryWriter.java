@@ -71,8 +71,8 @@ public class BinaryWriter
 	 */
 	protected static void writeGeometry(Geometry geom, ValueSetter dest)
 	{
-		// write endian flag
-		dest.setByte(dest.endian);
+		// write endian flag, NDR (little endian)
+		dest.setByte((byte) 1);
 
 		// write typeword
 		int typeword = geom.type;

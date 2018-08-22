@@ -101,30 +101,6 @@ public abstract class Geometry implements Serializable
 	 */
 	public static final int MULTICURVE = 11;
 
-	// FIX
-	private static final String[] ALLTYPES = new String[] { "", // internally used LinearRing does not have any text in
-																// front of
-																// it
-			"POINT", "LINESTRING", "POLYGON", "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION",
-			"CIRCULARSTRING", "COMPOUNDCURVE", "CURVEPOLYGON", "MULTICURVE" };
-
-	/**
-	 * The Text representations of the geometry types
-	 * @param type int value of the type to lookup
-	 * @return String reprentation of the type.
-	 */
-	public static String getTypeString(int type)
-	{
-		if (type >= 0 && type < ALLTYPES.length)
-		{
-			return ALLTYPES[type];
-		}
-		else
-		{
-			throw new IllegalArgumentException("Unknown Geometry type" + type);
-		}
-	}
-
 	// Properties common to all geometries
 	/**
 	 * The dimensionality of this feature (2,3)
@@ -178,7 +154,7 @@ public abstract class Geometry implements Serializable
 	/**
 	 * java.lang.Object hashCode implementation
 	 */
-	//FIX
+	// FIX
 	@Override
 	public int hashCode()
 	{
@@ -190,7 +166,7 @@ public abstract class Geometry implements Serializable
 	 * @param other geometry to compare
 	 * @return true if equal, false otherwise
 	 */
-	//FIX
+	// FIX
 	@Override
 	public boolean equals(@SuppressWarnings("null") Object other)
 	{
@@ -202,7 +178,7 @@ public abstract class Geometry implements Serializable
 	 * @param other geometry to compare
 	 * @return true if equal, false otherwise
 	 */
-	//FIX
+	// FIX
 	public boolean equals(Geometry other)
 	{
 		return (this.dimension == other.dimension) && (this.type == other.type) && (this.srid == other.srid)
@@ -216,7 +192,7 @@ public abstract class Geometry implements Serializable
 	 * @param other geometry to compare
 	 * @return true if equal, false otherwise
 	 */
-	//FIX
+	// FIX
 	protected abstract boolean equalsintern(Geometry other);
 
 	/**
@@ -252,15 +228,6 @@ public abstract class Geometry implements Serializable
 	public int getType()
 	{
 		return this.type;
-	}
-
-	/**
-	 * Return the Type as String
-	 * @return String representation for the type of this geometry
-	 */
-	public String getTypeString()
-	{
-		return getTypeString(this.type);
 	}
 
 	/**
@@ -310,7 +277,7 @@ public abstract class Geometry implements Serializable
 	 */
 	public boolean checkConsistency()
 	{
-		return (dimension >= 2 && dimension <= 3) && (type >= 0 && type < ALLTYPES.length);
+		return (dimension >= 2 && dimension <= 3);
 	}
 
 }

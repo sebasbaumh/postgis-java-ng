@@ -59,7 +59,8 @@ public abstract class DatabaseTest
 	 */
 	protected Connection getConnection() throws SQLException
 	{
-		Assert.assertNotNull("the following property need to be configured for using a connection: "+CONFIG_JDBC_URL,ds);
+		Assert.assertNotNull("the following property need to be configured for using a connection: " + CONFIG_JDBC_URL,
+				ds);
 		return ds.getConnection();
 	}
 
@@ -142,14 +143,14 @@ public abstract class DatabaseTest
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Checks, if a database is available.
 	 * @return true on success, else false
 	 */
 	protected boolean hasDatabase()
 	{
-		return ds!=null;
+		return ds != null;
 	}
 
 	/**
@@ -163,7 +164,7 @@ public abstract class DatabaseTest
 	{
 		// load connection details
 		jdbcUrl = System.getProperty(CONFIG_JDBC_URL);
-		if(jdbcUrl!=null)
+		if (jdbcUrl != null)
 		{
 			jdbcUsername = System.getProperty(CONFIG_JDBC_USERNAME);
 			jdbcPassword = System.getProperty(CONFIG_JDBC_PASSWORD);
@@ -176,14 +177,15 @@ public abstract class DatabaseTest
 			{
 				throw new SQLException(e);
 			}
-	
+
 			// disable C3p0 log spamming
-			// the function is still working and the only workaround would be to set properties on the log4j logger, but it
+			// the function is still working and the only workaround would be to set properties on the log4j logger, but
+			// it
 			// could also be another type if log4j is not available...
 			MLog.getLogger("com.mchange.v2").setLevel(MLevel.WARNING);
 			System.setProperty("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "WARNING");
 			System.setProperty("com.mchange.v2.log.MLog", "log4j");
-	
+
 			// construct datasource
 			if ((jdbcUsername != null) && !jdbcUsername.trim().isEmpty())
 			{

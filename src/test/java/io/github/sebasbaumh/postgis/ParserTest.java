@@ -43,7 +43,6 @@ import io.github.sebasbaumh.postgis.binary.BinaryParser;
 import io.github.sebasbaumh.postgis.binary.BinaryWriter;
 import io.github.sebasbaumh.postgis.binary.ByteGetter;
 import io.github.sebasbaumh.postgis.binary.ByteSetter;
-import io.github.sebasbaumh.postgis.binary.ValueSetter;
 
 @SuppressWarnings("javadoc")
 public class ParserTest extends DatabaseTest

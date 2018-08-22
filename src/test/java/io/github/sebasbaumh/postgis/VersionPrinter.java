@@ -88,22 +88,24 @@ public class VersionPrinter extends DatabaseTest
 		String result = "-- unavailable -- ";
 		try
 		{
-			ResultSet resultSet = statement.executeQuery("SELECT " + function + "()");
-			if (resultSet.next())
+			try (ResultSet resultSet = statement.executeQuery("SELECT " + function + "()"))
 			{
-				String version = resultSet.getString(1);
-				if (version != null)
+				if (resultSet.next())
 				{
-					result = version.trim();
+					String version = resultSet.getString(1);
+					if (version != null)
+					{
+						result = version.trim();
+					}
+					else
+					{
+						result = "-- null result --";
+					}
 				}
 				else
 				{
-					result = "-- null result --";
+					result = "-- no result --";
 				}
-			}
-			else
-			{
-				result = "-- no result --";
 			}
 		}
 		catch (SQLException sqle)
@@ -153,23 +155,25 @@ public class VersionPrinter extends DatabaseTest
 
 		// Print PostgreSQL server versions
 		Assert.assertNotNull(connection);
-		Statement statement = connection.createStatement();
-		if (statement == null)
+		try (Statement statement = connection.createStatement())
 		{
-			logger.info("No online version available.");
-		}
-		else
-		{
-			logger.info("*** PostgreSQL Server ***");
-			String versionString = getVersionString("version");
-			logger.debug("\t version: {}", versionString);
-
-			// Print PostGIS versions
-			logger.info("*** PostGIS Server ***");
-			for (String GISVERSION : POSTGIS_FUNCTIONS)
+			if (statement == null)
 			{
-				versionString = getVersionString(GISVERSION);
-				logger.debug("\t {} version: {}", GISVERSION, versionString);
+				logger.info("No online version available.");
+			}
+			else
+			{
+				logger.info("*** PostgreSQL Server ***");
+				String versionString = getVersionString("version");
+				logger.debug("\t version: {}", versionString);
+
+				// Print PostGIS versions
+				logger.info("*** PostGIS Server ***");
+				for (String GISVERSION : POSTGIS_FUNCTIONS)
+				{
+					versionString = getVersionString(GISVERSION);
+					logger.debug("\t {} version: {}", GISVERSION, versionString);
+				}
 			}
 		}
 	}
