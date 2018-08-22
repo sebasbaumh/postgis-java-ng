@@ -66,7 +66,7 @@ public class ValueSetter
 	}
 
 	/**
-	 * Set a long value. This is not needed directly, but as a nice side-effect from GetDouble.
+	 * Set a long value. This is not needed directly, but as a nice side-effect from setDouble.
 	 * @param value value value to be set with
 	 */
 	public void setLong(long value)

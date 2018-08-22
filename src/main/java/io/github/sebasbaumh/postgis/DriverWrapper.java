@@ -116,6 +116,24 @@ public class DriverWrapper extends Driver
 	}
 
 	/**
+	 * Registers all datatypes on the given connection.
+	 * @param pgconn {@link Connection}
+	 * @throws SQLException
+	 */
+	public static void registerDataTypes(PGConnection pgconn) throws SQLException
+	{
+		pgconn.addDataType("geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
+		pgconn.addDataType("public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
+		pgconn.addDataType("box2d", io.github.sebasbaumh.postgis.PGbox2d.class);
+		pgconn.addDataType("box3d", io.github.sebasbaumh.postgis.PGbox3d.class);
+		pgconn.addDataType("public.box2d", io.github.sebasbaumh.postgis.PGbox2d.class);
+		pgconn.addDataType("public.box3d", io.github.sebasbaumh.postgis.PGbox3d.class);
+		pgconn.addDataType("\"public\".\"geometry\"", io.github.sebasbaumh.postgis.PGgeometry.class);
+		pgconn.addDataType("\"public\".\"box2d\"", io.github.sebasbaumh.postgis.PGbox2d.class);
+		pgconn.addDataType("\"public\".\"box3d\"", io.github.sebasbaumh.postgis.PGbox3d.class);
+	}
+
+	/**
 	 * Check whether the driver thinks he can handle the given URL.
 	 * @see java.sql.Driver#acceptsURL
 	 * @param url the URL of the driver
@@ -151,11 +169,7 @@ public class DriverWrapper extends Driver
 		Connection result = super.connect(url, info);
 		PGConnection pgconn = (PGConnection) result;
 		// add geometry and box types
-		pgconn.addDataType("geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
-        pgconn.addDataType("public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
-        pgconn.addDataType("\"public\".\"geometry\"", io.github.sebasbaumh.postgis.PGgeometry.class);
-		pgconn.addDataType("box3d", io.github.sebasbaumh.postgis.PGbox3d.class);
-		pgconn.addDataType("box2d", io.github.sebasbaumh.postgis.PGbox2d.class);
+		registerDataTypes(pgconn);
 		return result;
 	}
 

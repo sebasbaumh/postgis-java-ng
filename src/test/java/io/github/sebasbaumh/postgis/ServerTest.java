@@ -93,6 +93,7 @@ public class ServerTest extends DatabaseTest
 
 		logger.debug("Adding geometric type entries...");
 		((org.postgresql.PGConnection) connection).addDataType("geometry", PGgeometry.class);
+		((org.postgresql.PGConnection) connection).addDataType("box2d", PGbox2d.class);
 		((org.postgresql.PGConnection) connection).addDataType("box3d", PGbox3d.class);
 
 		logger.debug("Creating table with geometric types...");
