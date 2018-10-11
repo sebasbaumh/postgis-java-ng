@@ -86,20 +86,6 @@ public abstract class PGboxbase extends PGobject
 	}
 
 	/**
-	 * Compare two coordinates with lazy dimension checking. As the Server always returns Box3D with three dimensions,
-	 * z==0 equals dimensions==2
-	 * @param first First of two points to be compared
-	 * @param second Second of two points to be compared
-	 * @return true if the points are the same, false otherwise
-	 */
-	private static boolean compareLazyDim(Point first, Point second)
-	{
-		return first.x == second.x && first.y == second.y
-				&& (((first.dimension == 2 || first.z == 0.0) && (second.dimension == 2 || second.z == 0))
-						|| (first.z == second.z));
-	}
-
-	/**
 	 * Formats a coordinate to a string omitting empty decimal places.
 	 * @param d coordinate
 	 * @return string
@@ -120,13 +106,13 @@ public abstract class PGboxbase extends PGobject
 	 */
 	private static void formatPoint(StringBuffer sb, Point p)
 	{
-		sb.append(formatCoord(p.x));
+		sb.append(formatCoord(p.getX()));
 		sb.append(' ');
-		sb.append(formatCoord(p.y));
-		if (p.dimension == 3)
+		sb.append(formatCoord(p.getY()));
+		if (p.is3d())
 		{
 			sb.append(' ');
-			sb.append(formatCoord(p.z));
+			sb.append(formatCoord(p.getZ()));
 		}
 	}
 
@@ -183,14 +169,21 @@ public abstract class PGboxbase extends PGobject
 	}
 
 	@Override
-	public boolean equals(Object other)
+	public boolean equals(Object obj)
 	{
-		if (other instanceof PGboxbase)
+		// short cut
+		if (this == obj)
 		{
-			PGboxbase otherbox = (PGboxbase) other;
-			return (compareLazyDim(this.llb, otherbox.llb) && compareLazyDim(this.urt, otherbox.urt));
+			return true;
 		}
-		return false;
+		// check for type and null
+		if ((obj == null) || !(obj instanceof PGboxbase))
+		{
+			return false;
+		}
+		PGboxbase otherbox = (PGboxbase) obj;
+		// Compare two coordinates. As the Server always returns Box3D with three dimensions, z==0 equals dimensions==2
+		return (this.llb.coordsAreEqual(otherbox.llb) && this.urt.coordsAreEqual(otherbox.urt));
 	}
 
 	/**
@@ -255,7 +248,7 @@ public abstract class PGboxbase extends PGobject
 		{
 			String[] temp = PGboxbase.splitSRID(value);
 			value = temp[1].trim();
-			srid = Geometry.parseSRID(Integer.parseInt(temp[0].substring(5)));
+			srid = PostGisUtil.parseSRID(Integer.parseInt(temp[0].substring(5)));
 		}
 		String myPrefix = getPrefix();
 		if (value.startsWith(myPrefix))

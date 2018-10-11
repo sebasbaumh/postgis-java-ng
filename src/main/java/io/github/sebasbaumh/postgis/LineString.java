@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import javax.annotation.Nullable;
+
 /**
  * Linestring.
  * @author Sebastian Baumhekel
@@ -101,15 +103,16 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#equalsintern(io.github.sebasbaumh.postgis.Geometry)
-	 */
 	@Override
-	protected boolean equalsintern(Geometry other)
+	public boolean equals(@Nullable Object other)
 	{
-		// FIX
-		// TODO Auto-generated method stub
+		// check parent
+		if (super.equals(other) && (other instanceof LineString))
+		{
+			LineString ls = (LineString) other;
+			// check all points
+			return PostGisUtil.equalsIterable(this.points, ls.points);
+		}
 		return false;
 	}
 
@@ -141,6 +144,40 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 	public Point getPoint(int n)
 	{
 		return this.points.get(n);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#hasMeasure()
+	 */
+	@Override
+	public boolean hasMeasure()
+	{
+		for (Point geom : points)
+		{
+			if (geom.hasMeasure())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#is3d()
+	 */
+	@Override
+	public boolean is3d()
+	{
+		for (Point geom : points)
+		{
+			if (geom.is3d())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/*

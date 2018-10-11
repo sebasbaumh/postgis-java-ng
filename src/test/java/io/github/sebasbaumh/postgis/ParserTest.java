@@ -53,71 +53,6 @@ public class ParserTest extends DatabaseTest
 	private static final int SRID = 4326;
 	/** The string prefix we get for the srid tests */
 	private static final String SRIDPREFIX = "SRID=" + SRID + ";";
-	private static final String[] testset = new String[] { // 2D
-			"POINT(10 10)",
-			// 3D with 3rd coordinate set to 0
-			"POINT(10 10 0)",
-			// 3D
-			"POINT(10 10 20)",
-			// 3D with scientific notation
-			"POINT(1e100 1.2345e-100 -2e-5)",
-			// 2D + Measures
-			"POINTM(10 10 20)",
-			// 3D + Measures
-			"POINT(10 10 20 30)",
-			// broken format, see http://lists.jump-project.org/pipermail/jts-devel/2006-April/001572.html
-			"MULTIPOINT(11 12, 20 20)",
-			// broken format
-			"MULTIPOINT(11 12 13, 20 20 20)",
-			// broken format
-			"MULTIPOINTM(11 12 13, 20 20 20)",
-			// broken format
-			"MULTIPOINT(11 12 13 14,20 20 20 20)",
-			// OGC conforming format
-			"MULTIPOINT((11 12), (20 20))", "MULTIPOINT((11 12 13), (20 20 20))", "MULTIPOINTM((11 12 13), (20 20 20))",
-			"MULTIPOINT((11 12 13 14),(20 20 20 20))", "LINESTRING(10 10,20 20,50 50,34 34)",
-			"LINESTRING(10 10 20,20 20 20,50 50 50,34 34 34)", "LINESTRINGM(10 10 20,20 20 20,50 50 50,34 34 34)",
-			"LINESTRING(10 10 20 20,20 20 20 20,50 50 50 50,34 34 34 50)",
-			"POLYGON((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5))",
-			"POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))",
-			"POLYGONM((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))",
-			"POLYGON((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7))",
-			"MULTIPOLYGON(((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5)),((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5)))",
-			"MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
-			"MULTIPOLYGONM(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
-			"MULTIPOLYGON(((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7)),((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7)))",
-			"MULTILINESTRING((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5))",
-			"MULTILINESTRING((10 10 5,20 10 5,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))",
-			"MULTILINESTRINGM((10 10 7,20 10 7,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))",
-			"MULTILINESTRING((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7))",
-			"GEOMETRYCOLLECTION(POINT(10 10),POINT(20 20))", "GEOMETRYCOLLECTION(POINT(10 10 20),POINT(20 20 20))",
-			"GEOMETRYCOLLECTION(POINT(10 10 20 7),POINT(20 20 20 7))",
-			"GEOMETRYCOLLECTION(LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34))",
-			"GEOMETRYCOLLECTION(POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
-			// Cannot be parsed by 0.X servers, broken format
-			"GEOMETRYCOLLECTION(MULTIPOINT(10 10 10, 20 20 20),MULTIPOINT(10 10 10, 20 20 20))",
-			// Cannot be parsed by 0.X servers, OGC conformant
-			"GEOMETRYCOLLECTION(MULTIPOINT((10 10 10), (20 20 20)),MULTIPOINT((10 10 10), (20 20 20)))",
-			// PostGIs 0.X "flattens" this geometry, so it is not
-			// equal after reparsing.
-			"GEOMETRYCOLLECTION(MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
-			// PostGIs 0.X "flattens" this geometry, so it is not equal
-			// after reparsing.
-			"GEOMETRYCOLLECTION(MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))))",
-			"GEOMETRYCOLLECTION(POINT(10 10 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
-			// Collections that contain both X and MultiX do not work on
-			// PostGIS 0.x, broken format
-			"GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT(10 10 10, 20 20 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
-			// Collections that contain both X and MultiX do not work on
-			// PostGIS 0.x, OGC conformant
-			"GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT((10 10 10), (20 20 20)),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))",
-			// new (correct) representation
-			"GEOMETRYCOLLECTION EMPTY", "GEOMETRYCOLLECTIONM(POINTM(10 10 20),POINTM(20 20 20))",
-			"CIRCULARSTRING(-9 2,-8 3,-7 2)", "CIRCULARSTRING(0 -1,-1 0,0 1,1 0,0 -1)",
-			"CURVEPOLYGON(CIRCULARSTRING(0 0, 4 0, 4 4, 0 4, 0 0),(1 1, 3 3, 3 1, 1 1))",
-			// end
-	};
-
 	private Connection connection = null;
 
 	private Statement statement = null;
@@ -302,11 +237,87 @@ public class ParserTest extends DatabaseTest
 		{
 			return;
 		}
-		for (String aTestset : testset)
-		{
-			test(aTestset);
-			test(SRIDPREFIX + aTestset);
-		}
+		// 2D
+		testAll("POINT(10 10)");
+		// 3D with 3rd coordinate set to 0
+		testAll("POINT(10 10 0)");
+		// 3D
+		testAll("POINT(10 10 20)");
+		// 3D with scientific notation
+		testAll("POINT(1e100 1.2345e-100 -2e-5)");
+		// 2D + Measures
+		testAll("POINTM(10 10 20)");
+		// 3D + Measures
+		testAll("POINT(10 10 20 30)");
+		// broken format, see http://lists.jump-project.org/pipermail/jts-devel/2006-April/001572.html
+		testAll("MULTIPOINT(11 12, 20 20)");
+		// broken format
+		testAll("MULTIPOINT(11 12 13, 20 20 20)");
+		// broken format
+		testAll("MULTIPOINTM(11 12 13, 20 20 20)");
+		// broken format
+		testAll("MULTIPOINT(11 12 13 14,20 20 20 20)");
+		// OGC conforming format
+		testAll("MULTIPOINT((11 12), (20 20))");
+		testAll("MULTIPOINT((11 12 13), (20 20 20))");
+		testAll("MULTIPOINTM((11 12 13), (20 20 20))");
+		testAll("MULTIPOINT((11 12 13 14),(20 20 20 20))");
+		testAll("LINESTRING(10 10,20 20,50 50,34 34)");
+		testAll("LINESTRING(10 10 20,20 20 20,50 50 50,34 34 34)");
+		testAll("LINESTRINGM(10 10 20,20 20 20,50 50 50,34 34 34)");
+		testAll("LINESTRING(10 10 20 20,20 20 20 20,50 50 50 50,34 34 34 50)");
+		testAll("POLYGON((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5))");
+		testAll("POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))");
+		testAll("POLYGONM((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))");
+		testAll("POLYGON((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7))");
+		testAll("MULTIPOLYGON(((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5)),((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5)))");
+		testAll("MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))");
+		testAll("MULTIPOLYGONM(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))");
+		testAll("MULTIPOLYGON(((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7)),((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7)))");
+		testAll("MULTILINESTRING((10 10,20 10,20 20,20 10,10 10),(5 5,5 6,6 6,6 5,5 5))");
+		testAll("MULTILINESTRING((10 10 5,20 10 5,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))");
+		testAll("MULTILINESTRINGM((10 10 7,20 10 7,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))");
+		testAll("MULTILINESTRING((10 10 0 7,20 10 0 7,20 20 0 7,20 10 0 7,10 10 0 7),(5 5 0 7,5 6 0 7,6 6 0 7,6 5 0 7,5 5 0 7))");
+		testAll("GEOMETRYCOLLECTION(POINT(10 10),POINT(20 20))");
+		testAll("GEOMETRYCOLLECTION(POINT(10 10 20),POINT(20 20 20))");
+		testAll("GEOMETRYCOLLECTION(POINT(10 10 20 7),POINT(20 20 20 7))");
+		testAll("GEOMETRYCOLLECTION(LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34))");
+		testAll("GEOMETRYCOLLECTION(POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))");
+		// Cannot be parsed by 0.X servers, broken format
+		testAll("GEOMETRYCOLLECTION(MULTIPOINT(10 10 10, 20 20 20),MULTIPOINT(10 10 10, 20 20 20))");
+		// Cannot be parsed by 0.X servers, OGC conformant
+		testAll("GEOMETRYCOLLECTION(MULTIPOINT((10 10 10), (20 20 20)),MULTIPOINT((10 10 10), (20 20 20)))");
+		// PostGIs 0.X "flattens" this geometry, so it is not
+		// equal after reparsing.
+		testAll("GEOMETRYCOLLECTION(MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))");
+		// PostGIs 0.X "flattens" this geometry, so it is not equal
+		// after reparsing.
+		testAll("GEOMETRYCOLLECTION(MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))))");
+		testAll("GEOMETRYCOLLECTION(POINT(10 10 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))");
+		// Collections that contain both X and MultiX do not work on
+		// PostGIS 0.x, broken format
+		testAll("GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT(10 10 10, 20 20 20),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))");
+		// Collections that contain both X and MultiX do not work on
+		// PostGIS 0.x, OGC conformant
+		testAll("GEOMETRYCOLLECTION(POINT(10 10 20),MULTIPOINT((10 10 10), (20 20 20)),LINESTRING(10 10 20,20 20 20, 50 50 50, 34 34 34),POLYGON((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),MULTIPOLYGON(((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))),MULTILINESTRING((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))");
+		// new (correct) representation
+		testAll("GEOMETRYCOLLECTION EMPTY");
+		testAll("GEOMETRYCOLLECTIONM(POINTM(10 10 20),POINTM(20 20 20))");
+		testAll("CIRCULARSTRING(-9 2,-8 3,-7 2)");
+		testAll("CIRCULARSTRING(0 -1,-1 0,0 1,1 0,0 -1)");
+		testAll("CURVEPOLYGON(CIRCULARSTRING(0 0, 4 0, 4 4, 0 4, 0 0),(1 1, 3 3, 3 1, 1 1))");
+		// end
+	}
+
+	/**
+	 * Tests with and without SRID prefix.
+	 * @param wkt WKT
+	 * @throws SQLException
+	 */
+	private void testAll(String wkt) throws SQLException
+	{
+		test(wkt);
+		test(SRIDPREFIX + wkt);
 	}
 
 	/** Pass a geometry representation through the SQL server */

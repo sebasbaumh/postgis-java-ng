@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.annotation.Nullable;
+
 /**
  * Base class for a polygon to allow similar handling of straight and circular polygons.
  * @author Sebastian Baumhekel
@@ -53,14 +55,15 @@ public abstract class PolygonBase<T extends Geometry> extends Geometry implement
 		this.rings.clear();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#equalsintern(io.github.sebasbaumh.postgis.Geometry)
-	 */
 	@Override
-	protected boolean equalsintern(Geometry other)
+	public boolean equals(@Nullable Object other)
 	{
-		// TODO Auto-generated method stub
+		// check parent
+		if (super.equals(other) && (other instanceof PolygonBase<?>))
+		{
+			PolygonBase<?> poly = (PolygonBase<?>) other;
+			return PostGisUtil.equalsIterable(this.rings, poly.rings);
+		}
 		return false;
 	}
 
@@ -105,6 +108,40 @@ public abstract class PolygonBase<T extends Geometry> extends Geometry implement
 	public T getRing(int idx)
 	{
 		return rings.get(idx);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#hasMeasure()
+	 */
+	@Override
+	public boolean hasMeasure()
+	{
+		for (T geom : rings)
+		{
+			if (geom.hasMeasure())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#is3d()
+	 */
+	@Override
+	public boolean is3d()
+	{
+		for (T geom : rings)
+		{
+			if (geom.is3d())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/*

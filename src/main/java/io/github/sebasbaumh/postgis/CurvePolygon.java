@@ -34,7 +34,7 @@ import java.util.Collection;
  * can take the form of a circular string, linear string or compound string.
  * @author Sebastian Baumhekel
  */
-public class CurvePolygon extends PolygonBase<Geometry>
+public class CurvePolygon extends PolygonBase<LineString>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
@@ -51,7 +51,7 @@ public class CurvePolygon extends PolygonBase<Geometry>
 	 * Constructs an instance.
 	 * @param rings rings
 	 */
-	public CurvePolygon(Collection<? extends Geometry> rings)
+	public CurvePolygon(Collection<? extends LineString> rings)
 	{
 		super(CURVEPOLYGON, rings);
 		// FIX: check rings

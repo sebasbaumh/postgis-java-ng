@@ -42,14 +42,14 @@ public class BoxesTest
 		PGbox2d box = new PGbox2d("BOX(1 2,3 4)");
 		Point p0 = box.getLLB();
 		Assert.assertNotNull(p0);
-		Assert.assertEquals(1, p0.x, 0.0001);
-		Assert.assertEquals(2, p0.y, 0.0001);
-		Assert.assertEquals(2, p0.dimension);
+		Assert.assertEquals(1, p0.getX(), 0.0001);
+		Assert.assertEquals(2, p0.getY(), 0.0001);
+		Assert.assertFalse(p0.is3d());
 		Point p1 = box.getURT();
 		Assert.assertNotNull(p1);
-		Assert.assertEquals(3, p1.x, 0.0001);
-		Assert.assertEquals(4, p1.y, 0.0001);
-		Assert.assertEquals(2, p1.dimension);
+		Assert.assertEquals(3, p1.getX(), 0.0001);
+		Assert.assertEquals(4, p1.getY(), 0.0001);
+		Assert.assertFalse(p1.is3d());
 	}
 
 	@Test
@@ -58,14 +58,16 @@ public class BoxesTest
 		PGbox3d box = new PGbox3d("BOX3D(1 2 3,4 5 6)");
 		Point p0 = box.getLLB();
 		Assert.assertNotNull(p0);
-		Assert.assertEquals(1, p0.x, 0.0001);
-		Assert.assertEquals(2, p0.y, 0.0001);
-		Assert.assertEquals(3, p0.z, 0.0001);
+		Assert.assertEquals(1, p0.getX(), 0.0001);
+		Assert.assertEquals(2, p0.getY(), 0.0001);
+		Assert.assertEquals(3, p0.getZ(), 0.0001);
+		Assert.assertTrue(p0.is3d());
 		Point p1 = box.getURT();
 		Assert.assertNotNull(p1);
-		Assert.assertEquals(4, p1.x, 0.0001);
-		Assert.assertEquals(5, p1.y, 0.0001);
-		Assert.assertEquals(6, p1.z, 0.0001);
+		Assert.assertEquals(4, p1.getX(), 0.0001);
+		Assert.assertEquals(5, p1.getY(), 0.0001);
+		Assert.assertEquals(6, p1.getZ(), 0.0001);
+		Assert.assertTrue(p1.is3d());
 	}
 
 	@Test
@@ -74,14 +76,14 @@ public class BoxesTest
 		PGbox3d box = new PGbox3d("BOX3D(1 2,4 5)");
 		Point p0 = box.getLLB();
 		Assert.assertNotNull(p0);
-		Assert.assertEquals(1, p0.x, 0.0001);
-		Assert.assertEquals(2, p0.y, 0.0001);
-		Assert.assertEquals(2, p0.dimension);
+		Assert.assertEquals(1, p0.getX(), 0.0001);
+		Assert.assertEquals(2, p0.getY(), 0.0001);
+		Assert.assertFalse(p0.is3d());
 		Point p1 = box.getURT();
 		Assert.assertNotNull(p1);
-		Assert.assertEquals(4, p1.x, 0.0001);
-		Assert.assertEquals(5, p1.y, 0.0001);
-		Assert.assertEquals(2, p1.dimension);
+		Assert.assertEquals(4, p1.getX(), 0.0001);
+		Assert.assertEquals(5, p1.getY(), 0.0001);
+		Assert.assertFalse(p1.is3d());
 	}
 
 }

@@ -126,7 +126,7 @@ public class ServerTest extends DatabaseTest
 			{
 				Object obj = resultSet.getObject(1);
 				int id = resultSet.getInt(2);
-				logger.debug("Row {}: {}", id, obj.toString());
+				logger.debug("Row {}: {}", id, obj);
 			}
 		}
 	}

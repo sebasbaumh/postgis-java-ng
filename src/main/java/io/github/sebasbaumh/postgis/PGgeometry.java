@@ -100,7 +100,7 @@ public class PGgeometry extends PGobject
 	 */
 	public int getGeoType()
 	{
-		return geom.type;
+		return geom.getType();
 	}
 
 	@Override

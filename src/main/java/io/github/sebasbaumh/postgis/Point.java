@@ -29,6 +29,8 @@ package io.github.sebasbaumh.postgis;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 /**
  * Point geometry.
  * @author Sebastian Baumhekel
@@ -41,30 +43,30 @@ public class Point extends Geometry
 	/**
 	 * The measure of the point.
 	 */
-	public double m = 0.0;
+	private double m;
 
 	/**
 	 * The X coordinate of the point. In most long/lat systems, this is the longitude.
 	 */
-	public double x;
+	private double x;
 
 	/**
 	 * The Y coordinate of the point. In most long/lat systems, this is the latitude.
 	 */
-	public double y;
+	private double y;
 
 	/**
 	 * The Z coordinate of the point. In most long/lat systems, this is a radius from the center of the earth, or the
 	 * height / elevation over the ground.
 	 */
-	public double z;
+	private double z;
 
 	/**
 	 * Constructs an empty instance.
 	 */
 	public Point()
 	{
-		super(POINT);
+		this(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 	}
 
 	/**
@@ -74,11 +76,7 @@ public class Point extends Geometry
 	 */
 	public Point(double x, double y)
 	{
-		this();
-		this.x = x;
-		this.y = y;
-		this.z = 0.0;
-		dimension = 2;
+		this(x, y, Double.NaN, Double.NaN);
 	}
 
 	/**
@@ -89,68 +87,70 @@ public class Point extends Geometry
 	 */
 	public Point(double x, double y, double z)
 	{
-		this();
+		this(x, y, z, Double.NaN);
+	}
+
+	/**
+	 * Constructs a new Point
+	 * @param x the longitude / x ordinate
+	 * @param y the latitude / y ordinate
+	 * @param z the radius / height / elevation / z ordinate
+	 * @param m measure (4th dimension)
+	 */
+	public Point(double x, double y, double z, double m)
+	{
+		super(POINT);
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		dimension = 3;
-	}
-
-	private static boolean double_equals(double a, double b)
-	{
-		if (Double.isNaN(a) && Double.isNaN(b))
-		{
-			return true;
-		}
-		return (a == b);
+		this.m = m;
 	}
 
 	@Override
 	public boolean checkConsistency()
 	{
-		return super.checkConsistency() && (this.dimension == 3 || this.z == 0.0)
-				&& (this.haveMeasure || this.m == 0.0);
+		return super.checkConsistency() && !Double.isNaN(this.x) && !Double.isNaN(this.y);
 	}
 
+	/**
+	 * Checks it the coordinates of the given {@link Point} are equal to this {@link Point}.
+	 * @param other {@link Point}
+	 * @return true on success, else false
+	 */
 	public boolean coordsAreEqual(Point other)
 	{
-		boolean xequals = double_equals(x, other.x);
-		boolean yequals = double_equals(y, other.y);
-		boolean zequals = ((dimension == 2) || double_equals(z, other.z));
-		boolean mequals = ((haveMeasure == false) || double_equals(m, other.m));
-		boolean result = xequals && yequals && zequals && mequals;
-		return result;
+		return PostGisUtil.equalsDouble(x, other.x) && PostGisUtil.equalsDouble(y, other.y)
+				&& (!is3d() || PostGisUtil.equalsDouble(z, other.z))
+				&& (!hasMeasure() || PostGisUtil.equalsDouble(m, other.m));
 	}
 
-	public double distance(Point other)
+	/**
+	 * Calculates the distance to the given {@link Point}.
+	 * @param p {@link Point}
+	 * @return distance
+	 */
+	public double distance(Point p)
 	{
-		double tx, ty, tz;
-		if (this.dimension != other.dimension)
+		double dX = (p.x - this.x);
+		double dY = (p.y - this.y);
+		double d = dX * dX + dY * dY;
+		if (this.is3d() && p.is3d())
 		{
-			throw new IllegalArgumentException("Points have different dimensions!");
+			double dZ = (p.z - this.z);
+			d += dZ * dZ;
 		}
-		tx = this.x - other.x;
-		switch (this.dimension)
-		{
-			case 1:
-				return Math.sqrt(tx * tx);
-			case 2:
-				ty = this.y - other.y;
-				return Math.sqrt(tx * tx + ty * ty);
-			case 3:
-				ty = this.y - other.y;
-				tz = this.z - other.z;
-				return Math.sqrt(tx * tx + ty * ty + tz * tz);
-			default:
-				throw new IllegalArgumentException("Illegal dimension of Point" + this.dimension);
-		}
+		return Math.sqrt(d);
 	}
 
 	@Override
-	protected boolean equalsintern(Geometry otherg)
+	public boolean equals(@Nullable Object other)
 	{
-		Point other = (Point) otherg;
-		return coordsAreEqual(other);
+		// check parent
+		if (super.equals(other) && (other instanceof Point))
+		{
+			return coordsAreEqual((Point) other);
+		}
+		return false;
 	}
 
 	/** Optimized versions for this special case */
@@ -167,6 +167,10 @@ public class Point extends Geometry
 		return this;
 	}
 
+	/**
+	 * Gets the measurement.
+	 * @return measurement on success, else {@link Double#NaN}
+	 */
 	public double getM()
 	{
 		return m;
@@ -185,16 +189,28 @@ public class Point extends Geometry
 		}
 	}
 
+	/**
+	 * Gets the X-coordinate.
+	 * @return X-coordinate on success, else {@link Double#NaN}
+	 */
 	public double getX()
 	{
 		return x;
 	}
 
+	/**
+	 * Gets the Y-coordinate.
+	 * @return Y-coordinate on success, else {@link Double#NaN}
+	 */
 	public double getY()
 	{
 		return y;
 	}
 
+	/**
+	 * Gets the Z-coordinate.
+	 * @return Z-coordinate on success, else {@link Double#NaN}
+	 */
 	public double getZ()
 	{
 		return z;
@@ -206,6 +222,26 @@ public class Point extends Geometry
 		return Objects.hash(x, y, z, m);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#hasMeasure()
+	 */
+	@Override
+	public boolean hasMeasure()
+	{
+		return !Double.isNaN(this.m);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#is3d()
+	 */
+	@Override
+	public boolean is3d()
+	{
+		return !Double.isNaN(this.z);
+	}
+
 	@Override
 	public int numPoints()
 	{
@@ -214,7 +250,6 @@ public class Point extends Geometry
 
 	public void setM(double m)
 	{
-		haveMeasure = true;
 		this.m = m;
 	}
 

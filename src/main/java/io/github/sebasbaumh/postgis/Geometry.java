@@ -29,6 +29,8 @@ package io.github.sebasbaumh.postgis;
 
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /** The base class of all geometries */
@@ -101,22 +103,11 @@ public abstract class Geometry implements Serializable
 	 */
 	public static final int MULTICURVE = 11;
 
-	// Properties common to all geometries
-	/**
-	 * The dimensionality of this feature (2,3)
-	 */
-	public int dimension;
-
-	/**
-	 * Do we have a measure (4th dimension)
-	 */
-	public boolean haveMeasure = false;
-
 	/**
 	 * The OGIS geometry type of this feature. this is final as it never changes, it is bound to the subclass of the
 	 * instance.
 	 */
-	public final int type;
+	private final int type;
 
 	/**
 	 * Official UNKNOWN srid value
@@ -126,21 +117,7 @@ public abstract class Geometry implements Serializable
 	/**
 	 * The spacial reference system id of this geometry, default is no srid
 	 */
-	public int srid = UNKNOWN_SRID;
-
-	/**
-	 * Parse a SRID value, anything {@code <= 0} is unknown
-	 * @param srid the SRID to parse
-	 * @return parsed SRID value
-	 */
-	public static int parseSRID(int srid)
-	{
-		if (srid < 0)
-		{
-			srid = 0;
-		}
-		return srid;
-	}
+	private int srid = UNKNOWN_SRID;
 
 	/**
 	 * Constructor for subclasses.
@@ -152,48 +129,47 @@ public abstract class Geometry implements Serializable
 	}
 
 	/**
-	 * java.lang.Object hashCode implementation
+	 * Checks if this {@link Geometry} is 3d.
+	 * @return true on success, else false
 	 */
-	// FIX
+	public abstract boolean is3d();
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode()
 	{
-		return dimension | (type * 4) | (srid * 32);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + this.srid;
+		result = prime * result + this.type;
+		return result;
 	}
 
 	/**
 	 * java.lang.Object equals implementation
-	 * @param other geometry to compare
+	 * @param obj geometry to compare
 	 * @return true if equal, false otherwise
 	 */
-	// FIX
 	@Override
-	public boolean equals(@SuppressWarnings("null") Object other)
+	public boolean equals(@Nullable Object obj)
 	{
-		return (other instanceof Geometry) && equals((Geometry) other);
+		// short cut
+		if (this == obj)
+		{
+			return true;
+		}
+		// check for type and null
+		if (!(obj instanceof Geometry))
+		{
+			return false;
+		}
+		// check all properties specific to this instance
+		Geometry other = (Geometry) obj;
+		return other.getClass().equals(this.getClass()) && (this.type == other.type) && (this.srid == other.srid);
 	}
-
-	/**
-	 * geometry specific equals implementation - only defined for non-null values
-	 * @param other geometry to compare
-	 * @return true if equal, false otherwise
-	 */
-	// FIX
-	public boolean equals(Geometry other)
-	{
-		return (this.dimension == other.dimension) && (this.type == other.type) && (this.srid == other.srid)
-				&& (this.haveMeasure == other.haveMeasure) && other.getClass().equals(this.getClass())
-				&& this.equalsintern(other);
-	}
-
-	/**
-	 * Whether test coordinates for geometry - subclass specific code Implementors can assume that dimensin, type, srid
-	 * and haveMeasure are equal, other != null and other is the same subclass.
-	 * @param other geometry to compare
-	 * @return true if equal, false otherwise
-	 */
-	// FIX
-	protected abstract boolean equalsintern(Geometry other);
 
 	/**
 	 * Return the number of Points of the geometry
@@ -222,8 +198,8 @@ public abstract class Geometry implements Serializable
 	public abstract Point getLastPoint();
 
 	/**
-	 * The OGIS geometry type number of this geometry.
-	 * @return int value representation for the type of this geometry
+	 * Gets the OGIS geometry type number of this geometry.
+	 * @return type of this geometry
 	 */
 	public int getType()
 	{
@@ -231,22 +207,21 @@ public abstract class Geometry implements Serializable
 	}
 
 	/**
-	 * Returns whether we have a measure
+	 * Returns whether we have a measure (4th dimension)
 	 * @return true if the geometry has a measure, false otherwise
 	 */
-	public boolean isMeasured()
-	{
-		return haveMeasure;
-	}
+	public abstract boolean hasMeasure();
 
 	/**
 	 * Queries the number of geometric dimensions of this geometry. This does not include measures, as opposed to the
 	 * server.
 	 * @return The dimensionality (eg, 2D or 3D) of this geometry.
 	 */
+	// FIX: remove
+	@Deprecated
 	public int getDimension()
 	{
-		return this.dimension;
+		return is3d() ? 3 : 2;
 	}
 
 	/**
@@ -275,9 +250,11 @@ public abstract class Geometry implements Serializable
 	 * BinaryWriter may produce invalid results on inconsistent geometries.
 	 * @return true if all checks are passed.
 	 */
+	// FIX: remove
+	@Deprecated
 	public boolean checkConsistency()
 	{
-		return (dimension >= 2 && dimension <= 3);
+		return (getDimension() >= 2 && getDimension() <= 3);
 	}
 
 }

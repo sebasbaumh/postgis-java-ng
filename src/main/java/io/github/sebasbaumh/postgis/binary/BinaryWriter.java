@@ -75,28 +75,28 @@ public class BinaryWriter
 		dest.setByte((byte) 1);
 
 		// write typeword
-		int typeword = geom.type;
-		if (geom.dimension == 3)
+		int typeword = geom.getType();
+		if (geom.is3d())
 		{
 			typeword |= 0x80000000;
 		}
-		if (geom.haveMeasure)
+		if (geom.hasMeasure())
 		{
 			typeword |= 0x40000000;
 		}
-		if (geom.srid != Geometry.UNKNOWN_SRID)
+		if (geom.getSrid() != Geometry.UNKNOWN_SRID)
 		{
 			typeword |= 0x20000000;
 		}
 
 		dest.setInt(typeword);
 
-		if (geom.srid != Geometry.UNKNOWN_SRID)
+		if (geom.getSrid() != Geometry.UNKNOWN_SRID)
 		{
-			dest.setInt(geom.srid);
+			dest.setInt(geom.getSrid());
 		}
 
-		switch (geom.type)
+		switch (geom.getType())
 		{
 			case Geometry.POINT:
 				writePoint((Point) geom, dest);
@@ -127,7 +127,7 @@ public class BinaryWriter
 				break;
 			// FIX: add curve types here
 			default:
-				throw new IllegalArgumentException("Unknown Geometry Type: " + geom.type);
+				throw new IllegalArgumentException("Unknown Geometry Type: " + geom.getType());
 		}
 	}
 
@@ -139,17 +139,17 @@ public class BinaryWriter
 	 */
 	private static void writePoint(Point geom, ValueSetter dest)
 	{
-		dest.setDouble(geom.x);
-		dest.setDouble(geom.y);
+		dest.setDouble(geom.getX());
+		dest.setDouble(geom.getY());
 
-		if (geom.dimension == 3)
+		if (geom.is3d())
 		{
-			dest.setDouble(geom.z);
+			dest.setDouble(geom.getZ());
 		}
 
-		if (geom.haveMeasure)
+		if (geom.hasMeasure())
 		{
-			dest.setDouble(geom.m);
+			dest.setDouble(geom.getM());
 		}
 	}
 
@@ -226,7 +226,7 @@ public class BinaryWriter
 		// {
 		// //FIX
 		// }else {
-		throw new IllegalArgumentException("Unknown Geometry Type: " + geom.type);
+		throw new IllegalArgumentException("Unknown Geometry Type: " + geom.getType());
 		// }
 	}
 

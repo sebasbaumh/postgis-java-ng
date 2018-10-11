@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.annotation.Nullable;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
@@ -41,17 +43,6 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	{
 		this(type);
 		this.addAll(geoms);
-		if (!subgeoms.isEmpty())
-		{
-			// get first geometry
-			T geom = subgeoms.iterator().next();
-			dimension = geom.dimension;
-			haveMeasure = geom.haveMeasure;
-		}
-		else
-		{
-			dimension = 0;
-		}
 	}
 
 	/**
@@ -85,13 +76,13 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 				return true;
 			}
 			// cache to avoid getMember opcode
-			int _dimension = this.dimension;
-			boolean _haveMeasure = this.haveMeasure;
-			int _srid = this.srid;
+			int _dimension = this.getDimension();
+			boolean _haveMeasure = this.hasMeasure();
+			int _srid = this.getSrid();
 			for (Geometry sub : subgeoms)
 			{
-				if (!(sub.checkConsistency() && sub.dimension == _dimension && sub.haveMeasure == _haveMeasure
-						&& sub.srid == _srid))
+				if (!(sub.checkConsistency() && sub.getDimension() == _dimension && sub.hasMeasure() == _haveMeasure
+						&& sub.getSrid() == _srid))
 				{
 					return false;
 				}
@@ -105,30 +96,33 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	}
 
 	@Override
-	protected boolean equalsintern(Geometry other)
+	public boolean equals(@Nullable Object other)
 	{
-		// Can be assumed to be the same subclass of Geometry, so it must be a
-		// ComposedGeom, too.
-		MultiGeometry<?> cother = (MultiGeometry<?>) other;
-		if (cother.subgeoms.isEmpty() && subgeoms.isEmpty())
+		// check parent
+		if (super.equals(other) && (other instanceof MultiGeometry<?>))
 		{
-			return true;
-		}
-		else if (cother.subgeoms.size() != subgeoms.size())
-		{
-			return false;
-		}
-		else
-		{
-			for (int i = 0; i < subgeoms.size(); i++)
+			MultiGeometry<?> cother = (MultiGeometry<?>) other;
+			if (cother.subgeoms.isEmpty() && subgeoms.isEmpty())
 			{
-				if (!cother.subgeoms.get(i).equalsintern(this.subgeoms.get(i)))
+				return true;
+			}
+			else if (cother.subgeoms.size() != subgeoms.size())
+			{
+				return false;
+			}
+			else
+			{
+				for (int i = 0; i < subgeoms.size(); i++)
 				{
-					return false;
+					if (!cother.subgeoms.get(i).equals(this.subgeoms.get(i)))
+					{
+						return false;
+					}
 				}
 			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -235,6 +229,38 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 		{
 			geom.setSrid(srid);
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#is3d()
+	 */
+	@Override
+	public boolean is3d()
+	{
+		for(T geom:subgeoms)
+		{
+			if(geom.is3d())
+			{
+				return true;	
+			}
+		}
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#hasMeasure()
+	 */
+	@Override
+	public boolean hasMeasure()
+	{
+		for(T geom:subgeoms)
+		{
+			if(geom.hasMeasure())
+			{
+				return true;	
+			}
+		}
+		return false;
 	}
 
 	/**

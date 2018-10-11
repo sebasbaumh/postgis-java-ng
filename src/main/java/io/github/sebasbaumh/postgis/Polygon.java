@@ -50,17 +50,6 @@ public class Polygon extends PolygonBase<LinearRing>
 
 	/*
 	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#equalsintern(io.github.sebasbaumh.postgis.Geometry)
-	 */
-	@Override
-	protected boolean equalsintern(Geometry other)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.Geometry#numPoints()
 	 */
 	@Override
