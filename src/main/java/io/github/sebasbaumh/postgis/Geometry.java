@@ -215,9 +215,9 @@ public abstract class Geometry implements Serializable
 	/**
 	 * Queries the number of geometric dimensions of this geometry. This does not include measures, as opposed to the
 	 * server.
+	 * @deprecated use {@link #is3d()} instead
 	 * @return The dimensionality (eg, 2D or 3D) of this geometry.
 	 */
-	// FIX: remove
 	@Deprecated
 	public int getDimension()
 	{
@@ -244,17 +244,16 @@ public abstract class Geometry implements Serializable
 
 	/**
 	 * Do some internal consistency checks on the geometry. Currently, all Geometries must have a valid dimension (2 or
-	 * 3) and a valid type. 2-dimensional Points must have Z=0.0, as well as non-measured Points must have m=0.0.
-	 * Composed geometries must have all equal SRID, dimensionality and measures, as well as that they do not contain
-	 * NULL or inconsistent subgeometries. BinaryParser and WKTParser should only generate consistent geometries.
-	 * BinaryWriter may produce invalid results on inconsistent geometries.
+	 * 3) and a valid type. Composed geometries must have all equal SRID, dimensionality and measures, as well as that
+	 * they do not contain NULL or inconsistent subgeometries. BinaryParser and WKTParser should only generate
+	 * consistent geometries. BinaryWriter may produce invalid results on inconsistent geometries.
 	 * @return true if all checks are passed.
 	 */
-	// FIX: remove
-	@Deprecated
+	@SuppressWarnings("static-method")
 	public boolean checkConsistency()
 	{
-		return (getDimension() >= 2 && getDimension() <= 3);
+		// default is a correct geometry
+		return true;
 	}
 
 }

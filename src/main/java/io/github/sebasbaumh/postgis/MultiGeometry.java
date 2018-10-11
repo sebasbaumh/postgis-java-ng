@@ -69,30 +69,11 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	@Override
 	public boolean checkConsistency()
 	{
-		if (super.checkConsistency())
-		{
-			if (isEmpty())
-			{
-				return true;
-			}
-			// cache to avoid getMember opcode
-			int _dimension = this.getDimension();
-			boolean _haveMeasure = this.hasMeasure();
-			int _srid = this.getSrid();
-			for (Geometry sub : subgeoms)
-			{
-				if (!(sub.checkConsistency() && sub.getDimension() == _dimension && sub.hasMeasure() == _haveMeasure
-						&& sub.getSrid() == _srid))
-				{
-					return false;
-				}
-			}
-			return true;
-		}
-		else
+		if (!super.checkConsistency())
 		{
 			return false;
 		}
+		return PostGisUtil.checkConsistency(subgeoms);
 	}
 
 	@Override
@@ -191,6 +172,40 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 		return subgeoms.hashCode();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#hasMeasure()
+	 */
+	@Override
+	public boolean hasMeasure()
+	{
+		for (T geom : subgeoms)
+		{
+			if (geom.hasMeasure())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#is3d()
+	 */
+	@Override
+	public boolean is3d()
+	{
+		for (T geom : subgeoms)
+		{
+			if (geom.is3d())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Checks, if there are no sub-geometries.
 	 * @return true on success, else false
@@ -229,38 +244,6 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 		{
 			geom.setSrid(srid);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#is3d()
-	 */
-	@Override
-	public boolean is3d()
-	{
-		for(T geom:subgeoms)
-		{
-			if(geom.is3d())
-			{
-				return true;	
-			}
-		}
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#hasMeasure()
-	 */
-	@Override
-	public boolean hasMeasure()
-	{
-		for(T geom:subgeoms)
-		{
-			if(geom.hasMeasure())
-			{
-				return true;	
-			}
-		}
-		return false;
 	}
 
 	/**

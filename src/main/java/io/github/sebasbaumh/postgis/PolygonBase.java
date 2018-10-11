@@ -47,6 +47,16 @@ public abstract class PolygonBase<T extends Geometry> extends Geometry implement
 		this.rings.add(ring);
 	}
 
+	@Override
+	public boolean checkConsistency()
+	{
+		if (!super.checkConsistency())
+		{
+			return false;
+		}
+		return PostGisUtil.checkConsistency(rings);
+	}
+
 	/**
 	 * Clears all rings.
 	 */
@@ -177,4 +187,5 @@ public abstract class PolygonBase<T extends Geometry> extends Geometry implement
 	{
 		return rings.size();
 	}
+
 }

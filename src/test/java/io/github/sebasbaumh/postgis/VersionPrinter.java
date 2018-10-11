@@ -157,23 +157,16 @@ public class VersionPrinter extends DatabaseTest
 		Assert.assertNotNull(connection);
 		try (Statement statement = connection.createStatement())
 		{
-			if (statement == null)
-			{
-				logger.info("No online version available.");
-			}
-			else
-			{
-				logger.info("*** PostgreSQL Server ***");
-				String versionString = getVersionString("version");
-				logger.debug("\t version: {}", versionString);
+			logger.info("*** PostgreSQL Server ***");
+			String versionString = getVersionString("version");
+			logger.info("\t version: {}", versionString);
 
-				// Print PostGIS versions
-				logger.info("*** PostGIS Server ***");
-				for (String GISVERSION : POSTGIS_FUNCTIONS)
-				{
-					versionString = getVersionString(GISVERSION);
-					logger.debug("\t {} version: {}", GISVERSION, versionString);
-				}
+			// Print PostGIS versions
+			logger.info("*** PostGIS Server ***");
+			for (String GISVERSION : POSTGIS_FUNCTIONS)
+			{
+				versionString = getVersionString(GISVERSION);
+				logger.info("\t {} version: {}", GISVERSION, versionString);
 			}
 		}
 	}

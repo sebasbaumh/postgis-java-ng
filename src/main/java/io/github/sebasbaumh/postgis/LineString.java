@@ -104,6 +104,16 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 	}
 
 	@Override
+	public boolean checkConsistency()
+	{
+		if (!super.checkConsistency())
+		{
+			return false;
+		}
+		return PostGisUtil.checkConsistency(points);
+	}
+
+	@Override
 	public boolean equals(@Nullable Object other)
 	{
 		// check parent
@@ -224,4 +234,5 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 	{
 		Collections.reverse(this.points);
 	}
+
 }

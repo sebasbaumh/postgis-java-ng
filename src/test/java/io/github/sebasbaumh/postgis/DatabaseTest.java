@@ -59,7 +59,7 @@ public abstract class DatabaseTest
 	 */
 	protected Connection getConnection() throws SQLException
 	{
-		Assert.assertNotNull("the following property need to be configured for using a connection: " + CONFIG_JDBC_URL,
+		Assert.assertNotNull("the following property needs to be configured for using a connection: " + CONFIG_JDBC_URL,
 				ds);
 		return ds.getConnection();
 	}

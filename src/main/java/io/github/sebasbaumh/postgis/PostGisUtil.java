@@ -21,6 +21,42 @@ public final class PostGisUtil
 	}
 
 	/**
+	 * Do some internal consistency checks on the given geometries. Currently, all Geometries must have a valid
+	 * dimension (2 or 3) and a valid type. Composed geometries must have all equal SRID, dimensionality and measures,
+	 * as well as that they do not contain NULL or inconsistent subgeometries. BinaryParser and WKTParser should only
+	 * generate consistent geometries. BinaryWriter may produce invalid results on inconsistent geometries.
+	 * @param geoms geometries
+	 * @return true if all checks are passed.
+	 */
+	public static <T extends Geometry> boolean checkConsistency(Iterable<T> geoms)
+	{
+		Iterator<T> it = geoms.iterator();
+		if (it.hasNext())
+		{
+			// get first geometry and check it
+			T gFirst = it.next();
+			if (!gFirst.checkConsistency())
+			{
+				return false;
+			}
+			boolean bIs3d = gFirst.is3d();
+			boolean bHasMeasure = gFirst.hasMeasure();
+			int iSrid = gFirst.getSrid();
+			// now compare to the rest
+			while (it.hasNext())
+			{
+				T subGeom = it.next();
+				if (!subGeom.checkConsistency() || (bIs3d != subGeom.is3d()) || (bHasMeasure != subGeom.hasMeasure())
+						|| (iSrid != subGeom.getSrid()))
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Compares two double values respecting {@link Double#NaN} values.
 	 * @param a {@link Double}
 	 * @param b {@link Double}

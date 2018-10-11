@@ -88,10 +88,14 @@ public class PGbox2d extends PGboxbase
 	public void setValue(String value) throws SQLException
 	{
 		super.setValue(value);
-
-		if (llb.getDimension() != 2 || urt.getDimension() != 2)
+		// force 2 dimensions
+		if (llb.is3d())
 		{
-			throw new SQLException("PGbox2d is only allowed to have 2 dimensions!");
+			llb = llb.to2d();
+		}
+		if (urt.is3d())
+		{
+			urt = urt.to2d();
 		}
 	}
 }

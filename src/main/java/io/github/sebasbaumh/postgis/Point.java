@@ -267,4 +267,15 @@ public class Point extends Geometry
 	{
 		this.z = z;
 	}
+
+	/**
+	 * Gets this {@link Point} as a 2d object.
+	 * @return {@link Point}
+	 */
+	public Point to2d()
+	{
+		// create a new instance with x/y and measure (if set)
+		return new Point(this.x, this.y, Double.NaN, this.m);
+	}
+
 }
