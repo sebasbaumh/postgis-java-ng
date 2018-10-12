@@ -53,7 +53,7 @@ public class CircularString extends LineString
 	 */
 	public CircularString()
 	{
-		super(CircularString.TYPE);
+		super(TYPE);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class CircularString extends LineString
 	 */
 	public CircularString(Iterable<Point> points)
 	{
-		super(CircularString.TYPE);
+		super(TYPE);
 		addAll(points);
 	}
 

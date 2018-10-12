@@ -28,16 +28,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import io.github.sebasbaumh.postgis.CircularString;
+import io.github.sebasbaumh.postgis.CompoundCurve;
 import io.github.sebasbaumh.postgis.CurvePolygon;
 import io.github.sebasbaumh.postgis.Geometry;
 import io.github.sebasbaumh.postgis.GeometryCollection;
 import io.github.sebasbaumh.postgis.LineString;
 import io.github.sebasbaumh.postgis.LinearRing;
+import io.github.sebasbaumh.postgis.MultiCurve;
 import io.github.sebasbaumh.postgis.MultiLineString;
 import io.github.sebasbaumh.postgis.MultiPoint;
 import io.github.sebasbaumh.postgis.MultiPolygon;
+import io.github.sebasbaumh.postgis.MultiSurface;
 import io.github.sebasbaumh.postgis.Point;
 import io.github.sebasbaumh.postgis.Polygon;
+import io.github.sebasbaumh.postgis.PolygonBase;
 import io.github.sebasbaumh.postgis.PostGisUtil;
 
 /**
@@ -69,6 +73,11 @@ public class BinaryParser
 	private static GeometryCollection parseCollection(ValueGetter data)
 	{
 		return new GeometryCollection(parseGeometries(Geometry.class, data));
+	}
+
+	private static CompoundCurve parseCompoundCurve(ValueGetter data)
+	{
+		return new CompoundCurve(parseGeometries(LineString.class, data));
 	}
 
 	private static CurvePolygon parseCurvePolygon(ValueGetter data)
@@ -147,8 +156,17 @@ public class BinaryParser
 			case LineString.TYPE:
 				result = parseLineString(data, haveZ, haveM);
 				break;
+			case CircularString.TYPE:
+				result = parseCircularString(data, haveZ, haveM);
+				break;
+			case CompoundCurve.TYPE:
+				result = parseCompoundCurve(data);
+				break;
 			case Polygon.TYPE:
 				result = parsePolygon(data, haveZ, haveM);
+				break;
+			case CurvePolygon.TYPE:
+				result = parseCurvePolygon(data);
 				break;
 			case MultiPoint.TYPE:
 				result = parseMultiPoint(data);
@@ -156,19 +174,18 @@ public class BinaryParser
 			case MultiLineString.TYPE:
 				result = parseMultiLineString(data);
 				break;
+			case MultiCurve.TYPE:
+				result = parseMultiCurve(data);
+				break;
 			case MultiPolygon.TYPE:
 				result = parseMultiPolygon(data);
+				break;
+			case MultiSurface.TYPE:
+				result = parseMultiSurface(data);
 				break;
 			case GeometryCollection.TYPE:
 				result = parseCollection(data);
 				break;
-			case CircularString.TYPE:
-				result = parseCircularString(data, haveZ, haveM);
-				break;
-			case CurvePolygon.TYPE:
-				result = parseCurvePolygon(data);
-				break;
-			// FIX: add curve types here
 			default:
 				throw new IllegalArgumentException("Unknown Geometry Type: " + geometryType);
 		}
@@ -187,6 +204,11 @@ public class BinaryParser
 		return new LineString(parsePoints(data, haveZ, haveM));
 	}
 
+	private static MultiCurve parseMultiCurve(ValueGetter data)
+	{
+		return new MultiCurve(parseGeometries(LineString.class, data));
+	}
+
 	private static MultiLineString parseMultiLineString(ValueGetter data)
 	{
 		return new MultiLineString(parseGeometries(LineString.class, data));
@@ -200,6 +222,11 @@ public class BinaryParser
 	private static MultiPolygon parseMultiPolygon(ValueGetter data)
 	{
 		return new MultiPolygon(parseGeometries(Polygon.class, data));
+	}
+
+	private static MultiSurface parseMultiSurface(ValueGetter data)
+	{
+		return new MultiSurface(parseGeometries(PolygonBase.class, data));
 	}
 
 	/**

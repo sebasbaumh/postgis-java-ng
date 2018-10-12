@@ -53,7 +53,7 @@ public class CompoundCurve extends MultiGeometry<Geometry>
 	 */
 	public CompoundCurve()
 	{
-		super(CompoundCurve.TYPE);
+		super(TYPE);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class CompoundCurve extends MultiGeometry<Geometry>
 	 */
 	public CompoundCurve(Collection<? extends Geometry> geoms)
 	{
-		super(CompoundCurve.TYPE, geoms);
+		super(TYPE, geoms);
 		// FIX: check curves
 	}
 

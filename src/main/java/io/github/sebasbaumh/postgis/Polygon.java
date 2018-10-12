@@ -48,7 +48,7 @@ public class Polygon extends PolygonBase<LinearRing>
 	 */
 	public Polygon()
 	{
-		super(Polygon.TYPE, LinearRing.class);
+		super(TYPE, LinearRing.class);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class Polygon extends PolygonBase<LinearRing>
 	 */
 	public Polygon(Iterable<LinearRing> rings)
 	{
-		super(Polygon.TYPE, LinearRing.class, rings);
+		super(TYPE, LinearRing.class, rings);
 	}
 
 	/*

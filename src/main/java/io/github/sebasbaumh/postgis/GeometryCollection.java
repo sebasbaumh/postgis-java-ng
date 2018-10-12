@@ -48,7 +48,7 @@ public class GeometryCollection extends MultiGeometry<Geometry>
 	 */
 	public GeometryCollection()
 	{
-		super(GeometryCollection.TYPE);
+		super(TYPE);
 	}
 
 	/**
@@ -57,6 +57,6 @@ public class GeometryCollection extends MultiGeometry<Geometry>
 	 */
 	public GeometryCollection(Iterable<Geometry> geoms)
 	{
-		super(GeometryCollection.TYPE, geoms);
+		super(TYPE, geoms);
 	}
 }

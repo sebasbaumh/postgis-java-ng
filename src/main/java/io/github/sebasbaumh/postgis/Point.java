@@ -107,7 +107,7 @@ public class Point extends Geometry
 	 */
 	public Point(double x, double y, double z, double m)
 	{
-		super(Point.TYPE);
+		super(TYPE);
 		this.x = x;
 		this.y = y;
 		this.z = z;

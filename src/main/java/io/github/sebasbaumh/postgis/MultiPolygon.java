@@ -48,7 +48,7 @@ public class MultiPolygon extends MultiGeometry<Polygon>
 	 */
 	public MultiPolygon()
 	{
-		super(MultiPolygon.TYPE);
+		super(TYPE);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class MultiPolygon extends MultiGeometry<Polygon>
 	 */
 	public MultiPolygon(Iterable<Polygon> polygons)
 	{
-		super(MultiPolygon.TYPE, polygons);
+		super(TYPE, polygons);
 	}
 
 }

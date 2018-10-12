@@ -57,6 +57,25 @@ public abstract class Geometry implements Serializable
 	 */
 	private final int type;
 
+	// WKB types:
+	// POINT 1
+	// LINESTRING 2
+	// POLYGON 3
+	// MULTIPOINT 4
+	// MULTILINESTRING 5
+	// MULTIPOLYGON 6
+	// GEOMETRYCOLLECTION 7
+	// CIRCULARSTRING 8
+	// COMPOUNDCURVE 9
+	// CURVEPOLYGON 10
+	// MULTICURVE 11
+	// MULTISURFACE 12
+	// CURVE 13
+	// SURFACE 14
+	// POLYHEDRALSURFACE 15
+	// TIN 16
+	// TRIANGLE 17
+
 	/**
 	 * Constructor for subclasses.
 	 * @param type has to be given by all subclasses

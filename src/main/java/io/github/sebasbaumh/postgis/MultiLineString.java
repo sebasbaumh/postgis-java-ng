@@ -48,7 +48,7 @@ public class MultiLineString extends MultiGeometry<LineString>
 	 */
 	public MultiLineString()
 	{
-		super(MultiLineString.TYPE);
+		super(TYPE);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class MultiLineString extends MultiGeometry<LineString>
 	 */
 	public MultiLineString(Iterable<LineString> lines)
 	{
-		super(MultiLineString.TYPE, lines);
+		super(TYPE, lines);
 	}
 
 }

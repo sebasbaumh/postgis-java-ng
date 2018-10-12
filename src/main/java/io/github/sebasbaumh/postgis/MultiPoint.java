@@ -50,7 +50,7 @@ public class MultiPoint extends MultiGeometry<Point>
 	 */
 	public MultiPoint()
 	{
-		super(MultiPoint.TYPE);
+		super(TYPE);
 	}
 
 	/**
@@ -59,6 +59,6 @@ public class MultiPoint extends MultiGeometry<Point>
 	 */
 	public MultiPoint(Collection<Point> points)
 	{
-		super(MultiPoint.TYPE, points);
+		super(TYPE, points);
 	}
 }

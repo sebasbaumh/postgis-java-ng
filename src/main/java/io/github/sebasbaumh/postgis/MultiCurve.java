@@ -50,7 +50,7 @@ public class MultiCurve extends MultiGeometry<Geometry>
 	 */
 	public MultiCurve()
 	{
-		super(MultiCurve.TYPE);
+		super(TYPE);
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class MultiCurve extends MultiGeometry<Geometry>
 	 */
 	public <T extends Geometry> MultiCurve(Iterable<T> lines)
 	{
-		super(MultiCurve.TYPE);
+		super(TYPE);
 		for (T geom : lines)
 		{
 			checkCurveGeometryType(geom);

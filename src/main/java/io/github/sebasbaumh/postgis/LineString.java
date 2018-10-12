@@ -57,7 +57,7 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 	 */
 	public LineString()
 	{
-		super(LineString.TYPE);
+		super(TYPE);
 	}
 
 	/**

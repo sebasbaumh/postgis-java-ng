@@ -228,6 +228,17 @@ public class ParserTest extends DatabaseTest
 		Assert.assertEquals(geom, sqlGeom);
 	}
 
+	/**
+	 * Tests with and without SRID prefix.
+	 * @param wkt WKT
+	 * @throws SQLException
+	 */
+	private void testAll(String wkt) throws SQLException
+	{
+		test(wkt);
+		test(SRIDPREFIX + wkt);
+	}
+
 	@Test
 	public void testParser() throws Exception
 	{
@@ -305,18 +316,10 @@ public class ParserTest extends DatabaseTest
 		testAll("CIRCULARSTRING(0 -1,-1 0,0 1,1 0,0 -1)");
 		testAll("CURVEPOLYGON((0 0, 4 0, 4 4, 0 4, 0 0),(1 1, 3 3, 3 1, 1 1))");
 		testAll("CURVEPOLYGON(CIRCULARSTRING(0 0, 4 0, 4 4, 0 4, 0 0),(1 1, 3 3, 3 1, 1 1))");
+		testAll("COMPOUNDCURVE(CIRCULARSTRING(0 0, 1 1, 1 0),(1 0, 0 1))");
+		testAll("MULTICURVE((0 0, 5 5),CIRCULARSTRING(4 0, 4 4, 8 4))");
+		testAll("MULTISURFACE(CURVEPOLYGON(CIRCULARSTRING(0 0, 4 0, 4 4, 0 4, 0 0),(1 1, 3 3, 3 1, 1 1)),((10 10, 14 12, 11 10, 10 10),(11 11, 11.5 11, 11 11.5, 11 11)))");
 		// end
-	}
-
-	/**
-	 * Tests with and without SRID prefix.
-	 * @param wkt WKT
-	 * @throws SQLException
-	 */
-	private void testAll(String wkt) throws SQLException
-	{
-		test(wkt);
-		test(SRIDPREFIX + wkt);
 	}
 
 	/** Pass a geometry representation through the SQL server */

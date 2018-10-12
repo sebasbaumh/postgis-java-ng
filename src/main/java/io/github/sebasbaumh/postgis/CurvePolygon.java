@@ -49,7 +49,7 @@ public class CurvePolygon extends PolygonBase<LineString>
 	 */
 	public CurvePolygon()
 	{
-		super(CurvePolygon.TYPE, LineString.class);
+		super(TYPE, LineString.class);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class CurvePolygon extends PolygonBase<LineString>
 	 */
 	public CurvePolygon(Iterable<? extends LineString> rings)
 	{
-		super(CurvePolygon.TYPE, LineString.class, rings);
+		super(TYPE, LineString.class, rings);
 	}
 
 }

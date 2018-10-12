@@ -28,14 +28,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import io.github.sebasbaumh.postgis.CircularString;
+import io.github.sebasbaumh.postgis.CompoundCurve;
 import io.github.sebasbaumh.postgis.CurvePolygon;
 import io.github.sebasbaumh.postgis.Geometry;
 import io.github.sebasbaumh.postgis.GeometryCollection;
 import io.github.sebasbaumh.postgis.LineString;
 import io.github.sebasbaumh.postgis.LinearRing;
+import io.github.sebasbaumh.postgis.MultiCurve;
 import io.github.sebasbaumh.postgis.MultiLineString;
 import io.github.sebasbaumh.postgis.MultiPoint;
 import io.github.sebasbaumh.postgis.MultiPolygon;
+import io.github.sebasbaumh.postgis.MultiSurface;
 import io.github.sebasbaumh.postgis.Point;
 import io.github.sebasbaumh.postgis.Polygon;
 import io.github.sebasbaumh.postgis.PolygonBase;
@@ -90,8 +93,17 @@ public class BinaryWriter
 			case LineString.TYPE:
 				writePoints((LineString) geom, dest);
 				break;
+			case CircularString.TYPE:
+				writePoints((CircularString) geom, dest);
+				break;
+			case CompoundCurve.TYPE:
+				writeMultiGeometry(((CompoundCurve) geom).getGeometries(), dest);
+				break;
 			case Polygon.TYPE:
 				writePolygon((Polygon) geom, dest);
+				break;
+			case CurvePolygon.TYPE:
+				writePolygon((CurvePolygon) geom, dest);
 				break;
 			case MultiPoint.TYPE:
 				writeMultiGeometry(((MultiPoint) geom).getGeometries(), dest);
@@ -99,19 +111,18 @@ public class BinaryWriter
 			case MultiLineString.TYPE:
 				writeMultiGeometry(((MultiLineString) geom).getGeometries(), dest);
 				break;
+			case MultiCurve.TYPE:
+				writeMultiGeometry(((MultiCurve) geom).getGeometries(), dest);
+				break;
 			case MultiPolygon.TYPE:
 				writeMultiGeometry(((MultiPolygon) geom).getGeometries(), dest);
+				break;
+			case MultiSurface.TYPE:
+				writeMultiGeometry(((MultiSurface) geom).getGeometries(), dest);
 				break;
 			case GeometryCollection.TYPE:
 				writeMultiGeometry(((GeometryCollection) geom).getGeometries(), dest);
 				break;
-			case CircularString.TYPE:
-				writePoints((CircularString) geom, dest);
-				break;
-			case CurvePolygon.TYPE:
-				writePolygon((CurvePolygon) geom, dest);
-				break;
-			// FIX: add curve types here
 			default:
 				throw new IllegalArgumentException("Unknown Geometry Type: " + geom.getType());
 		}
