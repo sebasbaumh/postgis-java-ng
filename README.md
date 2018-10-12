@@ -3,7 +3,7 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
 
 *This project is based on [postgis-java](https://github.com/postgis/postgis-java) and first of all I want to thank its authors for their work.*
 
-These are the project goals and improvements to the existing [postgis-java](https://github.com/postgis/postgis-java):
+**Project goals and improvements to the existing [postgis-java](https://github.com/postgis/postgis-java):**
 * Support for geometries containing arcs like `CIRCULARSTRING` or `CURVEPOLYGON`
 * Use generic Java types where possible and simplify API
 * Clean up code to basically only work on [WKB](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary)/EWKB implementations to reduce code duplication and focus on the actual database format
@@ -11,7 +11,7 @@ These are the project goals and improvements to the existing [postgis-java](http
 * Support for JDK 8+
 * The license is still LGPL
 
-Supported [geometry types}(http://postgis.net/docs/manual-2.5/using_postgis_dbmanagement.html#RefObject):
+**Supported [geometry types](http://postgis.net/docs/manual-2.5/using_postgis_dbmanagement.html#RefObject):**
 * Point
 * LineString
 * CircularString
