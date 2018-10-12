@@ -1,5 +1,6 @@
 package io.github.sebasbaumh.postgis;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -89,16 +90,17 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	 * Creates a new empty ring.
 	 * @param clazzRing class of the ring
 	 * @return ring
-	 * @throws IllegalArgumentException if the class has no empty constructor
+	 * @throws IllegalArgumentException if the class could not be created
 	 */
 	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
 	private T createRing(Class<T> clazzRing)
 	{
 		try
 		{
-			return clazzRing.newInstance();
+			return clazzRing.getDeclaredConstructor().newInstance();
 		}
-		catch (InstantiationException | IllegalAccessException e)
+		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e)
 		{
 			throw new IllegalArgumentException("unable to create empty ring", e);
 		}
