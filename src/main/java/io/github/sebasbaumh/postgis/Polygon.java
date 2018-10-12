@@ -36,7 +36,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class Polygon extends PolygonBase<LinearRing>
 {
-	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
 	/**
 	 * The OGIS geometry type number for polygons.
@@ -60,47 +59,4 @@ public class Polygon extends PolygonBase<LinearRing>
 		super(TYPE, LinearRing.class, rings);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getFirstPoint()
-	 */
-	@Override
-	public Point getFirstPoint()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getLastPoint()
-	 */
-	@Override
-	public Point getLastPoint()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getPoint(int)
-	 */
-	@Override
-	public Point getPoint(int n)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#numPoints()
-	 */
-	@Override
-	public int numPoints()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
 }

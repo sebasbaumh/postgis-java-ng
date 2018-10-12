@@ -38,9 +38,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author Sebastian Baumhekel
  */
 @NonNullByDefault
-public class CompoundCurve extends MultiGeometry<Geometry>
+public class CompoundCurve extends MultiGeometry<LineString>
 {
-	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
 	/**
 	 * The OGIS geometry type number for single, continuous curves that have both curved (circular) segments and linear
@@ -60,10 +59,9 @@ public class CompoundCurve extends MultiGeometry<Geometry>
 	 * Constructs an instance.
 	 * @param geoms geometries
 	 */
-	public CompoundCurve(Collection<? extends Geometry> geoms)
+	public CompoundCurve(Collection<? extends LineString> geoms)
 	{
 		super(TYPE, geoms);
-		// FIX: check curves
 	}
 
 }

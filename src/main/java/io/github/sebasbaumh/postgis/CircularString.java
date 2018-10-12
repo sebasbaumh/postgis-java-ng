@@ -74,18 +74,7 @@ public class CircularString extends LineString
 	public double length()
 	{
 		// FIX: calculate length
-		return 0;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.LineString#reverse()
-	 */
-	@Override
-	public void reverse()
-	{
-		// TODO Auto-generated method stub
-		super.reverse();
+		return super.length();
 	}
 
 }

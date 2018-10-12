@@ -121,6 +121,24 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 		return PostGisUtil.checkConsistency(points);
 	}
 
+	/**
+	 * Closes this {@link LineString} if the last coordinate is not already the same as the first coordinate.
+	 */
+	public void close()
+	{
+		if (!this.points.isEmpty())
+		{
+			Point pFirst = getFirstPoint();
+			Point pLast = getLastPoint();
+			// check if there is a first point and the last point equals the first one
+			if (!pFirst.coordsAreEqual(pLast))
+			{
+				// add the first point as closing last point
+				add(pFirst.copy());
+			}
+		}
+	}
+
 	@Override
 	public boolean equals(@Nullable Object other)
 	{
@@ -194,6 +212,22 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 			{
 				return true;
 			}
+		}
+		return false;
+	}
+
+	/**
+	 * Checks if this LineString is closed, so the last coordinate is the same as the first coordinate.
+	 * @return true on success, else false
+	 */
+	public boolean isClosed()
+	{
+		// there need to be at least 3 points to close the line
+		if (points.size() > 2)
+		{
+			Point pFirst = getFirstPoint();
+			Point pLast = getLastPoint();
+			return pFirst.coordsAreEqual(pLast);
 		}
 		return false;
 	}

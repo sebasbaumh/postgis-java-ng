@@ -40,7 +40,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class Point extends Geometry
 {
-	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
 
 	/**
@@ -133,6 +132,17 @@ public class Point extends Geometry
 	}
 
 	/**
+	 * Creates a copy of this {@link Point}.
+	 * @return {@link Point}
+	 */
+	public Point copy()
+	{
+		Point p = new Point(this.x, this.y, this.z, this.m);
+		p.setSrid(getSrid());
+		return p;
+	}
+
+	/**
 	 * Calculates the distance to the given {@link Point}.
 	 * @param p {@link Point}
 	 * @return distance
@@ -161,17 +171,17 @@ public class Point extends Geometry
 		return false;
 	}
 
-	/** Optimized versions for this special case */
 	@Override
 	public Point getFirstPoint()
 	{
+		// Optimized versions for this special case
 		return this;
 	}
 
-	/** Optimized versions for this special case */
 	@Override
 	public Point getLastPoint()
 	{
+		// Optimized versions for this special case
 		return this;
 	}
 
@@ -256,21 +266,37 @@ public class Point extends Geometry
 		return 1;
 	}
 
+	/**
+	 * Sets the measurement.
+	 * @param m measurement
+	 */
 	public void setM(double m)
 	{
 		this.m = m;
 	}
 
+	/**
+	 * Sets the X-coordinate.
+	 * @param x X-coordinate
+	 */
 	public void setX(double x)
 	{
 		this.x = x;
 	}
 
+	/**
+	 * Sets the Y-coordinate.
+	 * @param y Y-coordinate
+	 */
 	public void setY(double y)
 	{
 		this.y = y;
 	}
 
+	/**
+	 * Sets the Z-coordinate.
+	 * @param z Z-coordinate
+	 */
 	public void setZ(double z)
 	{
 		this.z = z;

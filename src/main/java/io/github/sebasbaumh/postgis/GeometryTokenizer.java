@@ -29,30 +29,19 @@ import java.util.Stack;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
+/**
+ * Tokenizer for {@link String}s.
+ */
 @NonNullByDefault
-public class GeometryTokenizer
+public final class GeometryTokenizer
 {
 
-	public static String removeLeadingAndTrailingStrings(String string, String leadingString, String trailingString)
-	{
-		int startIndex = string.indexOf(leadingString);
-		if (startIndex == -1)
-		{
-			startIndex = 0;
-		}
-		else
-		{
-			startIndex += leadingString.length();
-		}
-
-		int endIndex = string.lastIndexOf(trailingString);
-		if (endIndex == -1)
-		{
-			endIndex = string.length();
-		}
-		return string.substring(startIndex, endIndex);
-	}
-
+	/**
+	 * Tokenize the given {@link String}.
+	 * @param string {@link String}
+	 * @param delimiter delimiter character
+	 * @return {@link List} of {@link String} tokens
+	 */
 	public static List<String> tokenize(String string, char delimiter)
 	{
 		List<String> tokens = new ArrayList<>();

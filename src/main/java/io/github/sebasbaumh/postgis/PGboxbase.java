@@ -255,7 +255,7 @@ public abstract class PGboxbase extends PGobject
 		{
 			value = value.substring(myPrefix.length()).trim();
 		}
-		String valueNoParans = GeometryTokenizer.removeLeadingAndTrailingStrings(value, "(", ")");
+		String valueNoParans = PostGisUtil.removeBrackets(value);
 		List<String> tokens = GeometryTokenizer.tokenize(valueNoParans, ',');
 		try
 		{

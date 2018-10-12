@@ -130,6 +130,30 @@ public final class PostGisUtil
 	}
 
 	/**
+	 * Removes brackets from the given {@link String}.
+	 * @param s {@link String}
+	 * @return {@link String} without brackets
+	 */
+	public static String removeBrackets(String s)
+	{
+		if (s.length() > 1)
+		{
+			int iStart = 0;
+			int iEnd = s.length() - 1;
+			if (s.charAt(0) == '(')
+			{
+				iStart++;
+			}
+			if (s.charAt(iEnd) == ')')
+			{
+				iEnd--;
+			}
+			return s.substring(iStart, iEnd + 1);
+		}
+		return s;
+	}
+
+	/**
 	 * Returns the number of elements in this collection. If this collection contains more than
 	 * <tt>Integer.MAX_VALUE</tt> elements, returns <tt>Integer.MAX_VALUE</tt>.
 	 * @param col collection

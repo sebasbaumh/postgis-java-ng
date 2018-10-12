@@ -125,8 +125,7 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	@Override
 	public Point getFirstPoint()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return lsOuterRing.getFirstPoint();
 	}
 
 	/*
@@ -136,8 +135,7 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	@Override
 	public Point getLastPoint()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return lsOuterRing.getLastPoint();
 	}
 
 	/**
@@ -156,8 +154,7 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	@Override
 	public Point getPoint(int n)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return lsOuterRing.getPoint(n);
 	}
 
 	/**
