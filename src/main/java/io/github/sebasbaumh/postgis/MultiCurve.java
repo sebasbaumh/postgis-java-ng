@@ -113,4 +113,21 @@ public class MultiCurve extends MultiGeometry<Geometry>
 		}
 	}
 
+	/**
+	 * Gets the length of this line.
+	 * @return length
+	 */
+	public double length()
+	{
+		double d = 0;
+		for (Geometry ls : subgeoms)
+		{
+			if (ls instanceof LineBasedGeom)
+			{
+				d += ((LineBasedGeom) ls).length();
+			}
+		}
+		return d;
+	}
+
 }

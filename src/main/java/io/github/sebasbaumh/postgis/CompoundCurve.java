@@ -26,8 +26,6 @@
  */
 package io.github.sebasbaumh.postgis;
 
-import java.util.Collection;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
@@ -38,7 +36,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author Sebastian Baumhekel
  */
 @NonNullByDefault
-public class CompoundCurve extends MultiGeometry<LineString>
+public class CompoundCurve extends MultiGeometry<LineString> implements LineBasedGeom
 {
 	private static final long serialVersionUID = 0x100;
 	/**
@@ -59,9 +57,24 @@ public class CompoundCurve extends MultiGeometry<LineString>
 	 * Constructs an instance.
 	 * @param geoms geometries
 	 */
-	public CompoundCurve(Collection<? extends LineString> geoms)
+	public CompoundCurve(Iterable<? extends LineString> geoms)
 	{
 		super(TYPE, geoms);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeom#length()
+	 */
+	@Override
+	public double length()
+	{
+		double d = 0;
+		for (LineString ls : subgeoms)
+		{
+			d += ls.length();
+		}
+		return d;
 	}
 
 }

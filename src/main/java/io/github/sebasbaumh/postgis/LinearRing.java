@@ -36,10 +36,9 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class LinearRing extends LineString
 {
-	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
-	/** Fake type for linear ring */
-	public static final int TYPE = 0;
+	// Fake type for linear ring
+	private static final int TYPE = 0;
 
 	/**
 	 * Constructs an instance.

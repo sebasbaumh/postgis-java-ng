@@ -14,7 +14,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @param <T> type of the ring geometries
  */
 @NonNullByDefault
-public abstract class PolygonBase<T extends LineString> extends Geometry implements Iterable<T>
+public abstract class PolygonBase<T extends LineString> extends Geometry implements Iterable<T>, LineBasedGeom
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
@@ -218,6 +218,16 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	public Iterator<T> iterator()
 	{
 		return this.rings.iterator();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeom#length()
+	 */
+	@Override
+	public double length()
+	{
+		return this.lsOuterRing.length();
 	}
 
 	/*
