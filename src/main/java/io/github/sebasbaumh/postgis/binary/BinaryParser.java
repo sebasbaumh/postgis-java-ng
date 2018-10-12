@@ -54,11 +54,11 @@ public class BinaryParser
 	 * Parse a hex encoded geometry
 	 * @param value String containing the data to be parsed
 	 * @return resulting geometry for the parsed data
+	 * @throws IllegalArgumentException if a contained geometry is of the wrong type or the encoding type is unknown
 	 */
 	public static Geometry parse(String value)
 	{
-		ByteGetter bytes = new ByteGetter(value);
-		return parseGeometry(ValueGetter.getValueGetterForEndian(bytes));
+		return parseGeometry(ValueGetter.getValueGetterForEndian(new ByteGetter(value)));
 	}
 
 	private static CircularString parseCircularString(ValueGetter data, boolean haveZ, boolean haveM)
@@ -71,19 +71,9 @@ public class BinaryParser
 		return new GeometryCollection(parseGeometries(Geometry.class, data));
 	}
 
-	private static CurvePolygon parseCurvePolygon(ValueGetter data, boolean haveZ, boolean haveM)
+	private static CurvePolygon parseCurvePolygon(ValueGetter data)
 	{
-		int count = data.getInt();
-		Geometry[] geoms = new Geometry[count];
-
-		// TODO: outer ring
-		// TODO: inner rings
-
-		// FIX: wrong
-		parseGeometryArray(data, geoms);
-		// return new CurvePolygon(geoms);
-		// FIX
-		throw new UnsupportedOperationException();
+		return new CurvePolygon(parseGeometries(LineString.class, data));
 	}
 
 	/**
@@ -123,7 +113,7 @@ public class BinaryParser
 	 * @param data ValueGetter with the data to be parsed
 	 * @return the parsed geometry
 	 */
-	protected static Geometry parseGeometry(ValueGetter data)
+	private static Geometry parseGeometry(ValueGetter data)
 	{
 		byte endian = data.getByte(); // skip and test endian flag
 		if (endian != data.getEndian())
@@ -132,7 +122,7 @@ public class BinaryParser
 		}
 
 		int typeword = data.getInt();
-		int realtype = typeword & 0x1FFFFFFF; // cut off high flag bits
+		int geometryType = typeword & 0x1FFFFFFF; // cut off high flag bits
 
 		boolean haveZ = (typeword & 0x80000000) != 0;
 		boolean haveM = (typeword & 0x40000000) != 0;
@@ -147,62 +137,44 @@ public class BinaryParser
 		{
 			srid = Geometry.UNKNOWN_SRID;
 		}
-
-		Geometry result1;
-		switch (realtype)
+		// parse geometry according to type
+		Geometry result;
+		switch (geometryType)
 		{
 			case Point.TYPE:
-				result1 = parsePoint(data, haveZ, haveM);
+				result = parsePoint(data, haveZ, haveM);
 				break;
 			case LineString.TYPE:
-				result1 = parseLineString(data, haveZ, haveM);
+				result = parseLineString(data, haveZ, haveM);
 				break;
 			case Polygon.TYPE:
-				result1 = parsePolygon(data, haveZ, haveM);
+				result = parsePolygon(data, haveZ, haveM);
 				break;
 			case MultiPoint.TYPE:
-				result1 = parseMultiPoint(data);
+				result = parseMultiPoint(data);
 				break;
 			case MultiLineString.TYPE:
-				result1 = parseMultiLineString(data);
+				result = parseMultiLineString(data);
 				break;
 			case MultiPolygon.TYPE:
-				result1 = parseMultiPolygon(data);
+				result = parseMultiPolygon(data);
 				break;
 			case GeometryCollection.TYPE:
-				result1 = parseCollection(data);
+				result = parseCollection(data);
 				break;
 			case CircularString.TYPE:
-				result1 = parseCircularString(data, haveZ, haveM);
+				result = parseCircularString(data, haveZ, haveM);
 				break;
 			case CurvePolygon.TYPE:
-				result1 = parseCurvePolygon(data, haveZ, haveM);
+				result = parseCurvePolygon(data);
 				break;
 			// FIX: add curve types here
 			default:
-				throw new IllegalArgumentException("Unknown Geometry Type: " + realtype);
+				throw new IllegalArgumentException("Unknown Geometry Type: " + geometryType);
 		}
-
-		Geometry result = result1;
-
-		if (srid != Geometry.UNKNOWN_SRID)
-		{
-			result.setSrid(srid);
-		}
+		// set SRID and return the geometry
+		result.setSrid(srid);
 		return result;
-	}
-
-	/**
-	 * Parse an Array of "full" Geometries
-	 * @param data {@link ValueGetter}
-	 * @param container geometries
-	 */
-	private static void parseGeometryArray(ValueGetter data, Geometry[] container)
-	{
-		for (int i = 0; i < container.length; i++)
-		{
-			container[i] = parseGeometry(data);
-		}
 	}
 
 	private static LinearRing parseLinearRing(ValueGetter data, boolean haveZ, boolean haveM)

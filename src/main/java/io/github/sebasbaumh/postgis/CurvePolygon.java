@@ -27,8 +27,6 @@
 
 package io.github.sebasbaumh.postgis;
 
-import java.util.Collection;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
@@ -51,17 +49,16 @@ public class CurvePolygon extends PolygonBase<LineString>
 	 */
 	public CurvePolygon()
 	{
-		super(CurvePolygon.TYPE);
+		super(CurvePolygon.TYPE, LineString.class);
 	}
 
 	/**
 	 * Constructs an instance.
 	 * @param rings rings
 	 */
-	public CurvePolygon(Collection<? extends LineString> rings)
+	public CurvePolygon(Iterable<? extends LineString> rings)
 	{
-		super(CurvePolygon.TYPE, rings);
-		// FIX: check rings
+		super(CurvePolygon.TYPE, LineString.class, rings);
 	}
 
 }

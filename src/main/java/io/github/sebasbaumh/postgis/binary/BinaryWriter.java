@@ -24,6 +24,7 @@
  */
 package io.github.sebasbaumh.postgis.binary;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import io.github.sebasbaumh.postgis.CircularString;
@@ -31,11 +32,13 @@ import io.github.sebasbaumh.postgis.CurvePolygon;
 import io.github.sebasbaumh.postgis.Geometry;
 import io.github.sebasbaumh.postgis.GeometryCollection;
 import io.github.sebasbaumh.postgis.LineString;
+import io.github.sebasbaumh.postgis.LinearRing;
 import io.github.sebasbaumh.postgis.MultiLineString;
 import io.github.sebasbaumh.postgis.MultiPoint;
 import io.github.sebasbaumh.postgis.MultiPolygon;
 import io.github.sebasbaumh.postgis.Point;
 import io.github.sebasbaumh.postgis.Polygon;
+import io.github.sebasbaumh.postgis.PolygonBase;
 import io.github.sebasbaumh.postgis.PostGisUtil;
 
 /**
@@ -48,17 +51,6 @@ import io.github.sebasbaumh.postgis.PostGisUtil;
  */
 public class BinaryWriter
 {
-
-	private static void writeCurvePolygon(CurvePolygon geom, ValueSetter dest)
-	{
-		dest.setInt(geom.numRings());
-		// FIX: wrong!
-		for (int i = 0; i < geom.numRings(); i++)
-		{
-			writeRing(geom.getRing(i), dest);
-		}
-	}
-
 	/**
 	 * Parse a geometry starting at offset.
 	 * @param geom the geometry to write
@@ -117,7 +109,7 @@ public class BinaryWriter
 				writePoints((CircularString) geom, dest);
 				break;
 			case CurvePolygon.TYPE:
-				writeCurvePolygon((CurvePolygon) geom, dest);
+				writePolygon((CurvePolygon) geom, dest);
 				break;
 			// FIX: add curve types here
 			default:
@@ -191,27 +183,31 @@ public class BinaryWriter
 		}
 	}
 
-	private static void writePolygon(Polygon geom, ValueSetter dest)
+	private static <T extends LineString> void writePolygon(PolygonBase<T> geom, ValueSetter dest)
 	{
-		dest.setInt(geom.numRings());
-		for (int i = 0; i < geom.numRings(); i++)
+		// collect all rings (outer ring+inner rings)
+		ArrayList<T> rings = new ArrayList<T>(geom.numRings() + 1);
+		rings.add(geom.getOuterRing());
+		for (T ring : geom.innerRings())
 		{
-			writePoints(geom.getRing(i), dest);
+			rings.add(ring);
 		}
-	}
-
-	private static void writeRing(Geometry geom, ValueSetter dest)
-	{
-		// FIX
-		// if(geom instanceof PointComposedGeom)
-		// {
-		// writeOnlyPoints((PointComposedGeom) geom, dest);
-		// }else if(geom instanceof ComposedGeom)
-		// {
-		// //FIX
-		// }else {
-		throw new IllegalArgumentException("Unknown Geometry Type: " + geom.getType());
-		// }
+		// write number of rings
+		dest.setInt(rings.size());
+		// then all rings
+		for (T ring : rings)
+		{
+			// polygon linear rings are just written as a plain set of points
+			if (ring instanceof LinearRing)
+			{
+				writePoints(ring, dest);
+			}
+			else
+			{
+				// curve polygons can have different geometries
+				writeGeometry(ring, dest);
+			}
+		}
 	}
 
 }

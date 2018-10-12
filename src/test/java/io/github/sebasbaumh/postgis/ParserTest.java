@@ -48,13 +48,11 @@ import io.github.sebasbaumh.postgis.binary.ByteSetter;
 public class ParserTest extends DatabaseTest
 {
 	private static final Logger logger = LoggerFactory.getLogger(ParserTest.class);
-	// FIX: add tests here
 	/** The srid we use for the srid tests */
 	private static final int SRID = 4326;
 	/** The string prefix we get for the srid tests */
 	private static final String SRIDPREFIX = "SRID=" + SRID + ";";
 	private Connection connection = null;
-
 	private Statement statement = null;
 
 	/** Pass a EWKB geometry representation through the server */
@@ -305,6 +303,7 @@ public class ParserTest extends DatabaseTest
 		testAll("GEOMETRYCOLLECTIONM(POINTM(10 10 20),POINTM(20 20 20))");
 		testAll("CIRCULARSTRING(-9 2,-8 3,-7 2)");
 		testAll("CIRCULARSTRING(0 -1,-1 0,0 1,1 0,0 -1)");
+		testAll("CURVEPOLYGON((0 0, 4 0, 4 4, 0 4, 0 0),(1 1, 3 3, 3 1, 1 1))");
 		testAll("CURVEPOLYGON(CIRCULARSTRING(0 0, 4 0, 4 4, 0 4, 0 0),(1 1, 3 3, 3 1, 1 1))");
 		// end
 	}

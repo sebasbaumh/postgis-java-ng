@@ -1,7 +1,6 @@
 package io.github.sebasbaumh.postgis;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 
 import javax.annotation.Nullable;
@@ -14,31 +13,49 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @param <T> type of the ring geometries
  */
 @NonNullByDefault
-public abstract class PolygonBase<T extends Geometry> extends Geometry implements Iterable<T>
+public abstract class PolygonBase<T extends LineString> extends Geometry implements Iterable<T>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
 
+	private T lsOuterRing;
 	private final ArrayList<T> rings = new ArrayList<T>();
 
 	/**
 	 * Constructor for subclasses.
+	 * @param clazzRing class of the ring
 	 * @param type has to be given by all subclasses
 	 */
-	protected PolygonBase(int type)
+	protected PolygonBase(int type, Class<T> clazzRing)
 	{
 		super(type);
+		this.lsOuterRing = createRing(clazzRing);
 	}
 
 	/**
 	 * Constructor for subclasses.
+	 * @param clazzRing class of the ring
 	 * @param type has to be given by all subclasses
 	 * @param rings rings
 	 */
-	protected PolygonBase(int type, Collection<? extends T> rings)
+	protected <U extends T> PolygonBase(int type, Class<T> clazzRing, Iterable<U> rings)
 	{
-		this(type);
-		this.rings.addAll(rings);
+		super(type);
+		Iterator<U> it = rings.iterator();
+		// first the outer ring
+		if (it.hasNext())
+		{
+			this.lsOuterRing = it.next();
+			// inner rings
+			while (it.hasNext())
+			{
+				this.rings.add(it.next());
+			}
+		}
+		else
+		{
+			this.lsOuterRing = createRing(clazzRing);
+		}
 	}
 
 	/**
@@ -66,6 +83,25 @@ public abstract class PolygonBase<T extends Geometry> extends Geometry implement
 	public void clearRings()
 	{
 		this.rings.clear();
+	}
+
+	/**
+	 * Creates a new empty ring.
+	 * @param clazzRing class of the ring
+	 * @return ring
+	 * @throws IllegalArgumentException if the class has no empty constructor
+	 */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
+	private T createRing(Class<T> clazzRing)
+	{
+		try
+		{
+			return clazzRing.newInstance();
+		}
+		catch (InstantiationException | IllegalAccessException e)
+		{
+			throw new IllegalArgumentException("unable to create empty ring", e);
+		}
 	}
 
 	@Override
@@ -100,6 +136,15 @@ public abstract class PolygonBase<T extends Geometry> extends Geometry implement
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * Gets the outer ring/boundary of the polygon.
+	 * @return outer ring
+	 */
+	public T getOuterRing()
+	{
+		return this.lsOuterRing;
 	}
 
 	/*
@@ -138,6 +183,15 @@ public abstract class PolygonBase<T extends Geometry> extends Geometry implement
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Gets all inner rings.
+	 * @return inner rings
+	 */
+	public Iterable<T> innerRings()
+	{
+		return this.rings;
 	}
 
 	/*

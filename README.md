@@ -1,16 +1,29 @@
 # PostGIS Java bindings (Next Generation)
 This project contains Java bindings for using [PostGIS](https://postgis.net/) geometries coming from a [PostgreSQL](https://www.postgresql.org/) database.
 
-This project is based on [postgis-java](https://github.com/postgis/postgis-java) and I want to thank its authors for their work.
+*This project is based on [postgis-java](https://github.com/postgis/postgis-java) and first of all I want to thank its authors for their work.*
 
 Goals to improve the existing [postgis-java](https://github.com/postgis/postgis-java):
-* Use generic Java types where possible
+* Support geometries containing arcs like `CIRCULARSTRING` or `CURVEPOLYGON`
+* Use generic Java types where possible and simplify API
 * Clean up code to basically only work on [WKB](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary)/EWKB implementations to reduce code duplication and focus on the actual database format
 * Support for the latest PostgreSQL (9.6+) and PostGIS versions (2.1+)
 * Support for JDK 8+
+* The license is LGPL (as in [postgis-java](https://github.com/postgis/postgis-java))
 
-*Please note: I will add further licensing information reflecting the base of this project once it is set up and some clean up has taken place.*
+## How to use it ##
+Currently you need to build the JAR file yourself, though I will try to get it into an official Maven repository once it is mature enough.
+Then you can just use this Maven artifact:
 
+	<dependency>
+		<groupId>io.github.sebasbaumh</groupId>
+		<artifactId>postgis-java-ng</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+
+The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java), the main point is a different namespace (`io.github.sebasbaumh.postgis`) as I might not be able to publish an artificat under the original namespace.
+In addition the class structure might be a bit different to support arc geometries and reduce boilerplate code, but you should be able to adapt to it easily.
+	
 ## How to run tests utilizing a PostgreSQL server
 
 You will need a PostgreSQL server with installed PostGIS extension for some of the tests.

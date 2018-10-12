@@ -27,8 +27,6 @@
 
 package io.github.sebasbaumh.postgis;
 
-import java.util.Collection;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
@@ -45,14 +43,21 @@ public class Polygon extends PolygonBase<LinearRing>
 	 */
 	public static final int TYPE = 3;
 
+	/**
+	 * Constructs an instance.
+	 */
 	public Polygon()
 	{
-		super(Polygon.TYPE);
+		super(Polygon.TYPE, LinearRing.class);
 	}
 
-	public Polygon(Collection<LinearRing> rings)
+	/**
+	 * Constructs an instance with the given rings.
+	 * @param rings rings
+	 */
+	public Polygon(Iterable<LinearRing> rings)
 	{
-		super(Polygon.TYPE, rings);
+		super(Polygon.TYPE, LinearRing.class, rings);
 	}
 
 	/*
