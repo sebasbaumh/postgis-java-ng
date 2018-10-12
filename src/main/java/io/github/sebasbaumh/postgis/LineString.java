@@ -33,14 +33,22 @@ import java.util.Iterator;
 
 import javax.annotation.Nullable;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Linestring.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class LineString extends Geometry implements LineBasedGeom, Iterable<Point>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+
+	/**
+	 * The OGIS geometry type number for lines.
+	 */
+	public static final int TYPE = 2;
 
 	private final ArrayList<Point> points = new ArrayList<Point>();
 
@@ -49,7 +57,7 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 	 */
 	public LineString()
 	{
-		super(LINESTRING);
+		super(LineString.TYPE);
 	}
 
 	/**
@@ -78,7 +86,7 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 	 */
 	public LineString(Iterable<Point> points)
 	{
-		super(LINESTRING);
+		super(LineString.TYPE);
 		addAll(points);
 	}
 

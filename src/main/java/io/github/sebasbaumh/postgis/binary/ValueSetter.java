@@ -25,13 +25,33 @@
 
 package io.github.sebasbaumh.postgis.binary;
 
+import io.github.sebasbaumh.postgis.PostGisUtil;
+
+/**
+ * Allows writing values in little endian encoding.
+ * @author sbaumhekel
+ */
 public class ValueSetter
 {
 	private final ByteSetter data;
 
+	/**
+	 * Constructs an instance on the given {@link ByteSetter}.
+	 * @param data {@link ByteSetter}
+	 */
 	public ValueSetter(ByteSetter data)
 	{
 		this.data = data;
+	}
+
+	/**
+	 * Gets the endian encoding.
+	 * @return endian encoding
+	 */
+	@SuppressWarnings("static-method")
+	public byte getEndian()
+	{
+		return PostGisUtil.LITTLE_ENDIAN;
 	}
 
 	/**
@@ -49,8 +69,7 @@ public class ValueSetter
 	 */
 	public void setDouble(double data)
 	{
-		long bitrep = Double.doubleToLongBits(data);
-		setLong(bitrep);
+		setLong(Double.doubleToLongBits(data));
 	}
 
 	/**
@@ -84,6 +103,6 @@ public class ValueSetter
 	@Override
 	public String toString()
 	{
-		return "ValueSetter('" + (data == null ? "NULL" : data.toString() + "')");
+		return "ValueSetter('" + data + "')";
 	}
 }

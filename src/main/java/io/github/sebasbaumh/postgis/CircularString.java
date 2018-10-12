@@ -27,6 +27,8 @@
 
 package io.github.sebasbaumh.postgis;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The CIRCULARSTRING is the basic curve type, similar to a LINESTRING in the linear world. A single segment required
  * three points, the start and end points (first and third) and any other point on the arc. The exception to this is for
@@ -36,17 +38,22 @@ package io.github.sebasbaumh.postgis;
  * points greater than 1.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class CircularString extends LineString
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/**
+	 * The OGIS geometry type number for arcs/circles.
+	 */
+	public static final int TYPE = 8;
 
 	/**
 	 * Constructs an instance.
 	 */
 	public CircularString()
 	{
-		super(CIRCULARSTRING);
+		super(CircularString.TYPE);
 	}
 
 	/**
@@ -55,7 +62,7 @@ public class CircularString extends LineString
 	 */
 	public CircularString(Iterable<Point> points)
 	{
-		super(CIRCULARSTRING);
+		super(CircularString.TYPE);
 		addAll(points);
 	}
 

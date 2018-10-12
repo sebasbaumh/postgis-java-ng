@@ -29,21 +29,28 @@ package io.github.sebasbaumh.postgis;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A multi point.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class MultiPoint extends MultiGeometry<Point>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/**
+	 * The OGIS geometry type number for aggregate points.
+	 */
+	public static final int TYPE = 4;
 
 	/**
 	 * Constructs an instance.
 	 */
 	public MultiPoint()
 	{
-		super(MULTIPOINT);
+		super(MultiPoint.TYPE);
 	}
 
 	/**
@@ -52,6 +59,6 @@ public class MultiPoint extends MultiGeometry<Point>
 	 */
 	public MultiPoint(Collection<Point> points)
 	{
-		super(MULTIPOINT, points);
+		super(MultiPoint.TYPE, points);
 	}
 }

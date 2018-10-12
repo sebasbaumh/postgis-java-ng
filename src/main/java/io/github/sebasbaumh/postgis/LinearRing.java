@@ -27,21 +27,26 @@
 
 package io.github.sebasbaumh.postgis;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * This represents the LinearRing GIS datatype. This type is used to construct the polygon types, but is not stored or
  * retrieved directly from the database.
  */
+@NonNullByDefault
 public class LinearRing extends LineString
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/** Fake type for linear ring */
+	public static final int TYPE = 0;
 
 	/**
 	 * Constructs an instance.
 	 */
 	public LinearRing()
 	{
-		super(LINEARRING);
+		super(LinearRing.TYPE);
 	}
 
 	/**
@@ -50,7 +55,7 @@ public class LinearRing extends LineString
 	 */
 	public LinearRing(Iterable<Point> points)
 	{
-		super(LINEARRING, points);
+		super(LinearRing.TYPE, points);
 	}
 
 }

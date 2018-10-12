@@ -1,12 +1,12 @@
 /*
  * Polygon.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - geometry model
- * 
+ *
  * (C) 2004 Paul Ramsey, pramsey@refractions.net
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
- * 
+ *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
  *
  * This library is free software; you can redistribute it and/or
@@ -22,52 +22,37 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 
 package io.github.sebasbaumh.postgis;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A polygon.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class Polygon extends PolygonBase<LinearRing>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/**
+	 * The OGIS geometry type number for polygons.
+	 */
+	public static final int TYPE = 3;
 
 	public Polygon()
 	{
-		super(POLYGON);
+		super(Polygon.TYPE);
 	}
 
 	public Polygon(Collection<LinearRing> rings)
 	{
-		super(POLYGON, rings);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#numPoints()
-	 */
-	@Override
-	public int numPoints()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getPoint(int)
-	 */
-	@Override
-	public Point getPoint(int n)
-	{
-		// TODO Auto-generated method stub
-		return null;
+		super(Polygon.TYPE, rings);
 	}
 
 	/*
@@ -90,5 +75,27 @@ public class Polygon extends PolygonBase<LinearRing>
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getPoint(int)
+	 */
+	@Override
+	public Point getPoint(int n)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#numPoints()
+	 */
+	@Override
+	public int numPoints()
+	{
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

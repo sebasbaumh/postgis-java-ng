@@ -29,14 +29,13 @@ package io.github.sebasbaumh.postgis;
 
 /**
  * Interface to mark line based geometries.
- * 
  * @author Sebastian Baumhekel
  */
-public interface LineBasedGeom {
-    /**
-     * Gets the length of this line.
-     * 
-     * @return length
-     */
-    public double length();
+public interface LineBasedGeom
+{
+	/**
+	 * Gets the length of this line.
+	 * @return length
+	 */
+	public double length();
 }

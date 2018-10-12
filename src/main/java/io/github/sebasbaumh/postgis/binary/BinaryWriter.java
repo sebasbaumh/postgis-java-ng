@@ -1,12 +1,12 @@
 /*
  * BinaryWriter.java
- * 
+ *
  * PostGIS extension for PostgreSQL JDBC driver - Binary Writer
- * 
+ *
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
  *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -20,24 +20,23 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  */
 package io.github.sebasbaumh.postgis.binary;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import io.github.sebasbaumh.postgis.CircularString;
 import io.github.sebasbaumh.postgis.CurvePolygon;
 import io.github.sebasbaumh.postgis.Geometry;
 import io.github.sebasbaumh.postgis.GeometryCollection;
 import io.github.sebasbaumh.postgis.LineString;
-import io.github.sebasbaumh.postgis.LinearRing;
 import io.github.sebasbaumh.postgis.MultiLineString;
 import io.github.sebasbaumh.postgis.MultiPoint;
 import io.github.sebasbaumh.postgis.MultiPolygon;
 import io.github.sebasbaumh.postgis.Point;
 import io.github.sebasbaumh.postgis.Polygon;
+import io.github.sebasbaumh.postgis.PostGisUtil;
 
 /**
  * Create binary representation of geometries. Currently, only text rep (hexed) implementation is tested. It should be
@@ -49,6 +48,82 @@ import io.github.sebasbaumh.postgis.Polygon;
  */
 public class BinaryWriter
 {
+
+	private static void writeCurvePolygon(CurvePolygon geom, ValueSetter dest)
+	{
+		dest.setInt(geom.numRings());
+		// FIX: wrong!
+		for (int i = 0; i < geom.numRings(); i++)
+		{
+			writeRing(geom.getRing(i), dest);
+		}
+	}
+
+	/**
+	 * Parse a geometry starting at offset.
+	 * @param geom the geometry to write
+	 * @param dest the value setting to be used for writing
+	 */
+	protected static void writeGeometry(Geometry geom, ValueSetter dest)
+	{
+		// write endian flag, NDR (little endian)
+		dest.setByte(dest.getEndian());
+
+		// write typeword
+		int typeword = geom.getType();
+		if (geom.is3d())
+		{
+			typeword |= 0x80000000;
+		}
+		if (geom.hasMeasure())
+		{
+			typeword |= 0x40000000;
+		}
+		if (geom.getSrid() != Geometry.UNKNOWN_SRID)
+		{
+			typeword |= 0x20000000;
+		}
+		dest.setInt(typeword);
+
+		if (geom.getSrid() != Geometry.UNKNOWN_SRID)
+		{
+			dest.setInt(geom.getSrid());
+		}
+
+		switch (geom.getType())
+		{
+			case Point.TYPE:
+				writePoint((Point) geom, dest);
+				break;
+			case LineString.TYPE:
+				writePoints((LineString) geom, dest);
+				break;
+			case Polygon.TYPE:
+				writePolygon((Polygon) geom, dest);
+				break;
+			case MultiPoint.TYPE:
+				writeMultiGeometry(((MultiPoint) geom).getGeometries(), dest);
+				break;
+			case MultiLineString.TYPE:
+				writeMultiGeometry(((MultiLineString) geom).getGeometries(), dest);
+				break;
+			case MultiPolygon.TYPE:
+				writeMultiGeometry(((MultiPolygon) geom).getGeometries(), dest);
+				break;
+			case GeometryCollection.TYPE:
+				writeMultiGeometry(((GeometryCollection) geom).getGeometries(), dest);
+				break;
+			case CircularString.TYPE:
+				writePoints((CircularString) geom, dest);
+				break;
+			case CurvePolygon.TYPE:
+				writeCurvePolygon((CurvePolygon) geom, dest);
+				break;
+			// FIX: add curve types here
+			default:
+				throw new IllegalArgumentException("Unknown Geometry Type: " + geom.getType());
+		}
+	}
 
 	/**
 	 * Write a hex encoded geometry The geometry you put in must be consistent, geom.checkConsistency() must return
@@ -65,129 +140,6 @@ public class BinaryWriter
 	}
 
 	/**
-	 * Parse a geometry starting at offset.
-	 * @param geom the geometry to write
-	 * @param dest the value setting to be used for writing
-	 */
-	protected static void writeGeometry(Geometry geom, ValueSetter dest)
-	{
-		// write endian flag, NDR (little endian)
-		dest.setByte((byte) 1);
-
-		// write typeword
-		int typeword = geom.getType();
-		if (geom.is3d())
-		{
-			typeword |= 0x80000000;
-		}
-		if (geom.hasMeasure())
-		{
-			typeword |= 0x40000000;
-		}
-		if (geom.getSrid() != Geometry.UNKNOWN_SRID)
-		{
-			typeword |= 0x20000000;
-		}
-
-		dest.setInt(typeword);
-
-		if (geom.getSrid() != Geometry.UNKNOWN_SRID)
-		{
-			dest.setInt(geom.getSrid());
-		}
-
-		switch (geom.getType())
-		{
-			case Geometry.POINT:
-				writePoint((Point) geom, dest);
-				break;
-			case Geometry.LINESTRING:
-				writeLineString((LineString) geom, dest);
-				break;
-			case Geometry.POLYGON:
-				writePolygon((Polygon) geom, dest);
-				break;
-			case Geometry.MULTIPOINT:
-				writeMultiPoint((MultiPoint) geom, dest);
-				break;
-			case Geometry.MULTILINESTRING:
-				writeMultiLineString((MultiLineString) geom, dest);
-				break;
-			case Geometry.MULTIPOLYGON:
-				writeMultiPolygon((MultiPolygon) geom, dest);
-				break;
-			case Geometry.GEOMETRYCOLLECTION:
-				writeCollection((GeometryCollection) geom, dest);
-				break;
-			case Geometry.CIRCULARSTRING:
-				writeOnlyPoints((CircularString) geom, dest);
-				break;
-			case Geometry.CURVEPOLYGON:
-				writeCurvePolygon((CurvePolygon) geom, dest);
-				break;
-			// FIX: add curve types here
-			default:
-				throw new IllegalArgumentException("Unknown Geometry Type: " + geom.getType());
-		}
-	}
-
-	/**
-	 * Writes a "slim" Point (without endiannes, srid ant type, only the ordinates and measure. Used by writeGeometry as
-	 * ell as writePointArray.
-	 * @param geom geometry
-	 * @param dest writer
-	 */
-	private static void writePoint(Point geom, ValueSetter dest)
-	{
-		dest.setDouble(geom.getX());
-		dest.setDouble(geom.getY());
-
-		if (geom.is3d())
-		{
-			dest.setDouble(geom.getZ());
-		}
-
-		if (geom.hasMeasure())
-		{
-			dest.setDouble(geom.getM());
-		}
-	}
-
-	/**
-	 * Write an Array of "slim" Points (without endianness, srid and type, part of LinearRing and Linestring, but not
-	 * MultiPoint!
-	 * @param geom geometry
-	 * @param dest writer
-	 */
-	private static void writeOnlyPoints(Iterable<Point> geom, ValueSetter dest)
-	{
-		// number of points
-		dest.setInt(count(geom));
-		for (Point p : geom)
-		{
-			writePoint(p, dest);
-		}
-	}
-
-	/**
-	 * Gets the number of items.
-	 * @param items items
-	 * @return number of items
-	 */
-	private static <T> int count(Iterable<T> items)
-	{
-		// walk through all elements
-		Iterator<T> it = items.iterator();
-		int i = 0;
-		while (it.hasNext())
-		{
-			it.next();
-			i++;
-		}
-		return i;
-	}
-
-	/**
 	 * Writes multiple geometries preceded by their count.
 	 * @param geoms geometries
 	 * @param dest writer
@@ -201,19 +153,51 @@ public class BinaryWriter
 		}
 	}
 
-	private static void writeMultiPoint(MultiPoint geom, ValueSetter dest)
+	/**
+	 * Writes a "slim" Point (without endiannes, srid ant type, only the ordinates and measure. Used by writeGeometry as
+	 * ell as writePointArray.
+	 * @param geom geometry
+	 * @param dest writer
+	 */
+	private static void writePoint(Point geom, ValueSetter dest)
 	{
-		writeMultiGeometry(geom.getGeometries(), dest);
+		dest.setDouble(geom.getX());
+		dest.setDouble(geom.getY());
+		// write z coordinate?
+		if (geom.is3d())
+		{
+			dest.setDouble(geom.getZ());
+		}
+		// write measure?
+		if (geom.hasMeasure())
+		{
+			dest.setDouble(geom.getM());
+		}
 	}
 
-	private static void writeLineString(LineString geom, ValueSetter dest)
+	/**
+	 * Write an Array of "slim" Points (without endianness, srid and type, part of LinearRing and Linestring, but not
+	 * MultiPoint!
+	 * @param geom geometry
+	 * @param dest writer
+	 */
+	private static void writePoints(Iterable<Point> geom, ValueSetter dest)
 	{
-		writeOnlyPoints(geom, dest);
+		// number of points
+		dest.setInt(PostGisUtil.size(geom));
+		for (Point p : geom)
+		{
+			writePoint(p, dest);
+		}
 	}
 
-	private static void writeLinearRing(LinearRing geom, ValueSetter dest)
+	private static void writePolygon(Polygon geom, ValueSetter dest)
 	{
-		writeOnlyPoints(geom, dest);
+		dest.setInt(geom.numRings());
+		for (int i = 0; i < geom.numRings(); i++)
+		{
+			writePoints(geom.getRing(i), dest);
+		}
 	}
 
 	private static void writeRing(Geometry geom, ValueSetter dest)
@@ -228,40 +212,6 @@ public class BinaryWriter
 		// }else {
 		throw new IllegalArgumentException("Unknown Geometry Type: " + geom.getType());
 		// }
-	}
-
-	private static void writePolygon(Polygon geom, ValueSetter dest)
-	{
-		dest.setInt(geom.numRings());
-		for (int i = 0; i < geom.numRings(); i++)
-		{
-			writeLinearRing(geom.getRing(i), dest);
-		}
-	}
-
-	private static void writeCurvePolygon(CurvePolygon geom, ValueSetter dest)
-	{
-		dest.setInt(geom.numRings());
-		// FIX: wrong!
-		for (int i = 0; i < geom.numRings(); i++)
-		{
-			writeRing(geom.getRing(i), dest);
-		}
-	}
-
-	private static void writeMultiLineString(MultiLineString geom, ValueSetter dest)
-	{
-		writeMultiGeometry(geom.getGeometries(), dest);
-	}
-
-	private static void writeMultiPolygon(MultiPolygon geom, ValueSetter dest)
-	{
-		writeMultiGeometry(geom.getGeometries(), dest);
-	}
-
-	private static void writeCollection(GeometryCollection geom, ValueSetter dest)
-	{
-		writeMultiGeometry(geom.getGeometries(), dest);
 	}
 
 }

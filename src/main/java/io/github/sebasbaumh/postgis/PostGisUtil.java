@@ -1,6 +1,8 @@
 package io.github.sebasbaumh.postgis;
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -14,6 +16,15 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public final class PostGisUtil
 {
+	/**
+	 * Big endian encoding.
+	 */
+	public static final byte BIG_ENDIAN = 0;
+	/**
+	 * Little endian encoding.
+	 */
+	public static final byte LITTLE_ENDIAN = 1;
+
 	// prevent instantiating this class
 	@Deprecated
 	private PostGisUtil()
@@ -116,6 +127,35 @@ public final class PostGisUtil
 			srid = 0;
 		}
 		return srid;
+	}
+
+	/**
+	 * Returns the number of elements in this collection. If this collection contains more than
+	 * <tt>Integer.MAX_VALUE</tt> elements, returns <tt>Integer.MAX_VALUE</tt>.
+	 * @param col collection
+	 * @return the number of elements in this collection
+	 * @see Collection#size()
+	 */
+	public static <T> int size(Iterable<T> col)
+	{
+		// short cuts
+		if (col instanceof Collection<?>)
+		{
+			return ((Collection<?>) col).size();
+		}
+		if (col instanceof Map<?, ?>)
+		{
+			return ((Map<?, ?>) col).size();
+		}
+		// walk through all elements
+		Iterator<T> it = col.iterator();
+		int i = 0;
+		while (it.hasNext())
+		{
+			it.next();
+			i++;
+		}
+		return i;
 	}
 
 }

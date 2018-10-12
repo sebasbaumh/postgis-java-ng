@@ -6,11 +6,14 @@ import java.util.Iterator;
 
 import javax.annotation.Nullable;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Base class for a polygon to allow similar handling of straight and circular polygons.
  * @author Sebastian Baumhekel
  * @param <T> type of the ring geometries
  */
+@NonNullByDefault
 public abstract class PolygonBase<T extends Geometry> extends Geometry implements Iterable<T>
 {
 	/* JDK 1.5 Serialization */

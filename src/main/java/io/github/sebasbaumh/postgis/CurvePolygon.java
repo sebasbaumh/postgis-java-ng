@@ -29,22 +29,29 @@ package io.github.sebasbaumh.postgis;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A CURVEPOLYGON is just like a polygon, with an outer ring and zero or more inner rings. The difference is that a ring
  * can take the form of a circular string, linear string or compound string.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class CurvePolygon extends PolygonBase<LineString>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/**
+	 * The OGIS geometry type number for polygons with curved segments.
+	 */
+	public static final int TYPE = 10;
 
 	/**
 	 * Constructs an instance.
 	 */
 	public CurvePolygon()
 	{
-		super(CURVEPOLYGON);
+		super(CurvePolygon.TYPE);
 	}
 
 	/**
@@ -53,7 +60,7 @@ public class CurvePolygon extends PolygonBase<LineString>
 	 */
 	public CurvePolygon(Collection<? extends LineString> rings)
 	{
-		super(CURVEPOLYGON, rings);
+		super(CurvePolygon.TYPE, rings);
 		// FIX: check rings
 	}
 

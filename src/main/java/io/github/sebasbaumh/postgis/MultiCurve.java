@@ -27,22 +27,30 @@
 
 package io.github.sebasbaumh.postgis;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The MULTICURVE is a collection of curves, which can include linear strings, circular strings or compound strings. It
  * only specifies a type of {@link Geometry} as it could contain {@link LineString}s and {@link CompoundCurve}s.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class MultiCurve extends MultiGeometry<Geometry>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/**
+	 * The OGIS geometry type number for aggregate curves, which can include linear strings, circular strings or
+	 * compound strings.
+	 */
+	public static final int TYPE = 11;
 
 	/**
 	 * Constructs an instance.
 	 */
 	public MultiCurve()
 	{
-		super(MULTICURVE);
+		super(MultiCurve.TYPE);
 	}
 
 	/**
@@ -51,7 +59,7 @@ public class MultiCurve extends MultiGeometry<Geometry>
 	 */
 	public <T extends Geometry> MultiCurve(Iterable<T> lines)
 	{
-		super(MULTICURVE);
+		super(MultiCurve.TYPE);
 		for (T geom : lines)
 		{
 			checkCurveGeometryType(geom);

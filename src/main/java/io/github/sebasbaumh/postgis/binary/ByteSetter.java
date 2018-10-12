@@ -25,6 +25,10 @@
 
 package io.github.sebasbaumh.postgis.binary;
 
+/**
+ * Allows writing bytes to a {@link String} in hex format.
+ * @author Sebastian Baumhekel
+ */
 public class ByteSetter
 {
 	/**
@@ -34,8 +38,17 @@ public class ByteSetter
 			'D', 'E', 'F' };
 	private final StringBuilder sb = new StringBuilder();
 
+	/**
+	 * Constructs an instance.
+	 */
 	public ByteSetter()
 	{
+	}
+
+	@Override
+	public String toString()
+	{
+		return sb.toString();
 	}
 
 	/**
@@ -46,11 +59,5 @@ public class ByteSetter
 	{
 		sb.append(HEX_CHAR[(b >>> 4) & 0xF]);
 		sb.append(HEX_CHAR[b & 0xF]);
-	}
-
-	@Override
-	public String toString()
-	{
-		return sb.toString();
 	}
 }

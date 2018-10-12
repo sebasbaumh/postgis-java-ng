@@ -29,6 +29,8 @@ package io.github.sebasbaumh.postgis;
 
 import java.sql.SQLException;
 
+import javax.annotation.Nonnull;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.postgresql.util.PGobject;
 
@@ -119,7 +121,7 @@ public class PGgeometry extends PGobject
 	}
 
 	@Override
-	public void setValue(@SuppressWarnings("null") String value) throws SQLException
+	public void setValue(@SuppressWarnings("null") @Nonnull String value) throws SQLException
 	{
 		geom = BinaryParser.parse(value);
 	}

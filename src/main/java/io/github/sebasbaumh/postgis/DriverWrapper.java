@@ -31,6 +31,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+
 import org.postgresql.Driver;
 import org.postgresql.PGConnection;
 
@@ -73,7 +75,8 @@ import org.postgresql.PGConnection;
 //@formatter:on
 public class DriverWrapper extends Driver
 {
-	private static final Logger logger = Logger.getLogger(DriverWrapper.class.getCanonicalName());
+	private static final Logger logger = Logger.getLogger("io.github.sebasbaumh.postgis.DriverWrapper");
+	private static final Logger parentLogger = Logger.getLogger("io.github.sebasbaumh.postgis");
 	private static final String POSTGIS_PROTOCOL = "jdbc:postgresql_postGIS:";
 	private static final String POSTGRES_PROTOCOL = "jdbc:postgresql:";
 
@@ -120,7 +123,7 @@ public class DriverWrapper extends Driver
 	 * @param pgconn {@link Connection}
 	 * @throws SQLException
 	 */
-	public static void registerDataTypes(PGConnection pgconn) throws SQLException
+	public static void registerDataTypes(@Nonnull PGConnection pgconn) throws SQLException
 	{
 		pgconn.addDataType("geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
 		pgconn.addDataType("public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
@@ -176,6 +179,6 @@ public class DriverWrapper extends Driver
 	@Override
 	public Logger getParentLogger()
 	{
-		throw new UnsupportedOperationException("Not supported yet.");
+		return parentLogger;
 	}
 }

@@ -27,21 +27,28 @@
 
 package io.github.sebasbaumh.postgis;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Geometry Collection.
  * @author markus.schaber@logix-tt.com
  */
+@NonNullByDefault
 public class GeometryCollection extends MultiGeometry<Geometry>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/**
+	 * The OGIS geometry type number for feature collections.
+	 */
+	public static final int TYPE = 7;
 
 	/**
 	 * Constructs an instance.
 	 */
 	public GeometryCollection()
 	{
-		super(GEOMETRYCOLLECTION);
+		super(GeometryCollection.TYPE);
 	}
 
 	/**
@@ -50,6 +57,6 @@ public class GeometryCollection extends MultiGeometry<Geometry>
 	 */
 	public GeometryCollection(Iterable<Geometry> geoms)
 	{
-		super(GEOMETRYCOLLECTION, geoms);
+		super(GeometryCollection.TYPE, geoms);
 	}
 }

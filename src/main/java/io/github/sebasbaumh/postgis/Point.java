@@ -31,14 +31,22 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Point geometry.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class Point extends Geometry
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+
+	/**
+	 * The OGIS geometry type number for points.
+	 */
+	public static final int TYPE = 1;
 
 	/**
 	 * The measure of the point.
@@ -99,7 +107,7 @@ public class Point extends Geometry
 	 */
 	public Point(double x, double y, double z, double m)
 	{
-		super(POINT);
+		super(Point.TYPE);
 		this.x = x;
 		this.y = y;
 		this.z = z;

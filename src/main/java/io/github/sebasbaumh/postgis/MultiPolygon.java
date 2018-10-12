@@ -27,21 +27,28 @@
 
 package io.github.sebasbaumh.postgis;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A multi polygon.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class MultiPolygon extends MultiGeometry<Polygon>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/**
+	 * The OGIS geometry type number for aggregate polygons.
+	 */
+	public static final int TYPE = 6;
 
 	/**
 	 * Constructs an instance.
 	 */
 	public MultiPolygon()
 	{
-		super(MULTIPOLYGON);
+		super(MultiPolygon.TYPE);
 	}
 
 	/**
@@ -50,7 +57,7 @@ public class MultiPolygon extends MultiGeometry<Polygon>
 	 */
 	public MultiPolygon(Iterable<Polygon> polygons)
 	{
-		super(MULTIPOLYGON, polygons);
+		super(MultiPolygon.TYPE, polygons);
 	}
 
 }

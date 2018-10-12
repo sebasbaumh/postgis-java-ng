@@ -27,21 +27,28 @@
 
 package io.github.sebasbaumh.postgis;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A multi line.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class MultiLineString extends MultiGeometry<LineString>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/**
+	 * The OGIS geometry type number for aggregate lines.
+	 */
+	public static final int TYPE = 5;
 
 	/**
 	 * Constructs an instance.
 	 */
 	public MultiLineString()
 	{
-		super(MULTILINESTRING);
+		super(MultiLineString.TYPE);
 	}
 
 	/**
@@ -50,7 +57,7 @@ public class MultiLineString extends MultiGeometry<LineString>
 	 */
 	public MultiLineString(Iterable<LineString> lines)
 	{
-		super(MULTILINESTRING, lines);
+		super(MultiLineString.TYPE, lines);
 	}
 
 }

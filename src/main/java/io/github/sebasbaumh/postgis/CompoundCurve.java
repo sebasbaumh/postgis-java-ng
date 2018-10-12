@@ -28,6 +28,8 @@ package io.github.sebasbaumh.postgis;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A compound curve is a single, continuous curve that has both curved (circular) segments and linear segments. That
  * means that in addition to having well-formed components, the end point of every component (except the last) must be
@@ -35,17 +37,23 @@ import java.util.Collection;
  * {@link MultiCurve} where the end points of all contained lines match.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault
 public class CompoundCurve extends MultiGeometry<Geometry>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
+	/**
+	 * The OGIS geometry type number for single, continuous curves that have both curved (circular) segments and linear
+	 * segments.
+	 */
+	public static final int TYPE = 9;
 
 	/**
 	 * Constructs an instance.
 	 */
 	public CompoundCurve()
 	{
-		super(COMPOUNDCURVE);
+		super(CompoundCurve.TYPE);
 	}
 
 	/**
@@ -54,7 +62,7 @@ public class CompoundCurve extends MultiGeometry<Geometry>
 	 */
 	public CompoundCurve(Collection<? extends Geometry> geoms)
 	{
-		super(COMPOUNDCURVE, geoms);
+		super(CompoundCurve.TYPE, geoms);
 		// FIX: check curves
 	}
 

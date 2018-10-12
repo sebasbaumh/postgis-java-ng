@@ -23,54 +23,63 @@
 
 package io.github.sebasbaumh.postgis;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
-public class GeometryTokenizer {
+@NonNullByDefault
+public class GeometryTokenizer
+{
 
+	public static String removeLeadingAndTrailingStrings(String string, String leadingString, String trailingString)
+	{
+		int startIndex = string.indexOf(leadingString);
+		if (startIndex == -1)
+		{
+			startIndex = 0;
+		}
+		else
+		{
+			startIndex += leadingString.length();
+		}
 
-    public static List<String> tokenize(String string, char delimiter) {
-        List<String> tokens = new ArrayList<>();
-        Stack<Character> stack = new Stack<>();
-        int consumed = 0;
-        for (int position = 0; position < string.length(); position++) {
-            char character = string.charAt(position);
-            if ((character == '(') || (character == '[')) {
-                stack.push(character);
-            } else if (((character == ')') && (stack.peek() == '(')) ||
-                       ((character == ']') && (stack.peek() == '['))
-                      ) {
-                stack.pop();
-            }
-            if ((character == delimiter) && stack.isEmpty()) {
-                tokens.add(string.substring(consumed, position));
-                consumed = position + 1;
-            }
-        }
-        if (consumed < string.length()) {
-            tokens.add(string.substring(consumed));
-        }
-        return tokens;
-    }
+		int endIndex = string.lastIndexOf(trailingString);
+		if (endIndex == -1)
+		{
+			endIndex = string.length();
+		}
+		return string.substring(startIndex, endIndex);
+	}
 
-
-    public static String removeLeadingAndTrailingStrings(String string, String leadingString, String trailingString) {
-        int startIndex = string.indexOf(leadingString);
-        if (startIndex == -1) {
-            startIndex = 0;
-        } else {
-            startIndex += leadingString.length();
-        }
-
-        int endIndex = string.lastIndexOf(trailingString);
-        if (endIndex == -1) {
-            endIndex = string.length();
-        }
-        return string.substring(startIndex, endIndex);
-    }
-
+	public static List<String> tokenize(String string, char delimiter)
+	{
+		List<String> tokens = new ArrayList<>();
+		Stack<Character> stack = new Stack<>();
+		int consumed = 0;
+		for (int position = 0; position < string.length(); position++)
+		{
+			char character = string.charAt(position);
+			if ((character == '(') || (character == '['))
+			{
+				stack.push(character);
+			}
+			else if (((character == ')') && (stack.peek() == '(')) || ((character == ']') && (stack.peek() == '[')))
+			{
+				stack.pop();
+			}
+			if ((character == delimiter) && stack.isEmpty())
+			{
+				tokens.add(string.substring(consumed, position));
+				consumed = position + 1;
+			}
+		}
+		if (consumed < string.length())
+		{
+			tokens.add(string.substring(consumed));
+		}
+		return tokens;
+	}
 
 }
