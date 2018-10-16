@@ -52,11 +52,20 @@ public class Polygon extends PolygonBase<LinearRing>
 
 	/**
 	 * Constructs an instance with the given rings.
-	 * @param rings rings
+	 * @param rings rings (first one will be the outer ring)
 	 */
 	public Polygon(Iterable<LinearRing> rings)
 	{
 		super(TYPE, LinearRing.class, rings);
+	}
+
+	/**
+	 * Constructs an instance.
+	 * @param lsOuterRing outer ring
+	 */
+	public Polygon(LinearRing lsOuterRing)
+	{
+		super(TYPE, lsOuterRing);
 	}
 
 }

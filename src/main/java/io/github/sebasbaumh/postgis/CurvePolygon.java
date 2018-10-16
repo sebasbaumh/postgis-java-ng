@@ -54,7 +54,16 @@ public class CurvePolygon extends PolygonBase<Curve>
 
 	/**
 	 * Constructs an instance.
-	 * @param rings rings
+	 * @param lsOuterRing outer ring
+	 */
+	public CurvePolygon(Curve lsOuterRing)
+	{
+		super(TYPE, lsOuterRing);
+	}
+
+	/**
+	 * Constructs an instance.
+	 * @param rings rings (first one will be the outer ring)
 	 */
 	public CurvePolygon(Iterable<? extends Curve> rings)
 	{

@@ -61,6 +61,17 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 	}
 
 	/**
+	 * Constructor for subclasses.
+	 * @param type has to be given by all subclasses
+	 * @param lsOuterRing outer ring
+	 */
+	protected <U extends T> PolygonBase(int type, U lsOuterRing)
+	{
+		super(type);
+		this.lsOuterRing = lsOuterRing;
+	}
+
+	/**
 	 * Adds a ring.
 	 * @param ring ring
 	 */

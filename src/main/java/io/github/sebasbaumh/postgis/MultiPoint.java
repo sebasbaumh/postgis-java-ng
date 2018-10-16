@@ -27,8 +27,6 @@
 
 package io.github.sebasbaumh.postgis;
 
-import java.util.Collection;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
@@ -57,7 +55,7 @@ public class MultiPoint extends MultiGeometry<Point>
 	 * Constructs an instance.
 	 * @param points points
 	 */
-	public MultiPoint(Collection<Point> points)
+	public MultiPoint(Iterable<Point> points)
 	{
 		super(TYPE, points);
 	}
