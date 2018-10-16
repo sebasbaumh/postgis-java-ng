@@ -18,6 +18,20 @@
 		</license>
 	</licenses>
 
+	<developers>
+		<developer>
+			<name>Sebastian Baumhekel</name>
+			<email>sebastian.baumhekel@gmail.com</email>
+			<url>https://github.com/sebasbaumh</url>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/sebasbaumh/postgis-java-ng.git</connection>
+		<developerConnection>scm:git:ssh://github.com:sebasbaumh/postgis-java-ng.git</developerConnection>
+		<url>https://github.com/sebasbaumh/postgis-java-ng/tree/master</url>
+	</scm>
+
 	<properties>
 		<!-- encoding for resource files -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
