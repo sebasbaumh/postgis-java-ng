@@ -1,7 +1,9 @@
 package io.github.sebasbaumh.postgis;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -116,17 +118,47 @@ public final class PostGisUtil
 	}
 
 	/**
-	 * Parse a SRID value, anything {@code <= 0} is unknown
-	 * @param srid the SRID to parse
-	 * @return parsed SRID value
+	 * Returns the first or a default element of the given collection.
+	 * @param elements collection
+	 * @return first element if it exists, else default element
 	 */
-	public static int parseSRID(int srid)
+	@Nullable
+	public static <T> T firstOrDefault(Iterable<T> elements)
 	{
-		if (srid < 0)
+		Iterator<T> i = elements.iterator();
+		if (i.hasNext())
 		{
-			srid = 0;
+			return i.next();
 		}
-		return srid;
+		return null;
+	}
+
+	/**
+	 * Gets the last element of the given {@link Iterable}.
+	 * @param elements elements
+	 * @return last element on success, else null
+	 */
+	@Nullable
+	public static <T> T lastOrDefault(Iterable<T> elements)
+	{
+		// get element from list directly without traversing list
+		if (elements instanceof List)
+		{
+			List<T> l = (List<T>) elements;
+			int size = l.size();
+			if (size > 0)
+			{
+				return l.get(size - 1);
+			}
+			return null;
+		}
+		// just walk through all the elements
+		T last = null;
+		for (T e : elements)
+		{
+			last = e;
+		}
+		return last;
 	}
 
 	/**
@@ -180,6 +212,27 @@ public final class PostGisUtil
 			i++;
 		}
 		return i;
+	}
+
+	/**
+	 * Splits a string like {@link String#split(String)} without any support for regular expressions, but faster.
+	 * @param value {@link String} to split.
+	 * @param separator separator
+	 * @return the array of strings computed by splitting this string
+	 */
+	public static List<String> split(String value, char separator)
+	{
+		int off = 0;
+		int next;
+		ArrayList<String> list = new ArrayList<String>();
+		while ((next = value.indexOf(separator, off)) != -1)
+		{
+			list.add(value.substring(off, next));
+			off = next + 1;
+		}
+		// Add remaining segment
+		list.add(value.substring(off, value.length()));
+		return list;
 	}
 
 }

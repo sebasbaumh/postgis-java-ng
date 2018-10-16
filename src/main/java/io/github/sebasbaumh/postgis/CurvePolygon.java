@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author Sebastian Baumhekel
  */
 @NonNullByDefault
-public class CurvePolygon extends PolygonBase<LineString>
+public class CurvePolygon extends PolygonBase<Curve>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
@@ -56,7 +56,7 @@ public class CurvePolygon extends PolygonBase<LineString>
 	 * Constructs an instance.
 	 * @param rings rings
 	 */
-	public CurvePolygon(Iterable<? extends LineString> rings)
+	public CurvePolygon(Iterable<? extends Curve> rings)
 	{
 		super(TYPE, LineString.class, rings);
 	}

@@ -14,7 +14,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @param <T> type of the ring geometries
  */
 @NonNullByDefault
-public abstract class PolygonBase<T extends LineString> extends Geometry implements Iterable<T>, LineBasedGeom
+public abstract class PolygonBase<T extends Curve> extends Geometry implements Iterable<T>, LineBasedGeometry
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
@@ -27,7 +27,7 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	 * @param clazzRing class of the ring
 	 * @param type has to be given by all subclasses
 	 */
-	protected PolygonBase(int type, Class<T> clazzRing)
+	protected <U extends T> PolygonBase(int type, Class<U> clazzRing)
 	{
 		super(type);
 		this.lsOuterRing = createRing(clazzRing);
@@ -39,10 +39,10 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	 * @param type has to be given by all subclasses
 	 * @param rings rings
 	 */
-	protected <U extends T> PolygonBase(int type, Class<T> clazzRing, Iterable<U> rings)
+	protected <U extends T, V extends T> PolygonBase(int type, Class<U> clazzRing, Iterable<V> rings)
 	{
 		super(type);
-		Iterator<U> it = rings.iterator();
+		Iterator<V> it = rings.iterator();
 		// first the outer ring
 		if (it.hasNext())
 		{
@@ -65,6 +65,11 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	 */
 	public void addRing(T ring)
 	{
+		// ensure ring is closed
+		if (!ring.isClosed())
+		{
+			ring.close();
+		}
 		this.rings.add(ring);
 	}
 
@@ -93,7 +98,7 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	 * @throws IllegalArgumentException if the class could not be created
 	 */
 	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
-	private T createRing(Class<T> clazzRing)
+	private <U extends T> T createRing(Class<U> clazzRing)
 	{
 		try
 		{
@@ -120,22 +125,41 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 
 	/*
 	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getFirstPoint()
+	 * @see io.github.sebasbaumh.postgis.Geometry#getCoordinates()
 	 */
 	@Override
-	public Point getFirstPoint()
+	public Iterable<Point> getCoordinates()
 	{
-		return lsOuterRing.getFirstPoint();
+		return lsOuterRing.getCoordinates();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getLastPoint()
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getEndPoint()
 	 */
 	@Override
-	public Point getLastPoint()
+	public Point getEndPoint()
 	{
-		return lsOuterRing.getLastPoint();
+		return lsOuterRing.getEndPoint();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getNumberOfCoordinates()
+	 */
+	@Override
+	public int getNumberOfCoordinates()
+	{
+		return lsOuterRing.getNumberOfCoordinates();
+	}
+
+	/**
+	 * Gets the number of rings.
+	 * @return number of rings.
+	 */
+	public int getNumberOfRings()
+	{
+		return rings.size();
 	}
 
 	/**
@@ -147,16 +171,6 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 		return this.lsOuterRing;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getPoint(int)
-	 */
-	@Override
-	public Point getPoint(int n)
-	{
-		return lsOuterRing.getPoint(n);
-	}
-
 	/**
 	 * Gets the ring with the given index.
 	 * @param idx index
@@ -165,6 +179,16 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	public T getRing(int idx)
 	{
 		return rings.get(idx);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getStartPoint()
+	 */
+	@Override
+	public Point getStartPoint()
+	{
+		return lsOuterRing.getStartPoint();
 	}
 
 	/*
@@ -212,6 +236,16 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 
 	/*
 	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#isClosed()
+	 */
+	@Override
+	public boolean isClosed()
+	{
+		return this.lsOuterRing.isClosed();
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
@@ -228,30 +262,6 @@ public abstract class PolygonBase<T extends LineString> extends Geometry impleme
 	public double length()
 	{
 		return this.lsOuterRing.length();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#numPoints()
-	 */
-	@Override
-	public int numPoints()
-	{
-		int c = 0;
-		for (T ring : rings)
-		{
-			c += ring.numPoints();
-		}
-		return c;
-	}
-
-	/**
-	 * Gets the number of rings.
-	 * @return number of rings.
-	 */
-	public int numRings()
-	{
-		return rings.size();
 	}
 
 }

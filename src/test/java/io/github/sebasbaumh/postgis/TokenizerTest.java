@@ -42,14 +42,12 @@ public class TokenizerTest
 		char delimiterL2 = ' ';
 		String stringToTokenize = "((1 2 3),(4 5 6),(7 8 9)";
 		logger.debug("tokenizing string value => {}", stringToTokenize);
-		List<String> tokensLevel1 = GeometryTokenizer.tokenize(PostGisUtil.removeBrackets(stringToTokenize),
-				delimiterL1);
+		List<String> tokensLevel1 = PostGisUtil.split(PostGisUtil.removeBrackets(stringToTokenize), delimiterL1);
 		logger.debug("level 1 tokens [delimiter = {}] [tokenCount = {}]", delimiterL1, tokensLevel1.size());
 		for (String tokenL1 : tokensLevel1)
 		{
 			logger.debug("L1 token => {} / {}", tokenL1, PostGisUtil.removeBrackets(tokenL1));
-			List<String> tokensLevel2 = GeometryTokenizer.tokenize(PostGisUtil.removeBrackets(tokenL1),
-					delimiterL2);
+			List<String> tokensLevel2 = PostGisUtil.split(PostGisUtil.removeBrackets(tokenL1), delimiterL2);
 			logger.debug("level 2 tokens [delimiter = {}] [tokenCount = {}]", delimiterL2, tokensLevel2.size());
 			for (String tokenL2 : tokensLevel2)
 			{

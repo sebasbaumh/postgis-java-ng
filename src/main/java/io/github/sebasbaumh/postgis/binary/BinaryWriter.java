@@ -29,6 +29,7 @@ import java.util.Collection;
 
 import io.github.sebasbaumh.postgis.CircularString;
 import io.github.sebasbaumh.postgis.CompoundCurve;
+import io.github.sebasbaumh.postgis.Curve;
 import io.github.sebasbaumh.postgis.CurvePolygon;
 import io.github.sebasbaumh.postgis.Geometry;
 import io.github.sebasbaumh.postgis.GeometryCollection;
@@ -194,10 +195,10 @@ public class BinaryWriter
 		}
 	}
 
-	private static <T extends LineString> void writePolygon(PolygonBase<T> geom, ValueSetter dest)
+	private static <T extends Curve> void writePolygon(PolygonBase<T> geom, ValueSetter dest)
 	{
 		// collect all rings (outer ring+inner rings)
-		ArrayList<T> rings = new ArrayList<T>(geom.numRings() + 1);
+		ArrayList<T> rings = new ArrayList<T>(geom.getNumberOfRings() + 1);
 		rings.add(geom.getOuterRing());
 		for (T ring : geom.innerRings())
 		{
@@ -211,7 +212,7 @@ public class BinaryWriter
 			// polygon linear rings are just written as a plain set of points
 			if (ring instanceof LinearRing)
 			{
-				writePoints(ring, dest);
+				writePoints(ring.getCoordinates(), dest);
 			}
 			else
 			{

@@ -31,11 +31,32 @@ package io.github.sebasbaumh.postgis;
  * Interface to mark line based geometries.
  * @author Sebastian Baumhekel
  */
-public interface LineBasedGeom
+public interface LineBasedGeometry
 {
+	/**
+	 * Gets the end point.
+	 * @return {@link Point}
+	 * @throws IllegalStateException if this linestring has no points
+	 */
+	Point getEndPoint();
+
+	/**
+	 * Gets the start point.
+	 * @return {@link Point}
+	 * @throws IllegalStateException if this linestring has no points
+	 */
+	Point getStartPoint();
+
+	/**
+	 * Checks if this line is closed, so the last coordinate is the same as the first coordinate.
+	 * @return true on success, else false
+	 */
+	boolean isClosed();
+
 	/**
 	 * Gets the length of this line.
 	 * @return length
 	 */
-	public double length();
+	double length();
+
 }

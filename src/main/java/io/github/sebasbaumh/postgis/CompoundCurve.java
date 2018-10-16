@@ -26,6 +26,12 @@
  */
 package io.github.sebasbaumh.postgis;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+import javax.annotation.Nullable;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
@@ -36,7 +42,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author Sebastian Baumhekel
  */
 @NonNullByDefault
-public class CompoundCurve extends MultiGeometry<LineString> implements LineBasedGeom
+public class CompoundCurve extends Curve implements Iterable<LineString>
 {
 	private static final long serialVersionUID = 0x100;
 	/**
@@ -44,6 +50,11 @@ public class CompoundCurve extends MultiGeometry<LineString> implements LineBase
 	 * segments.
 	 */
 	public static final int TYPE = 9;
+
+	/**
+	 * Sub geometries.
+	 */
+	protected final ArrayList<LineString> subgeoms = new ArrayList<LineString>();
 
 	/**
 	 * Constructs an instance.
@@ -59,7 +70,224 @@ public class CompoundCurve extends MultiGeometry<LineString> implements LineBase
 	 */
 	public CompoundCurve(Iterable<? extends LineString> geoms)
 	{
-		super(TYPE, geoms);
+		super(TYPE);
+		addAll(geoms);
+	}
+
+	/**
+	 * Adds a geometry.
+	 * @param geom geometry
+	 */
+	public void add(LineString geom)
+	{
+		subgeoms.add(geom);
+	}
+
+	/**
+	 * Adds all given geometries.
+	 * @param geoms geometries
+	 */
+	public final void addAll(Iterable<? extends LineString> geoms)
+	{
+		for (LineString geom : geoms)
+		{
+			subgeoms.add(geom);
+		}
+	}
+
+	@Override
+	public boolean checkConsistency()
+	{
+		if (!super.checkConsistency() || subgeoms.isEmpty())
+		{
+			return false;
+		}
+		return PostGisUtil.checkConsistency(subgeoms);
+	}
+
+	/**
+	 * Closes this {@link Curve} if the last coordinate is not already the same as the first coordinate.
+	 */
+	@Override
+	public void close()
+	{
+		LineString lsFirst = PostGisUtil.firstOrDefault(subgeoms);
+		LineString lsLast = PostGisUtil.lastOrDefault(subgeoms);
+		if ((lsFirst != null) && (lsLast != null) && (lsFirst.getNumberOfCoordinates() > 1)
+				&& (lsLast.getNumberOfCoordinates() > 1))
+		{
+			Point pFirst = lsFirst.getStartPoint();
+			Point pLast = lsLast.getEndPoint();
+			// check if there is a first point and the last point equals the first one
+			if (!pFirst.coordsAreEqual(pLast))
+			{
+				// add the first point as closing last point
+				lsLast.add(pFirst.copy());
+			}
+		}
+	}
+
+	@Override
+	public boolean equals(@Nullable Object other)
+	{
+		// check parent
+		if (super.equals(other) && (other instanceof CompoundCurve))
+		{
+			CompoundCurve cother = (CompoundCurve) other;
+			return PostGisUtil.equalsIterable(this.subgeoms, cother.subgeoms);
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getCoordinates()
+	 */
+	@Override
+	public Iterable<Point> getCoordinates()
+	{
+		ArrayList<Point> l = new ArrayList<Point>();
+		for (LineString geom : subgeoms)
+		{
+			for (Point p : geom.getCoordinates())
+			{
+				l.add(p);
+			}
+		}
+		return l;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getEndPoint()
+	 */
+	@Override
+	public Point getEndPoint()
+	{
+		LineString ls = PostGisUtil.lastOrDefault(subgeoms);
+		if (ls != null)
+		{
+			return ls.getEndPoint();
+		}
+		throw new IllegalStateException("this geometry contains no elements");
+	}
+
+	/**
+	 * Gets all geometries.
+	 * @return geometries
+	 */
+	public Collection<LineString> getGeometries()
+	{
+		return subgeoms;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getNumberOfCoordinates()
+	 */
+	@Override
+	public int getNumberOfCoordinates()
+	{
+		int n = 0;
+		for (LineString geom : subgeoms)
+		{
+			n += geom.getNumberOfCoordinates();
+		}
+		return n;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getStartPoint()
+	 */
+	@Override
+	public Point getStartPoint()
+	{
+		Iterator<LineString> it = subgeoms.iterator();
+		if (it.hasNext())
+		{
+			LineString ls = it.next();
+			return ls.getStartPoint();
+		}
+		throw new IllegalStateException("this geometry contains no elements");
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return subgeoms.hashCode();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#hasMeasure()
+	 */
+	@Override
+	public boolean hasMeasure()
+	{
+		for (LineString geom : subgeoms)
+		{
+			if (geom.hasMeasure())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#is3d()
+	 */
+	@Override
+	public boolean is3d()
+	{
+		for (LineString geom : subgeoms)
+		{
+			if (geom.is3d())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#isClosed()
+	 */
+	@Override
+	public boolean isClosed()
+	{
+		LineString lsFirst = PostGisUtil.firstOrDefault(subgeoms);
+		LineString lsLast = PostGisUtil.lastOrDefault(subgeoms);
+		if ((lsFirst != null) && (lsLast != null) && (lsFirst.getNumberOfCoordinates() > 1)
+				&& (lsLast.getNumberOfCoordinates() > 1))
+		{
+			Point pFirst = lsFirst.getStartPoint();
+			Point pLast = lsLast.getEndPoint();
+			return pFirst.coordsAreEqual(pLast);
+		}
+		return false;
+	}
+
+	/**
+	 * Checks, if there are no sub-geometries.
+	 * @return true on success, else false
+	 */
+	public boolean isEmpty()
+	{
+		return subgeoms.isEmpty();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<LineString> iterator()
+	{
+		return subgeoms.iterator();
 	}
 
 	/*
@@ -75,6 +303,25 @@ public class CompoundCurve extends MultiGeometry<LineString> implements LineBase
 			d += ls.length();
 		}
 		return d;
+	}
+
+	@Override
+	public void setSrid(int srid)
+	{
+		super.setSrid(srid);
+		for (LineString geom : subgeoms)
+		{
+			geom.setSrid(srid);
+		}
+	}
+
+	/**
+	 * Gets the number of contained geometries.
+	 * @return number of contained geometries
+	 */
+	public int size()
+	{
+		return this.subgeoms.size();
 	}
 
 }

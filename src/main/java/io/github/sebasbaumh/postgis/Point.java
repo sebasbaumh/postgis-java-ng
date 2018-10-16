@@ -27,6 +27,7 @@
 
 package io.github.sebasbaumh.postgis;
 
+import java.util.Collections;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -171,18 +172,14 @@ public class Point extends Geometry
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getCoordinates()
+	 */
 	@Override
-	public Point getFirstPoint()
+	public Iterable<Point> getCoordinates()
 	{
-		// Optimized versions for this special case
-		return this;
-	}
-
-	@Override
-	public Point getLastPoint()
-	{
-		// Optimized versions for this special case
-		return this;
+		return Collections.singleton(this);
 	}
 
 	/**
@@ -194,17 +191,14 @@ public class Point extends Geometry
 		return m;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getNumberOfCoordinates()
+	 */
 	@Override
-	public Point getPoint(int index)
+	public int getNumberOfCoordinates()
 	{
-		if (index == 0)
-		{
-			return this;
-		}
-		else
-		{
-			throw new ArrayIndexOutOfBoundsException("Point only has a single Point! " + index);
-		}
+		return 1;
 	}
 
 	/**
@@ -258,12 +252,6 @@ public class Point extends Geometry
 	public boolean is3d()
 	{
 		return !Double.isNaN(this.z);
-	}
-
-	@Override
-	public int numPoints()
-	{
-		return 1;
 	}
 
 	/**

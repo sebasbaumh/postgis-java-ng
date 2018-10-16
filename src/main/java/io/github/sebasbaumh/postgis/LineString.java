@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author Sebastian Baumhekel
  */
 @NonNullByDefault
-public class LineString extends Geometry implements LineBasedGeom, Iterable<Point>
+public class LineString extends Curve implements Iterable<Point>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
@@ -114,7 +114,7 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 	@Override
 	public boolean checkConsistency()
 	{
-		if (!super.checkConsistency())
+		if (!super.checkConsistency() || points.isEmpty())
 		{
 			return false;
 		}
@@ -124,6 +124,7 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 	/**
 	 * Closes this {@link LineString} if the last coordinate is not already the same as the first coordinate.
 	 */
+	@Override
 	public void close()
 	{
 		if (!this.points.isEmpty())
@@ -154,32 +155,42 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 
 	/*
 	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getFirstPoint()
+	 * @see io.github.sebasbaumh.postgis.Geometry#getCoordinates()
 	 */
 	@Override
-	public Point getFirstPoint()
+	public Iterable<Point> getCoordinates()
 	{
-		return this.points.get(0);
+		return this.points;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getLastPoint()
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getEndPoint()
 	 */
 	@Override
-	public Point getLastPoint()
+	public Point getEndPoint()
 	{
 		return this.points.get(points.size() - 1);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#getPoint(int)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getNumberOfCoordinates()
 	 */
 	@Override
-	public Point getPoint(int n)
+	public int getNumberOfCoordinates()
 	{
-		return this.points.get(n);
+		return this.points.size();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getStartPoint()
+	 */
+	@Override
+	public Point getStartPoint()
+	{
+		return this.points.get(0);
 	}
 
 	/*
@@ -220,6 +231,7 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 	 * Checks if this LineString is closed, so the last coordinate is the same as the first coordinate.
 	 * @return true on success, else false
 	 */
+	@Override
 	public boolean isClosed()
 	{
 		// there need to be at least 3 points to close the line
@@ -257,16 +269,6 @@ public class LineString extends Geometry implements LineBasedGeom, Iterable<Poin
 			}
 		}
 		return len;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.Geometry#numPoints()
-	 */
-	@Override
-	public int numPoints()
-	{
-		return this.points.size();
 	}
 
 	/**

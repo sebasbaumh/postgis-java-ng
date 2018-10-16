@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author Sebastian Baumhekel
  */
 @NonNullByDefault
-public class MultiCurve extends MultiGeometry<Geometry>
+public class MultiCurve extends MultiGeometry<Curve>
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
@@ -56,60 +56,14 @@ public class MultiCurve extends MultiGeometry<Geometry>
 	/**
 	 * Constructs an instance.
 	 * @param lines lines
+	 * @throws IllegalArgumentException if given lines are not of a curve type
 	 */
-	public <T extends Geometry> MultiCurve(Iterable<T> lines)
+	public MultiCurve(Iterable<Curve> lines)
 	{
 		super(TYPE);
-		for (T geom : lines)
+		for (Curve geom : lines)
 		{
-			checkCurveGeometryType(geom);
 			add(geom);
-		}
-	}
-
-	/**
-	 * Checks the given geometry type.
-	 * @param geom geometry
-	 * @throws IllegalArgumentException if geometry type is not a curve
-	 */
-	private static void checkCurveGeometryType(Geometry geom)
-	{
-		// check linestrings
-		if (!(geom instanceof LineString) && !(geom instanceof CompoundCurve))
-		{
-			throw new IllegalArgumentException("given geometry is no LineString or CompoundCurve: " + geom);
-		}
-	}
-
-	/**
-	 * Adds a line.
-	 * @param ls line
-	 */
-	public void add(CompoundCurve ls)
-	{
-		super.add(ls);
-	}
-
-	/**
-	 * Adds a line.
-	 * @param ls line
-	 */
-	public void add(LineString ls)
-	{
-		super.add(ls);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.MultiGeometry#addAll(java.lang.Iterable)
-	 */
-	@Override
-	public void addAll(Iterable<? extends Geometry> geoms)
-	{
-		for (Geometry geom : geoms)
-		{
-			checkCurveGeometryType(geom);
-			super.add(geom);
 		}
 	}
 
@@ -122,9 +76,9 @@ public class MultiCurve extends MultiGeometry<Geometry>
 		double d = 0;
 		for (Geometry ls : subgeoms)
 		{
-			if (ls instanceof LineBasedGeom)
+			if (ls instanceof LineBasedGeometry)
 			{
-				d += ((LineBasedGeom) ls).length();
+				d += ((LineBasedGeometry) ls).length();
 			}
 		}
 		return d;

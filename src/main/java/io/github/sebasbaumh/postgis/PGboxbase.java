@@ -124,7 +124,7 @@ public abstract class PGboxbase extends PGobject
 	 */
 	private static Point pointFromWKT(String wkt)
 	{
-		List<String> tokens = GeometryTokenizer.tokenize(wkt.trim(), ' ');
+		List<String> tokens = PostGisUtil.split(wkt.trim(), ' ');
 		double x = Double.parseDouble(tokens.get(0));
 		double y = Double.parseDouble(tokens.get(1));
 		// 3d?
@@ -134,28 +134,6 @@ public abstract class PGboxbase extends PGobject
 			return new Point(x, y, z);
 		}
 		return new Point(x, y);
-	}
-
-	/**
-	 * Splits a String at the first occurrence of border character. Poor man's String.split() replacement, as
-	 * String.split() was invented at jdk1.4, and the Debian PostGIS Maintainer had problems building the woody backport
-	 * of his package using DFSG-free compilers. In all the cases we used split() in the io.github.sebasbaumh.postgis
-	 * package, we only needed to split at the first occurence, and thus this code could even be faster.
-	 * @param whole the String to be split
-	 * @return String array containing the split elements
-	 * @throws SQLException when a SQLException occurrs
-	 */
-	private static String[] splitSRID(String whole) throws SQLException
-	{
-		int index = whole.indexOf(';', 5); // sridprefix length is 5
-		if (index == -1)
-		{
-			throw new SQLException("Error parsing Geometry - SRID not delimited with ';' ");
-		}
-		else
-		{
-			return new String[] { whole.substring(0, index), whole.substring(index + 1) };
-		}
 	}
 
 	@Override
@@ -242,23 +220,33 @@ public abstract class PGboxbase extends PGobject
 	@Override
 	public void setValue(String value) throws SQLException
 	{
-		int srid = Geometry.UNKNOWN_SRID;
-		value = value.trim();
-		if (value.startsWith("SRID="))
-		{
-			String[] temp = PGboxbase.splitSRID(value);
-			value = temp[1].trim();
-			srid = PostGisUtil.parseSRID(Integer.parseInt(temp[0].substring(5)));
-		}
-		String myPrefix = getPrefix();
-		if (value.startsWith(myPrefix))
-		{
-			value = value.substring(myPrefix.length()).trim();
-		}
-		String valueNoParans = PostGisUtil.removeBrackets(value);
-		List<String> tokens = GeometryTokenizer.tokenize(valueNoParans, ',');
 		try
 		{
+			int srid = Geometry.UNKNOWN_SRID;
+			value = value.trim();
+			if (value.startsWith("SRID="))
+			{
+				int index = value.indexOf(';', 5); // sridprefix length is 5
+				if (index < 0)
+				{
+					throw new SQLException("Error parsing Geometry - SRID not delimited with ';' ");
+				}
+				String sSrid = value.substring(5, index);
+				value = value.substring(index + 1).trim();
+				srid = Integer.parseInt(sSrid);
+				// ensure valid SRID
+				if (srid < 0)
+				{
+					srid = Geometry.UNKNOWN_SRID;
+				}
+			}
+			String myPrefix = getPrefix();
+			if (value.startsWith(myPrefix))
+			{
+				value = value.substring(myPrefix.length()).trim();
+			}
+			String valueNoParans = PostGisUtil.removeBrackets(value);
+			List<String> tokens = PostGisUtil.split(valueNoParans, ',');
 			llb = PGboxbase.pointFromWKT(tokens.get(0));
 			urt = PGboxbase.pointFromWKT(tokens.get(1));
 			if (srid != Geometry.UNKNOWN_SRID)
@@ -267,9 +255,9 @@ public abstract class PGboxbase extends PGobject
 				urt.setSrid(srid);
 			}
 		}
-		catch (NumberFormatException ex)
+		catch (NumberFormatException | IndexOutOfBoundsException ex)
 		{
-			throw new SQLException("Error parsing Point: " + ex, ex);
+			throw new SQLException("Error parsing Point: " + ex.getMessage(), ex);
 		}
 	}
 

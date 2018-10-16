@@ -28,6 +28,8 @@
 package io.github.sebasbaumh.postgis;
 
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -123,6 +125,12 @@ public abstract class Geometry implements Serializable
 	}
 
 	/**
+	 * Gets the coordinates of this {@link Geometry}.
+	 * @return coordinates
+	 */
+	public abstract Iterable<Point> getCoordinates();
+
+	/**
 	 * Queries the number of geometric dimensions of this geometry. This does not include measures, as opposed to the
 	 * server.
 	 * @deprecated use {@link #is3d()} instead
@@ -138,13 +146,35 @@ public abstract class Geometry implements Serializable
 	 * Same as getPoint(0);
 	 * @return the initial Point in this geometry
 	 */
-	public abstract Point getFirstPoint();
+	public final Point getFirstPoint()
+	{
+		Iterator<Point> it = getCoordinates().iterator();
+		if (it.hasNext())
+		{
+			return it.next();
+		}
+		throw new IndexOutOfBoundsException();
+	}
 
 	/**
 	 * Same as getPoint(numPoints()-1);
 	 * @return the final Point in this geometry
 	 */
-	public abstract Point getLastPoint();
+	public final Point getLastPoint()
+	{
+		Point p = PostGisUtil.lastOrDefault(getCoordinates());
+		if (p != null)
+		{
+			return p;
+		}
+		throw new IndexOutOfBoundsException();
+	}
+
+	/**
+	 * Gets the number of coordinates of this {@link Geometry}.
+	 * @return number of coordinates
+	 */
+	public abstract int getNumberOfCoordinates();
 
 	/**
 	 * Get the nth Point of the geometry
@@ -152,7 +182,26 @@ public abstract class Geometry implements Serializable
 	 * @return nth point in the geometry
 	 * @throws ArrayIndexOutOfBoundsException in case of an emtpy geometry or bad index.
 	 */
-	public abstract Point getPoint(int n);
+	public final Point getPoint(int n)
+	{
+		Iterable<Point> c = getCoordinates();
+		// short cut
+		if (c instanceof List<?>)
+		{
+			return ((List<Point>) c).get(n);
+		}
+		Iterator<Point> it = c.iterator();
+		while (it.hasNext())
+		{
+			Point p = it.next();
+			if (n == 0)
+			{
+				return p;
+			}
+			n--;
+		}
+		throw new IndexOutOfBoundsException();
+	}
 
 	/**
 	 * The OGIS geometry type number of this geometry.
@@ -197,8 +246,13 @@ public abstract class Geometry implements Serializable
 	/**
 	 * Return the number of Points of the geometry
 	 * @return number of points in the geometry
+	 * @deprecated use {@link #getNumberOfCoordinates()} instead
 	 */
-	public abstract int numPoints();
+	@Deprecated
+	public final int numPoints()
+	{
+		return this.getNumberOfCoordinates();
+	}
 
 	/**
 	 * Recursively sets the srid on this geometry and all contained subgeometries

@@ -29,6 +29,7 @@ import java.util.Collection;
 
 import io.github.sebasbaumh.postgis.CircularString;
 import io.github.sebasbaumh.postgis.CompoundCurve;
+import io.github.sebasbaumh.postgis.Curve;
 import io.github.sebasbaumh.postgis.CurvePolygon;
 import io.github.sebasbaumh.postgis.Geometry;
 import io.github.sebasbaumh.postgis.GeometryCollection;
@@ -42,7 +43,6 @@ import io.github.sebasbaumh.postgis.MultiSurface;
 import io.github.sebasbaumh.postgis.Point;
 import io.github.sebasbaumh.postgis.Polygon;
 import io.github.sebasbaumh.postgis.PolygonBase;
-import io.github.sebasbaumh.postgis.PostGisUtil;
 
 /**
  * Parse binary representation of geometries. It should be easy to add char[] and CharSequence ByteGetter instances,
@@ -63,26 +63,6 @@ public class BinaryParser
 	public static Geometry parse(String value)
 	{
 		return parseGeometry(ValueGetter.getValueGetterForEndian(new ByteGetter(value)));
-	}
-
-	private static CircularString parseCircularString(ValueGetter data, boolean haveZ, boolean haveM)
-	{
-		return new CircularString(parsePoints(data, haveZ, haveM));
-	}
-
-	private static GeometryCollection parseCollection(ValueGetter data)
-	{
-		return new GeometryCollection(parseGeometries(Geometry.class, data));
-	}
-
-	private static CompoundCurve parseCompoundCurve(ValueGetter data)
-	{
-		return new CompoundCurve(parseGeometries(LineString.class, data));
-	}
-
-	private static CurvePolygon parseCurvePolygon(ValueGetter data)
-	{
-		return new CurvePolygon(parseGeometries(LineString.class, data));
 	}
 
 	/**
@@ -121,6 +101,7 @@ public class BinaryParser
 	 * Parse a geometry starting at offset.
 	 * @param data ValueGetter with the data to be parsed
 	 * @return the parsed geometry
+	 * @throws IllegalArgumentException for unknown geometry types
 	 */
 	private static Geometry parseGeometry(ValueGetter data)
 	{
@@ -137,14 +118,15 @@ public class BinaryParser
 		boolean haveM = (typeword & 0x40000000) != 0;
 		boolean haveS = (typeword & 0x20000000) != 0;
 
-		int srid;
+		int srid = Geometry.UNKNOWN_SRID;
 		if (haveS)
 		{
-			srid = PostGisUtil.parseSRID(data.getInt());
-		}
-		else
-		{
-			srid = Geometry.UNKNOWN_SRID;
+			// ensure valid SRID
+			srid = data.getInt();
+			if (srid < 0)
+			{
+				srid = Geometry.UNKNOWN_SRID;
+			}
 		}
 		// parse geometry according to type
 		Geometry result;
@@ -154,37 +136,37 @@ public class BinaryParser
 				result = parsePoint(data, haveZ, haveM);
 				break;
 			case LineString.TYPE:
-				result = parseLineString(data, haveZ, haveM);
+				result = new LineString(parsePoints(data, haveZ, haveM));
 				break;
 			case CircularString.TYPE:
-				result = parseCircularString(data, haveZ, haveM);
+				result = new CircularString(parsePoints(data, haveZ, haveM));
 				break;
 			case CompoundCurve.TYPE:
-				result = parseCompoundCurve(data);
+				result = new CompoundCurve(parseGeometries(LineString.class, data));
 				break;
 			case Polygon.TYPE:
 				result = parsePolygon(data, haveZ, haveM);
 				break;
 			case CurvePolygon.TYPE:
-				result = parseCurvePolygon(data);
+				result = new CurvePolygon(parseGeometries(Curve.class, data));
 				break;
 			case MultiPoint.TYPE:
-				result = parseMultiPoint(data);
+				result = new MultiPoint(parseGeometries(Point.class, data));
 				break;
 			case MultiLineString.TYPE:
-				result = parseMultiLineString(data);
+				result = new MultiLineString(parseGeometries(LineString.class, data));
 				break;
 			case MultiCurve.TYPE:
-				result = parseMultiCurve(data);
+				result = new MultiCurve(parseGeometries(Curve.class, data));
 				break;
 			case MultiPolygon.TYPE:
-				result = parseMultiPolygon(data);
+				result = new MultiPolygon(parseGeometries(Polygon.class, data));
 				break;
 			case MultiSurface.TYPE:
-				result = parseMultiSurface(data);
+				result = new MultiSurface(parseGeometries(PolygonBase.class, data));
 				break;
 			case GeometryCollection.TYPE:
-				result = parseCollection(data);
+				result = new GeometryCollection(parseGeometries(Geometry.class, data));
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown Geometry Type: " + geometryType);
@@ -192,41 +174,6 @@ public class BinaryParser
 		// set SRID and return the geometry
 		result.setSrid(srid);
 		return result;
-	}
-
-	private static LinearRing parseLinearRing(ValueGetter data, boolean haveZ, boolean haveM)
-	{
-		return new LinearRing(parsePoints(data, haveZ, haveM));
-	}
-
-	private static LineString parseLineString(ValueGetter data, boolean haveZ, boolean haveM)
-	{
-		return new LineString(parsePoints(data, haveZ, haveM));
-	}
-
-	private static MultiCurve parseMultiCurve(ValueGetter data)
-	{
-		return new MultiCurve(parseGeometries(LineString.class, data));
-	}
-
-	private static MultiLineString parseMultiLineString(ValueGetter data)
-	{
-		return new MultiLineString(parseGeometries(LineString.class, data));
-	}
-
-	private static MultiPoint parseMultiPoint(ValueGetter data)
-	{
-		return new MultiPoint(parseGeometries(Point.class, data));
-	}
-
-	private static MultiPolygon parseMultiPolygon(ValueGetter data)
-	{
-		return new MultiPolygon(parseGeometries(Polygon.class, data));
-	}
-
-	private static MultiSurface parseMultiSurface(ValueGetter data)
-	{
-		return new MultiSurface(parseGeometries(PolygonBase.class, data));
 	}
 
 	/**
@@ -259,8 +206,8 @@ public class BinaryParser
 	}
 
 	/**
-	 * Parse an Array of "slim" Points (without endianness and type, part of LinearRing and Linestring, but not
-	 * MultiPoint!
+	 * Parse an Array of "slim" {@link Point}s (without endianness and type, part of {@link LinearRing} and
+	 * {@link LineString}, but not {@link MultiPoint}!
 	 * @param data {@link ValueGetter}
 	 * @param haveZ parse z value?
 	 * @param haveM parse measure value?
@@ -277,13 +224,20 @@ public class BinaryParser
 		return l;
 	}
 
+	/**
+	 * Parse a {@link Polygon}.
+	 * @param data {@link ValueGetter}
+	 * @param haveZ parse z value?
+	 * @param haveM parse measure value?
+	 * @return {@link Polygon}
+	 */
 	private static Polygon parsePolygon(ValueGetter data, boolean haveZ, boolean haveM)
 	{
 		int count = data.getInt();
 		ArrayList<LinearRing> rings = new ArrayList<LinearRing>(count);
 		for (int i = 0; i < count; i++)
 		{
-			rings.add(parseLinearRing(data, haveZ, haveM));
+			rings.add(new LinearRing(parsePoints(data, haveZ, haveM)));
 		}
 		return new Polygon(rings);
 	}

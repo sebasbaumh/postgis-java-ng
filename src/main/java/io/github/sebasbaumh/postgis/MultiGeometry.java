@@ -69,7 +69,7 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	@Override
 	public boolean checkConsistency()
 	{
-		if (!super.checkConsistency())
+		if (!super.checkConsistency() || subgeoms.isEmpty())
 		{
 			return false;
 		}
@@ -83,33 +83,27 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 		if (super.equals(other) && (other instanceof MultiGeometry<?>))
 		{
 			MultiGeometry<?> cother = (MultiGeometry<?>) other;
-			if (cother.subgeoms.isEmpty() && subgeoms.isEmpty())
-			{
-				return true;
-			}
-			else if (cother.subgeoms.size() != subgeoms.size())
-			{
-				return false;
-			}
-			else
-			{
-				for (int i = 0; i < subgeoms.size(); i++)
-				{
-					if (!cother.subgeoms.get(i).equals(this.subgeoms.get(i)))
-					{
-						return false;
-					}
-				}
-			}
-			return true;
+			return PostGisUtil.equalsIterable(this.subgeoms, cother.subgeoms);
 		}
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getCoordinates()
+	 */
 	@Override
-	public Point getFirstPoint()
+	public Iterable<Point> getCoordinates()
 	{
-		return subgeoms.get(0).getFirstPoint();
+		ArrayList<Point> l = new ArrayList<Point>();
+		for (T geom : subgeoms)
+		{
+			for (Point p : geom.getCoordinates())
+			{
+				l.add(p);
+			}
+		}
+		return l;
 	}
 
 	/**
@@ -121,49 +115,19 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 		return subgeoms;
 	}
 
-	/**
-	 * Gets the sub geometry at the given index.
-	 * @param index index
-	 * @return sub geometry
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#getNumberOfCoordinates()
 	 */
-	public T getGeometry(int index)
-	{
-		return subgeoms.get(index);
-	}
-
 	@Override
-	public Point getLastPoint()
+	public int getNumberOfCoordinates()
 	{
-		return subgeoms.get(subgeoms.size() - 1).getLastPoint();
-	}
-
-	@Override
-	public Point getPoint(int n)
-	{
-		if (n < 0)
+		int n = 0;
+		for (T geom : subgeoms)
 		{
-			throw new ArrayIndexOutOfBoundsException("Negative index not allowed");
+			n += geom.getNumberOfCoordinates();
 		}
-		else if (subgeoms.isEmpty())
-		{
-			throw new ArrayIndexOutOfBoundsException("Empty Geometry has no Points!");
-		}
-		else
-		{
-			for (Geometry current : subgeoms)
-			{
-				int np = current.numPoints();
-				if (n < np)
-				{
-					return current.getPoint(n);
-				}
-				else
-				{
-					n -= np;
-				}
-			}
-			throw new ArrayIndexOutOfBoundsException("Index too large!");
-		}
+		return n;
 	}
 
 	@Override
@@ -223,17 +187,6 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	public Iterator<T> iterator()
 	{
 		return subgeoms.iterator();
-	}
-
-	@Override
-	public int numPoints()
-	{
-		int result = 0;
-		for (T geom : subgeoms)
-		{
-			result += geom.numPoints();
-		}
-		return result;
 	}
 
 	@Override
