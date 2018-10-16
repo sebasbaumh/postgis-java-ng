@@ -25,4 +25,30 @@ public abstract class Curve extends Geometry implements LineBasedGeometry
 	 */
 	public abstract void close();
 
+	/**
+	 * Checks if this ring is oriented in clockwise direction.
+	 * @return true on success, else false
+	 */
+	public boolean isClockwise()
+	{
+		return isClosed() && (PostGisUtil.calcAreaSigned(getCoordinates()) < 0);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#isClosed()
+	 */
+	@Override
+	public boolean isClosed()
+	{
+		Point pFirst = getStartPoint();
+		Point pLast = getEndPoint();
+		return (pFirst != null) && (pLast != null) && pFirst.coordsAreEqual(pLast);
+	}
+
+	/**
+	 * Reverses this linestring.
+	 */
+	public abstract void reverse();
+
 }

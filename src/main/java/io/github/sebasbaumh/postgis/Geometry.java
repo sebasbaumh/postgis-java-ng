@@ -28,8 +28,6 @@
 package io.github.sebasbaumh.postgis;
 
 import java.io.Serializable;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -143,65 +141,10 @@ public abstract class Geometry implements Serializable
 	}
 
 	/**
-	 * Same as getPoint(0);
-	 * @return the initial Point in this geometry
-	 */
-	public final Point getFirstPoint()
-	{
-		Iterator<Point> it = getCoordinates().iterator();
-		if (it.hasNext())
-		{
-			return it.next();
-		}
-		throw new IndexOutOfBoundsException();
-	}
-
-	/**
-	 * Same as getPoint(numPoints()-1);
-	 * @return the final Point in this geometry
-	 */
-	public final Point getLastPoint()
-	{
-		Point p = PostGisUtil.lastOrDefault(getCoordinates());
-		if (p != null)
-		{
-			return p;
-		}
-		throw new IndexOutOfBoundsException();
-	}
-
-	/**
 	 * Gets the number of coordinates of this {@link Geometry}.
 	 * @return number of coordinates
 	 */
 	public abstract int getNumberOfCoordinates();
-
-	/**
-	 * Get the nth Point of the geometry
-	 * @param n the index of the point, from 0 to numPoints()-1;
-	 * @return nth point in the geometry
-	 * @throws ArrayIndexOutOfBoundsException in case of an emtpy geometry or bad index.
-	 */
-	public final Point getPoint(int n)
-	{
-		Iterable<Point> c = getCoordinates();
-		// short cut
-		if (c instanceof List<?>)
-		{
-			return ((List<Point>) c).get(n);
-		}
-		Iterator<Point> it = c.iterator();
-		while (it.hasNext())
-		{
-			Point p = it.next();
-			if (n == 0)
-			{
-				return p;
-			}
-			n--;
-		}
-		throw new IndexOutOfBoundsException();
-	}
 
 	/**
 	 * The OGIS geometry type number of this geometry.
@@ -242,6 +185,12 @@ public abstract class Geometry implements Serializable
 	 * @return true on success, else false
 	 */
 	public abstract boolean is3d();
+
+	/**
+	 * Ist this {@link Geometry} empty, so does it contain no coordinates or other geometries?
+	 * @return true on success, else false
+	 */
+	public abstract boolean isEmpty();
 
 	/**
 	 * Return the number of Points of the geometry

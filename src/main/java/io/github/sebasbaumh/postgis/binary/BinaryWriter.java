@@ -195,12 +195,17 @@ public class BinaryWriter
 		}
 	}
 
+	/**
+	 * Writes a {@link Polygon}.
+	 * @param geom {@link Polygon}
+	 * @param dest writer
+	 */
 	private static <T extends Curve> void writePolygon(PolygonBase<T> geom, ValueSetter dest)
 	{
 		// collect all rings (outer ring+inner rings)
 		ArrayList<T> rings = new ArrayList<T>(geom.getNumberOfRings() + 1);
 		rings.add(geom.getOuterRing());
-		for (T ring : geom.innerRings())
+		for (T ring : geom.getRings())
 		{
 			rings.add(ring);
 		}

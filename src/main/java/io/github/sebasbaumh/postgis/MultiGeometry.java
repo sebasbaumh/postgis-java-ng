@@ -174,6 +174,7 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	 * Checks, if there are no sub-geometries.
 	 * @return true on success, else false
 	 */
+	@Override
 	public boolean isEmpty()
 	{
 		return subgeoms.isEmpty();

@@ -127,16 +127,13 @@ public class LineString extends Curve implements Iterable<Point>
 	@Override
 	public void close()
 	{
-		if (!this.points.isEmpty())
+		Point pFirst = getStartPoint();
+		Point pLast = getEndPoint();
+		// check if there is a first point and the last point equals the first one
+		if ((pFirst != null) && (pLast != null) && !pFirst.coordsAreEqual(pLast))
 		{
-			Point pFirst = getFirstPoint();
-			Point pLast = getLastPoint();
-			// check if there is a first point and the last point equals the first one
-			if (!pFirst.coordsAreEqual(pLast))
-			{
-				// add the first point as closing last point
-				add(pFirst.copy());
-			}
+			// add the first point as closing last point
+			add(pFirst.copy());
 		}
 	}
 
@@ -167,10 +164,11 @@ public class LineString extends Curve implements Iterable<Point>
 	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getEndPoint()
 	 */
+	@Nullable
 	@Override
 	public Point getEndPoint()
 	{
-		return this.points.get(points.size() - 1);
+		return PostGisUtil.lastOrDefault(points);
 	}
 
 	/*
@@ -187,10 +185,11 @@ public class LineString extends Curve implements Iterable<Point>
 	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getStartPoint()
 	 */
+	@Nullable
 	@Override
 	public Point getStartPoint()
 	{
-		return this.points.get(0);
+		return PostGisUtil.firstOrDefault(points);
 	}
 
 	/*
@@ -227,21 +226,14 @@ public class LineString extends Curve implements Iterable<Point>
 		return false;
 	}
 
-	/**
-	 * Checks if this LineString is closed, so the last coordinate is the same as the first coordinate.
-	 * @return true on success, else false
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#isEmpty()
 	 */
 	@Override
-	public boolean isClosed()
+	public boolean isEmpty()
 	{
-		// there need to be at least 3 points to close the line
-		if (points.size() > 2)
-		{
-			Point pFirst = getFirstPoint();
-			Point pLast = getLastPoint();
-			return pFirst.coordsAreEqual(pLast);
-		}
-		return false;
+		return this.points.isEmpty();
 	}
 
 	/*
@@ -274,6 +266,7 @@ public class LineString extends Curve implements Iterable<Point>
 	/**
 	 * Reverses this linestring.
 	 */
+	@Override
 	public void reverse()
 	{
 		Collections.reverse(this.points);

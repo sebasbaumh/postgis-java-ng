@@ -34,6 +34,45 @@ public final class PostGisUtil
 	}
 
 	/**
+	 * Calculates the area of the outer ring of the given polygon (signed).
+	 * @param points points
+	 * @return area (signed depending on direction)
+	 */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("UMTP_UNBOUND_METHOD_TEMPLATE_PARAMETER")
+	public static double calcAreaSigned(Iterable<Point> points)
+	{
+		Iterator<Point> it = points.iterator();
+		if (it.hasNext())
+		{
+			Point p1 = it.next();
+			if (it.hasNext())
+			{
+				Point pFirst = p1;
+				double area = 0;
+				boolean b = true;
+				do
+				{
+					Point p2;
+					if (it.hasNext())
+					{
+						p2 = it.next();
+					}
+					else
+					{
+						p2 = pFirst;
+						b = false;
+					}
+					area += ((p1.getX() + p2.getX()) * (p2.getY() - p1.getY()));
+					p1 = p2;
+				}
+				while (b);
+				return area / 2;
+			}
+		}
+		return 0;
+	}
+
+	/**
 	 * Do some internal consistency checks on the given geometries. Currently, all Geometries must have a valid
 	 * dimension (2 or 3) and a valid type. Composed geometries must have all equal SRID, dimensionality and measures,
 	 * as well as that they do not contain NULL or inconsistent subgeometries. BinaryParser and WKTParser should only

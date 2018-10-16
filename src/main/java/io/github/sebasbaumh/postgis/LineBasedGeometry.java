@@ -27,6 +27,8 @@
 
 package io.github.sebasbaumh.postgis;
 
+import javax.annotation.Nullable;
+
 /**
  * Interface to mark line based geometries.
  * @author Sebastian Baumhekel
@@ -35,16 +37,16 @@ public interface LineBasedGeometry
 {
 	/**
 	 * Gets the end point.
-	 * @return {@link Point}
-	 * @throws IllegalStateException if this linestring has no points
+	 * @return {@link Point} on success, else null
 	 */
+	@Nullable
 	Point getEndPoint();
 
 	/**
 	 * Gets the start point.
-	 * @return {@link Point}
-	 * @throws IllegalStateException if this linestring has no points
+	 * @return {@link Point} on success, else null
 	 */
+	@Nullable
 	Point getStartPoint();
 
 	/**

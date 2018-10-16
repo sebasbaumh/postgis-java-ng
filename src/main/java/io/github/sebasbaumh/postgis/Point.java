@@ -254,6 +254,16 @@ public class Point extends Geometry
 		return !Double.isNaN(this.z);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#isEmpty()
+	 */
+	@Override
+	public boolean isEmpty()
+	{
+		return Double.isNaN(this.x) && Double.isNaN(this.y);
+	}
+
 	/**
 	 * Sets the measurement.
 	 * @param m measurement

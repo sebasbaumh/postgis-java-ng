@@ -28,6 +28,7 @@ package io.github.sebasbaumh.postgis;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 import javax.annotation.Nullable;
@@ -54,7 +55,7 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 	/**
 	 * Sub geometries.
 	 */
-	protected final ArrayList<LineString> subgeoms = new ArrayList<LineString>();
+	private final ArrayList<LineString> subgeoms = new ArrayList<LineString>();
 
 	/**
 	 * Constructs an instance.
@@ -113,13 +114,12 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 	{
 		LineString lsFirst = PostGisUtil.firstOrDefault(subgeoms);
 		LineString lsLast = PostGisUtil.lastOrDefault(subgeoms);
-		if ((lsFirst != null) && (lsLast != null) && (lsFirst.getNumberOfCoordinates() > 1)
-				&& (lsLast.getNumberOfCoordinates() > 1))
+		if ((lsFirst != null) && (lsLast != null))
 		{
 			Point pFirst = lsFirst.getStartPoint();
 			Point pLast = lsLast.getEndPoint();
 			// check if there is a first point and the last point equals the first one
-			if (!pFirst.coordsAreEqual(pLast))
+			if ((pFirst != null) && (pLast != null) && !pFirst.coordsAreEqual(pLast))
 			{
 				// add the first point as closing last point
 				lsLast.add(pFirst.copy());
@@ -161,6 +161,7 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getEndPoint()
 	 */
+	@Nullable
 	@Override
 	public Point getEndPoint()
 	{
@@ -169,7 +170,7 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 		{
 			return ls.getEndPoint();
 		}
-		throw new IllegalStateException("this geometry contains no elements");
+		return null;
 	}
 
 	/**
@@ -200,16 +201,16 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getStartPoint()
 	 */
+	@Nullable
 	@Override
 	public Point getStartPoint()
 	{
-		Iterator<LineString> it = subgeoms.iterator();
-		if (it.hasNext())
+		LineString ls = PostGisUtil.firstOrDefault(subgeoms);
+		if (ls != null)
 		{
-			LineString ls = it.next();
 			return ls.getStartPoint();
 		}
-		throw new IllegalStateException("this geometry contains no elements");
+		return null;
 	}
 
 	@Override
@@ -252,29 +253,11 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#isClosed()
-	 */
-	@Override
-	public boolean isClosed()
-	{
-		LineString lsFirst = PostGisUtil.firstOrDefault(subgeoms);
-		LineString lsLast = PostGisUtil.lastOrDefault(subgeoms);
-		if ((lsFirst != null) && (lsLast != null) && (lsFirst.getNumberOfCoordinates() > 1)
-				&& (lsLast.getNumberOfCoordinates() > 1))
-		{
-			Point pFirst = lsFirst.getStartPoint();
-			Point pLast = lsLast.getEndPoint();
-			return pFirst.coordsAreEqual(pLast);
-		}
-		return false;
-	}
-
 	/**
 	 * Checks, if there are no sub-geometries.
 	 * @return true on success, else false
 	 */
+	@Override
 	public boolean isEmpty()
 	{
 		return subgeoms.isEmpty();
@@ -303,6 +286,22 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 			d += ls.length();
 		}
 		return d;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Curve#reverse()
+	 */
+	@Override
+	public void reverse()
+	{
+		// reverse linestrings as a whole
+		Collections.reverse(subgeoms);
+		// then reverse all individually
+		for (LineString ls : subgeoms)
+		{
+			ls.reverse();
+		}
 	}
 
 	@Override

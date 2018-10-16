@@ -39,6 +39,7 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 	 * @param type has to be given by all subclasses
 	 * @param rings rings
 	 */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS")
 	protected <U extends T, V extends T> PolygonBase(int type, Class<U> clazzRing, Iterable<V> rings)
 	{
 		super(type);
@@ -50,7 +51,7 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 			// inner rings
 			while (it.hasNext())
 			{
-				this.rings.add(it.next());
+				addRing(it.next());
 			}
 		}
 		else
@@ -69,6 +70,11 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 		if (!ring.isClosed())
 		{
 			ring.close();
+		}
+		// use correct orientation for holes
+		if (!ring.isClockwise())
+		{
+			ring.reverse();
 		}
 		this.rings.add(ring);
 	}
@@ -137,6 +143,7 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getEndPoint()
 	 */
+	@Nullable
 	@Override
 	public Point getEndPoint()
 	{
@@ -172,19 +179,19 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 	}
 
 	/**
-	 * Gets the ring with the given index.
-	 * @param idx index
-	 * @return ring
+	 * Gets all inner rings.
+	 * @return inner rings
 	 */
-	public T getRing(int idx)
+	public Iterable<T> getRings()
 	{
-		return rings.get(idx);
+		return this.rings;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#getStartPoint()
 	 */
+	@Nullable
 	@Override
 	public Point getStartPoint()
 	{
@@ -208,15 +215,6 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 		return false;
 	}
 
-	/**
-	 * Gets all inner rings.
-	 * @return inner rings
-	 */
-	public Iterable<T> innerRings()
-	{
-		return this.rings;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.Geometry#is3d()
@@ -234,6 +232,15 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 		return false;
 	}
 
+	/**
+	 * Checks if this polygon is oriented in clockwise direction. Is false for the outer polygon and true for its holes.
+	 * @return true on success, else false
+	 */
+	public boolean isClockwise()
+	{
+		return lsOuterRing.isClockwise();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.LineBasedGeometry#isClosed()
@@ -242,6 +249,16 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 	public boolean isClosed()
 	{
 		return this.lsOuterRing.isClosed();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.github.sebasbaumh.postgis.Geometry#isEmpty()
+	 */
+	@Override
+	public boolean isEmpty()
+	{
+		return lsOuterRing.isEmpty();
 	}
 
 	/*
@@ -262,6 +279,15 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 	public double length()
 	{
 		return this.lsOuterRing.length();
+	}
+
+	/**
+	 * Sets the outer ring/boundary of the polygon.
+	 * @param ls outer ring
+	 */
+	public void setOuterRing(T ls)
+	{
+		this.lsOuterRing = ls;
 	}
 
 }
