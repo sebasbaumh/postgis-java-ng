@@ -40,15 +40,15 @@
 	<dependencies>
 		<!-- support for annotations -->
 		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>annotations</artifactId>
-			<version>3.0.1u2</version>
-			<scope>provided</scope>
+		    <groupId>com.github.spotbugs</groupId>
+		    <artifactId>spotbugs-annotations</artifactId>
+		    <version>3.1.11</version>
+		    <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.annotation</artifactId>
-			<version>2.2.100</version>
+			<version>2.2.200</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Test scope dependencies -->
@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
-			<version>0.9.5.2</version>
+			<version>0.9.5.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
