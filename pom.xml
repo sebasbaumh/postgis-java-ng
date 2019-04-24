@@ -5,7 +5,7 @@
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
 	<!-- version for release -->
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<packaging>jar</packaging>
 	<name>PostGIS Java bindings</name>
 	<description>This project contains Java bindings for using PostGIS geometries coming from a PostgreSQL database.</description>
@@ -42,7 +42,7 @@
 		<dependency>
 		    <groupId>com.github.spotbugs</groupId>
 		    <artifactId>spotbugs-annotations</artifactId>
-		    <version>3.1.11</version>
+		    <version>3.1.12</version>
 		    <scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
-			<version>0.9.5.3</version>
+			<version>0.9.5.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -73,13 +73,13 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.8.0-beta2</version>
+			<version>1.8.0-beta4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.8.0-beta2</version>
+			<version>1.8.0-beta4</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- JDBC drivers and helpers -->
@@ -129,6 +129,8 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration>
+							<!-- Java 8 -->
+							<source>8</source>
 							<!-- ignore javadoc errors -->
 							<doclint>none</doclint>
 							<failOnError>false</failOnError>
