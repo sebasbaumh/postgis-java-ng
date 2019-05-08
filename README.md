@@ -26,13 +26,12 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
 * GeometryCollection
 
 ## How to use it ##
-Currently you need to build the JAR file yourself, though I will try to get it into an official Maven repository once it is mature enough.
-Then you can just use this Maven artifact:
+There is a Maven artifact in the official Maven repository, so just add this to your Maven POM:
 
 	<dependency>
 		<groupId>io.github.sebasbaumh</groupId>
 		<artifactId>postgis-java-ng</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.4</version>
 	</dependency>
 
 The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java), the main point is a different namespace (`io.github.sebasbaumh.postgis`) as I might not be able to publish an artificat under the original namespace.
