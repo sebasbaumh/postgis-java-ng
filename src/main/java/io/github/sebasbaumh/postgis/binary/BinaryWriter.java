@@ -53,14 +53,14 @@ import io.github.sebasbaumh.postgis.PostGisUtil;
  * 2^28 coordinates (8 bytes each).
  * @author markus.schaber@logi-track.com
  */
-public class BinaryWriter
+public final class BinaryWriter
 {
 	/**
 	 * Parse a geometry starting at offset.
 	 * @param geom the geometry to write
 	 * @param dest the value setting to be used for writing
 	 */
-	protected static void writeGeometry(Geometry geom, ValueSetter dest)
+	private static void writeGeometry(Geometry geom, ValueSetter dest)
 	{
 		// write endian flag, NDR (little endian)
 		dest.setByte(PostGisUtil.LITTLE_ENDIAN);

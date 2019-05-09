@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import io.github.sebasbaumh.postgis.binary.BinaryParser;
 import io.github.sebasbaumh.postgis.binary.BinaryWriter;
-import io.github.sebasbaumh.postgis.binary.ValueSetter;
 
 @SuppressWarnings("javadoc")
 public class ParserTest extends DatabaseTest
@@ -69,16 +68,6 @@ public class ParserTest extends DatabaseTest
 		}
 	}
 
-	private static String EWKBToHex(byte[] data)
-	{
-		ValueSetter s = new ValueSetter();
-		for (byte b : data)
-		{
-			s.setByte(b);
-		}
-		return s.toString();
-	}
-
 	/** Pass a geometry representation through the SQL server via EWKB */
 	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE")
 	private static Geometry ewkbViaSQL(String rep, Statement stat) throws SQLException
@@ -87,7 +76,7 @@ public class ParserTest extends DatabaseTest
 		{
 			resultSet.next();
 			byte[] resrep = resultSet.getBytes(1);
-			return BinaryParser.parse(EWKBToHex(resrep));
+			return BinaryParser.parse(PostGisUtil.toHexString(resrep));
 		}
 	}
 
@@ -169,7 +158,7 @@ public class ParserTest extends DatabaseTest
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
 		byte[] NWKT = PostGisUtil.toHexBytes(BinaryWriter.writeHexed(regeom));
-		regeom = BinaryParser.parse(EWKBToHex(NWKT));
+		regeom = BinaryParser.parse(PostGisUtil.toHexString(NWKT));
 		logger.debug("NDR: {}", regeom);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 

@@ -51,7 +51,7 @@ import io.github.sebasbaumh.postgis.PolygonBase;
  * even get or build Geometries with more than approx. 2^28 coordinates (8 bytes each).
  * @author {@literal Markus Schaber <markus.schaber@logix-tt.com>}
  */
-public class BinaryParser
+public final class BinaryParser
 {
 
 	/**
@@ -105,12 +105,9 @@ public class BinaryParser
 	 */
 	private static Geometry parseGeometry(ValueGetter data)
 	{
-		byte endian = data.getByte(); // skip and test endian flag
-		if (endian != data.getEndian())
-		{
-			throw new IllegalArgumentException("Endian inconsistency!");
-		}
-
+		// skip endian flag
+		data.getByte();
+		// and get the type
 		int typeword = data.getInt();
 		int geometryType = typeword & 0x1FFFFFFF; // cut off high flag bits
 

@@ -23,6 +23,11 @@ public final class PostGisUtil
 	 */
 	public static final byte BIG_ENDIAN = 0;
 	/**
+	 * Characters for converting data to hex strings.
+	 */
+	public static final char[] HEX_CHAR = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C',
+			'D', 'E', 'F' };
+	/**
 	 * Little endian encoding.
 	 */
 	public static final byte LITTLE_ENDIAN = 1;
@@ -132,12 +137,13 @@ public final class PostGisUtil
 	@SuppressWarnings("unlikely-arg-type")
 	public static <T, U> boolean equalsIterable(@Nullable Iterable<T> la, @Nullable Iterable<U> lb)
 	{
-		// handle nulls
-		if (la == null)
+		// check same instance
+		if (la == lb)
 		{
-			return (lb == null);
+			return true;
 		}
-		if (lb == null)
+		// iterables are different instances, so none of them should be null to proceed
+		if ((la == null) || (lb == null))
 		{
 			return false;
 		}
@@ -320,6 +326,22 @@ public final class PostGisUtil
 			b[i] = (byte) ((toHexByte(hex.charAt(i * 2)) << 4) | (toHexByte(hex.charAt(i * 2 + 1))));
 		}
 		return b;
+	}
+
+	/**
+	 * Converts the byte data to a hexadecimal string.
+	 * @param data byte data
+	 * @return hexadecimal {@link String} (lower case)
+	 */
+	public static String toHexString(byte[] data)
+	{
+		char[] sb = new char[data.length * 2];
+		for (int i = 0; i < data.length; i++)
+		{
+			sb[i * 2] = HEX_CHAR[(data[i] & 0xF0) >> 4];
+			sb[i * 2 + 1] = HEX_CHAR[(data[i] & 0x0F)];
+		}
+		return new String(sb);
 	}
 
 }

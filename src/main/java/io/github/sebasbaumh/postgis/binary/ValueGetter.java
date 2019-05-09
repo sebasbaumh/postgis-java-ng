@@ -33,7 +33,6 @@ import io.github.sebasbaumh.postgis.PostGisUtil;
  */
 public class ValueGetter
 {
-	private final byte endian;
 	private final IntBuilder funcInt;
 	private final LongBuilder funcLong;
 	private int position;
@@ -47,7 +46,10 @@ public class ValueGetter
 	public ValueGetter(String value)
 	{
 		this.value = value;
-		this.endian = (byte) getByteAt(value, 0);
+		//peek first byte for endian check
+		int endian = getNextByte();
+		//reset position
+		this.position=0;
 		switch (endian)
 		{
 			case PostGisUtil.LITTLE_ENDIAN:
@@ -77,15 +79,15 @@ public class ValueGetter
 
 	/**
 	 * Gets a byte at the given index.
-	 * @param rep {@link String}
-	 * @param index index
 	 * @return byte
 	 * @throws IndexOutOfBoundsException if the index is out of the range of the {@link String}
 	 */
-	private static int getByteAt(String rep, int index)
+	private int getNextByte()
 	{
-		index *= 2;
-		return (PostGisUtil.toHexByte(rep.charAt(index)) << 4) | PostGisUtil.toHexByte(rep.charAt(index + 1));
+		//get current position and advance it
+		int index=position*2;
+		position++;
+		return (PostGisUtil.toHexByte(value.charAt(index)) << 4) | PostGisUtil.toHexByte(value.charAt(index + 1));
 	}
 
 	/**
@@ -107,15 +109,6 @@ public class ValueGetter
 	}
 
 	/**
-	 * Gets the endian encoding.
-	 * @return endian encoding
-	 */
-	public int getEndian()
-	{
-		return this.endian;
-	}
-
-	/**
 	 * Get an integer.
 	 * @return integer
 	 */
@@ -132,15 +125,6 @@ public class ValueGetter
 	{
 		return funcLong.getLong(getNextByte(), getNextByte(), getNextByte(), getNextByte(), getNextByte(),
 				getNextByte(), getNextByte(), getNextByte());
-	}
-
-	/**
-	 * Get a byte as an int.
-	 * @return the byte value
-	 */
-	private int getNextByte()
-	{
-		return getByteAt(value, position++);
 	}
 
 	/**

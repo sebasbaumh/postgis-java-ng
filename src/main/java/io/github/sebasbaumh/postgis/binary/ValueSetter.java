@@ -25,18 +25,14 @@
 
 package io.github.sebasbaumh.postgis.binary;
 
+import io.github.sebasbaumh.postgis.PostGisUtil;
+
 /**
  * Allows writing values as a string in little endian encoding and hex format.
  * @author sbaumhekel
  */
 public class ValueSetter
 {
-	/**
-	 * Characters for converting data to hex strings.
-	 */
-	private static final char[] HEX_CHAR = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C',
-			'D', 'E', 'F' };
-
 	private final StringBuilder sb = new StringBuilder();
 
 	/**
@@ -52,8 +48,8 @@ public class ValueSetter
 	 */
 	public void setByte(byte b)
 	{
-		sb.append(HEX_CHAR[(b >>> 4) & 0xF]);
-		sb.append(HEX_CHAR[b & 0xF]);
+		sb.append(PostGisUtil.HEX_CHAR[(b >> 4) & 0xF]);
+		sb.append(PostGisUtil.HEX_CHAR[b & 0xF]);
 	}
 
 	/**
@@ -72,9 +68,9 @@ public class ValueSetter
 	public void setInt(int value)
 	{
 		setByte((byte) value);
-		setByte((byte) (value >>> 8));
-		setByte((byte) (value >>> 16));
-		setByte((byte) (value >>> 24));
+		setByte((byte) (value >> 8));
+		setByte((byte) (value >> 16));
+		setByte((byte) (value >> 24));
 	}
 
 	/**
@@ -84,13 +80,13 @@ public class ValueSetter
 	public void setLong(long value)
 	{
 		setByte((byte) value);
-		setByte((byte) (value >>> 8));
-		setByte((byte) (value >>> 16));
-		setByte((byte) (value >>> 24));
-		setByte((byte) (value >>> 32));
-		setByte((byte) (value >>> 40));
-		setByte((byte) (value >>> 48));
-		setByte((byte) (value >>> 56));
+		setByte((byte) (value >> 8));
+		setByte((byte) (value >> 16));
+		setByte((byte) (value >> 24));
+		setByte((byte) (value >> 32));
+		setByte((byte) (value >> 40));
+		setByte((byte) (value >> 48));
+		setByte((byte) (value >> 56));
 	}
 
 	/**
