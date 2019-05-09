@@ -31,7 +31,7 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 	<dependency>
 		<groupId>io.github.sebasbaumh</groupId>
 		<artifactId>postgis-java-ng</artifactId>
-		<version>1.0.4</version>
+		<version>1.0.5</version>
 	</dependency>
 
 The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java), the main point is a different namespace (`io.github.sebasbaumh.postgis`) as I might not be able to publish an artificat under the original namespace.

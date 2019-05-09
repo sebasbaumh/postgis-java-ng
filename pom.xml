@@ -28,7 +28,7 @@
 		<connection>scm:git:git://github.com/sebasbaumh/postgis-java-ng.git</connection>
 		<developerConnection>scm:git:ssh://github.com:sebasbaumh/postgis-java-ng.git</developerConnection>
 		<url>https://github.com/sebasbaumh/postgis-java-ng/tree/master</url>
-		<tag>postgis-java-ng-1.0.4</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<!-- Sonatype repository -->
 	<distributionManagement>
