@@ -41,8 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import io.github.sebasbaumh.postgis.binary.BinaryParser;
 import io.github.sebasbaumh.postgis.binary.BinaryWriter;
-import io.github.sebasbaumh.postgis.binary.ByteGetter;
-import io.github.sebasbaumh.postgis.binary.ByteSetter;
+import io.github.sebasbaumh.postgis.binary.ValueSetter;
 
 @SuppressWarnings("javadoc")
 public class ParserTest extends DatabaseTest
@@ -72,10 +71,10 @@ public class ParserTest extends DatabaseTest
 
 	private static String EWKBToHex(byte[] data)
 	{
-		ByteSetter s = new ByteSetter();
+		ValueSetter s = new ValueSetter();
 		for (byte b : data)
 		{
-			s.write(b);
+			s.setByte(b);
 		}
 		return s.toString();
 	}
@@ -90,12 +89,6 @@ public class ParserTest extends DatabaseTest
 			byte[] resrep = resultSet.getBytes(1);
 			return BinaryParser.parse(EWKBToHex(resrep));
 		}
-	}
-
-	private static byte[] hexToEWKB(String data)
-	{
-		ByteGetter s = new ByteGetter(data);
-		return s.getBytes();
 	}
 
 	/**
@@ -156,10 +149,11 @@ public class ParserTest extends DatabaseTest
 		}
 	}
 
-	private void test(String WKT) throws SQLException
+	private void test(String WKT, int srid) throws SQLException
 	{
 		logger.debug("Original: {} ", WKT);
 		Geometry geom = getGeometryFromWKT(WKT);
+		Assert.assertEquals("SRIDs are not equal", srid, geom.getSrid());
 		String parsed = getWKTFromGeometry(geom);
 		logger.debug("Parsed: {}", parsed);
 		Geometry regeom = getGeometryFromWKT(parsed);
@@ -174,7 +168,7 @@ public class ParserTest extends DatabaseTest
 		logger.debug("ReNDRHex: {}", regeom);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 
-		byte[] NWKT = hexToEWKB(BinaryWriter.writeHexed(regeom));
+		byte[] NWKT = PostGisUtil.toHexBytes(BinaryWriter.writeHexed(regeom));
 		regeom = BinaryParser.parse(EWKBToHex(NWKT));
 		logger.debug("NDR: {}", regeom);
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
@@ -235,8 +229,8 @@ public class ParserTest extends DatabaseTest
 	 */
 	private void testAll(String wkt) throws SQLException
 	{
-		test(wkt);
-		test(SRIDPREFIX + wkt);
+		test(wkt, Geometry.UNKNOWN_SRID);
+		test(SRIDPREFIX + wkt, SRID);
 	}
 
 	@Test
@@ -253,7 +247,17 @@ public class ParserTest extends DatabaseTest
 		// 3D
 		testAll("POINT(10 10 20)");
 		// 3D with scientific notation
-		testAll("POINT(1e100 1.2345e-100 -2e-5)");
+		// NOTE: the original e-100 is a corner case in terms of precision on the latest PostGIS version (2.5.3), so we
+		// use a
+		// smaller exponent)
+		// testAll("POINT(1e100 1.2345e-100 -2e-5)");
+		//@formatter:off
+		/* to proof just try that SQL in PostGIS:
+		 SELECT st_asewkt(st_geomfromewkt('POINT(1e100 1e-12 -2e-5)'));
+		 --------------------> results in 'POINT(1e+100 0 -0.00002)'
+		 */
+		//@formatter:on
+		testAll("POINT(1e100 1.2345e-11 -2e-5)");
 		// 2D + Measures
 		testAll("POINTM(10 10 20)");
 		// 3D + Measures

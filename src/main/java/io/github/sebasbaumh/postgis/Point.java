@@ -310,4 +310,32 @@ public class Point extends Geometry
 		return new Point(this.x, this.y, Double.NaN, this.m);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("Point [");
+		int srid = super.getSrid();
+		if (srid != UNKNOWN_SRID)
+		{
+			sb.append("srid=");
+			sb.append(srid);
+			sb.append(',');
+		}
+		sb.append(this.x);
+		sb.append(',');
+		sb.append(this.y);
+		sb.append(',');
+		if (is3d())
+		{
+			sb.append(this.z);
+		}
+		sb.append(']');
+		return sb.toString();
+	}
+
 }

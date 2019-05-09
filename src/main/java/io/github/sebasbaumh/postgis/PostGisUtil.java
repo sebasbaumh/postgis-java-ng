@@ -274,4 +274,52 @@ public final class PostGisUtil
 		return list;
 	}
 
+	/**
+	 * Converts the given hexadecimal character to its byte representation. i.e. 'A'-&gt;10
+	 * @param c character
+	 * @return byte value
+	 * @throws IllegalArgumentException if character is not '0'-'9', 'a'-'f' or 'A'-'F'
+	 */
+	public static int toHexByte(char c)
+	{
+		// '0'
+		if (c >= 0x30)
+		{
+			// '9'
+			if (c <= 0x39)
+			{
+				return c - 0x30;
+			}
+			// 'A'
+			else if (c >= 0x41)
+			{
+				// 'F'
+				if (c <= 0x46)
+				{
+					return c - 0x37;
+				} // 'a' - 'f'
+				else if ((c >= 0x61) && (c <= 0x66))
+				{
+					return c - 0x57;
+				}
+			}
+		}
+		throw new IllegalArgumentException("character is no hexadecimal digit: " + c);
+	}
+
+	/**
+	 * Converts the given string in hexadecimal format to the corresponding bytes.
+	 * @param hex {@link String} in hex
+	 * @return byte data
+	 */
+	public static byte[] toHexBytes(String hex)
+	{
+		byte[] b = new byte[hex.length() / 2];
+		for (int i = 0; i < b.length; i++)
+		{
+			b[i] = (byte) ((toHexByte(hex.charAt(i * 2)) << 4) | (toHexByte(hex.charAt(i * 2 + 1))));
+		}
+		return b;
+	}
+
 }

@@ -63,7 +63,7 @@ public class BinaryWriter
 	protected static void writeGeometry(Geometry geom, ValueSetter dest)
 	{
 		// write endian flag, NDR (little endian)
-		dest.setByte(dest.getEndian());
+		dest.setByte(PostGisUtil.LITTLE_ENDIAN);
 
 		// write typeword
 		int typeword = geom.getType();
@@ -138,8 +138,8 @@ public class BinaryWriter
 	 */
 	public static String writeHexed(Geometry geom)
 	{
-		ByteSetter bytes = new ByteSetter();
-		writeGeometry(geom, new ValueSetter(bytes));
+		ValueSetter bytes = new ValueSetter();
+		writeGeometry(geom, bytes);
 		return bytes.toString();
 	}
 

@@ -25,46 +25,39 @@
 
 package io.github.sebasbaumh.postgis.binary;
 
-import io.github.sebasbaumh.postgis.PostGisUtil;
-
 /**
- * Allows writing values in little endian encoding.
+ * Allows writing values as a string in little endian encoding and hex format.
  * @author sbaumhekel
  */
 public class ValueSetter
 {
-	private final ByteSetter data;
+	/**
+	 * Characters for converting data to hex strings.
+	 */
+	private static final char[] HEX_CHAR = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C',
+			'D', 'E', 'F' };
+
+	private final StringBuilder sb = new StringBuilder();
 
 	/**
-	 * Constructs an instance on the given {@link ByteSetter}.
-	 * @param data {@link ByteSetter}
+	 * Constructs an instance.
 	 */
-	public ValueSetter(ByteSetter data)
+	public ValueSetter()
 	{
-		this.data = data;
 	}
 
 	/**
-	 * Gets the endian encoding.
-	 * @return endian encoding
+	 * Sets a byte.
+	 * @param b byte value to set with
 	 */
-	@SuppressWarnings("static-method")
-	public byte getEndian()
+	public void setByte(byte b)
 	{
-		return PostGisUtil.LITTLE_ENDIAN;
+		sb.append(HEX_CHAR[(b >>> 4) & 0xF]);
+		sb.append(HEX_CHAR[b & 0xF]);
 	}
 
 	/**
-	 * Set a byte, should be equal for all endians
-	 * @param value byte value to be set with.
-	 */
-	public void setByte(byte value)
-	{
-		data.write(value);
-	}
-
-	/**
-	 * Set a double.
+	 * Writes a double.
 	 * @param data double value to be set with
 	 */
 	public void setDouble(double data)
@@ -73,36 +66,41 @@ public class ValueSetter
 	}
 
 	/**
-	 * Set a 32-Bit integer
+	 * Sets a 32-Bit integer
 	 * @param value int value to be set with
 	 */
 	public void setInt(int value)
 	{
-		data.write((byte) value);
-		data.write((byte) (value >>> 8));
-		data.write((byte) (value >>> 16));
-		data.write((byte) (value >>> 24));
+		setByte((byte) value);
+		setByte((byte) (value >>> 8));
+		setByte((byte) (value >>> 16));
+		setByte((byte) (value >>> 24));
 	}
 
 	/**
-	 * Set a long value. This is not needed directly, but as a nice side-effect from setDouble.
+	 * Sets a long value. This is not needed directly, but as a nice side-effect from setDouble.
 	 * @param value value value to be set with
 	 */
 	public void setLong(long value)
 	{
-		data.write((byte) value);
-		data.write((byte) (value >>> 8));
-		data.write((byte) (value >>> 16));
-		data.write((byte) (value >>> 24));
-		data.write((byte) (value >>> 32));
-		data.write((byte) (value >>> 40));
-		data.write((byte) (value >>> 48));
-		data.write((byte) (value >>> 56));
+		setByte((byte) value);
+		setByte((byte) (value >>> 8));
+		setByte((byte) (value >>> 16));
+		setByte((byte) (value >>> 24));
+		setByte((byte) (value >>> 32));
+		setByte((byte) (value >>> 40));
+		setByte((byte) (value >>> 48));
+		setByte((byte) (value >>> 56));
 	}
 
+	/**
+	 * Gets the string in little endian encoding and hex format.
+	 * @return string in little endian encoding and hex format.
+	 */
 	@Override
 	public String toString()
 	{
-		return "ValueSetter('" + data + "')";
+		return sb.toString();
 	}
+
 }
