@@ -62,7 +62,7 @@ public class BinaryParser
 	 */
 	public static Geometry parse(String value)
 	{
-		return parseGeometry(ValueGetter.getValueGetterForEndian(new ByteGetter(value)));
+		return parseGeometry(new ValueGetter(value));
 	}
 
 	/**

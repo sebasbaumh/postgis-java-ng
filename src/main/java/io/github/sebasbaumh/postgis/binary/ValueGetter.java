@@ -31,40 +31,61 @@ import io.github.sebasbaumh.postgis.PostGisUtil;
  * Allows reading values.
  * @author sbaumhekel
  */
-public abstract class ValueGetter
+public class ValueGetter
 {
-	protected final ByteGetter data;
 	private final byte endian;
+	private final IntBuilder funcInt;
+	private final LongBuilder funcLong;
 	private int position;
+	private final String value;
 
 	/**
 	 * Constructs an instance.
-	 * @param data {@link ByteGetter}
-	 * @param endian endianess
+	 * @param value value as hex string
+	 * @throws IllegalArgumentException if the endian type is unknown
 	 */
-	public ValueGetter(ByteGetter data, byte endian)
+	public ValueGetter(String value)
 	{
-		this.data = data;
-		this.endian = endian;
+		this.value = value;
+		this.endian = (byte) getByteAt(value, 0);
+		switch (endian)
+		{
+			case PostGisUtil.LITTLE_ENDIAN:
+			{
+				this.funcInt = (b1, b2, b3, b4) -> {
+					return (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
+				};
+				this.funcLong = (b1, b2, b3, b4, b5, b6, b7, b8) -> {
+					return (b8 << 56) + (b7 << 48) + (b6 << 40) + (b5 << 32) + (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
+				};
+			}
+				break;
+			case PostGisUtil.BIG_ENDIAN:
+			{
+				this.funcInt = (b1, b2, b3, b4) -> {
+					return (b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
+				};
+				this.funcLong = (b1, b2, b3, b4, b5, b6, b7, b8) -> {
+					return (b1 << 56) + (b2 << 48) + (b3 << 40) + (b4 << 32) + (b5 << 24) + (b6 << 16) + (b7 << 8) + b8;
+				};
+			}
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown Endian type:" + endian);
+		}
 	}
 
 	/**
-	 * Get the appropriate {@link ValueGetter} for the given endianness.
-	 * @param bytes {@link ByteGetter}
-	 * @return {@link ValueGetter}
-	 * @throws IllegalArgumentException if the endian type is unknown
+	 * Gets a byte at the given index.
+	 * @param rep {@link String}
+	 * @param index index
+	 * @return byte
+	 * @throws IndexOutOfBoundsException if the index is out of the range of the {@link String}
 	 */
-	public static ValueGetter getValueGetterForEndian(ByteGetter bytes)
+	private static int getByteAt(String rep, int index)
 	{
-		switch (bytes.get(0))
-		{
-			case PostGisUtil.BIG_ENDIAN:
-				return new XDR(bytes);
-			case PostGisUtil.LITTLE_ENDIAN:
-				return new NDR(bytes);
-			default:
-				throw new IllegalArgumentException("Unknown Endian type:" + bytes.get(0));
-		}
+		index *= 2;
+		return (PostGisUtil.toHexByte(rep.charAt(index)) << 4) | PostGisUtil.toHexByte(rep.charAt(index + 1));
 	}
 
 	/**
@@ -73,7 +94,7 @@ public abstract class ValueGetter
 	 */
 	public byte getByte()
 	{
-		return (byte) data.get(position++);
+		return (byte) getNextByte();
 	}
 
 	/**
@@ -96,21 +117,12 @@ public abstract class ValueGetter
 
 	/**
 	 * Get an integer.
-	 * @return interger
+	 * @return integer
 	 */
 	public int getInt()
 	{
-		int res = getInt(position);
-		position += 4;
-		return res;
+		return funcInt.getInt(getNextByte(), getNextByte(), getNextByte(), getNextByte());
 	}
-
-	/**
-	 * Get a 32-Bit integer
-	 * @param index the index to get the value from
-	 * @return the int value
-	 */
-	protected abstract int getInt(int index);
 
 	/**
 	 * Get a long.
@@ -118,77 +130,55 @@ public abstract class ValueGetter
 	 */
 	public long getLong()
 	{
-		long res = getLong(position);
-		position += 8;
-		return res;
+		return funcLong.getLong(getNextByte(), getNextByte(), getNextByte(), getNextByte(), getNextByte(),
+				getNextByte(), getNextByte(), getNextByte());
 	}
 
 	/**
-	 * Get a long value. This is not needed directly, but as a nice side-effect from GetDouble.
-	 * @param index the index to get the value from
-	 * @return the long value
+	 * Get a byte as an int.
+	 * @return the byte value
 	 */
-	protected abstract long getLong(int index);
+	private int getNextByte()
+	{
+		return getByteAt(value, position++);
+	}
 
 	/**
-	 * {@link ValueGetter} for little endian data.
+	 * Builder for an int from a byte sequence.
 	 */
-	private static class NDR extends ValueGetter
+	@FunctionalInterface
+	private interface IntBuilder
 	{
 		/**
-		 * Constructs an instance.
-		 * @param data {@link ByteGetter}
+		 * Get an integer.
+		 * @param b1 byte 1
+		 * @param b2 byte 2
+		 * @param b3 byte 3
+		 * @param b4 byte 4
+		 * @return integer
 		 */
-		public NDR(ByteGetter data)
-		{
-			super(data, PostGisUtil.LITTLE_ENDIAN);
-		}
-
-		@Override
-		protected int getInt(int index)
-		{
-			return (data.get(index + 3) << 24) + (data.get(index + 2) << 16) + (data.get(index + 1) << 8)
-					+ data.get(index);
-		}
-
-		@Override
-		protected long getLong(int index)
-		{
-			return ((long) data.get(index + 7) << 56) + ((long) data.get(index + 6) << 48)
-					+ ((long) data.get(index + 5) << 40) + ((long) data.get(index + 4) << 32)
-					+ ((long) data.get(index + 3) << 24) + ((long) data.get(index + 2) << 16)
-					+ ((long) data.get(index + 1) << 8) + ((long) data.get(index) << 0);
-		}
+		int getInt(int b1, int b2, int b3, int b4);
 	}
 
 	/**
-	 * {@link ValueGetter} for big endian data.
+	 * Builder for a long from a byte sequence.
 	 */
-	private static class XDR extends ValueGetter
+	@FunctionalInterface
+	private interface LongBuilder
 	{
 		/**
-		 * Constructs an instance.
-		 * @param data {@link ByteGetter}
+		 * Get a long.
+		 * @param b1 byte 1
+		 * @param b2 byte 2
+		 * @param b3 byte 3
+		 * @param b4 byte 4
+		 * @param b5 byte 5
+		 * @param b6 byte 6
+		 * @param b7 byte 7
+		 * @param b8 byte 8
+		 * @return long
 		 */
-		public XDR(ByteGetter data)
-		{
-			super(data, PostGisUtil.BIG_ENDIAN);
-		}
-
-		@Override
-		protected int getInt(int index)
-		{
-			return (data.get(index) << 24) + (data.get(index + 1) << 16) + (data.get(index + 2) << 8)
-					+ data.get(index + 3);
-		}
-
-		@Override
-		protected long getLong(int index)
-		{
-			return ((long) data.get(index) << 56) + ((long) data.get(index + 1) << 48)
-					+ ((long) data.get(index + 2) << 40) + ((long) data.get(index + 3) << 32)
-					+ ((long) data.get(index + 4) << 24) + ((long) data.get(index + 5) << 16)
-					+ ((long) data.get(index + 6) << 8) + ((long) data.get(index + 7) << 0);
-		}
+		long getLong(long b1, long b2, long b3, long b4, long b5, long b6, long b7, long b8);
 	}
+
 }
