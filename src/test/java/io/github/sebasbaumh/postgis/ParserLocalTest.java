@@ -12,7 +12,7 @@ import io.github.sebasbaumh.postgis.binary.BinaryWriter;
  * @author Sebastian Baumhekel
  */
 @SuppressWarnings("javadoc")
-public class ParserTestLocal
+public class ParserLocalTest
 {
 	/**
 	 * Gets a {@link Geometry} from a WKB string in hex format.
