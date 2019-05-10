@@ -301,4 +301,15 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 		this.lsOuterRing = ls;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return this.getClass().getSimpleName() + " [" + this.getNumberOfCoordinates() + " points, " + getNumberOfRings()
+				+ " inner rings]";
+	}
+
 }

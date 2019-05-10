@@ -51,4 +51,14 @@ public abstract class Curve extends Geometry implements LineBasedGeometry
 	 */
 	public abstract void reverse();
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return this.getClass().getSimpleName() + " [" + this.getNumberOfCoordinates() + " points]";
+	}
+
 }

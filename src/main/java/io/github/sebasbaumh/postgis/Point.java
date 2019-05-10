@@ -329,9 +329,9 @@ public class Point extends Geometry
 		sb.append(this.x);
 		sb.append(',');
 		sb.append(this.y);
-		sb.append(',');
 		if (is3d())
 		{
+			sb.append(',');
 			sb.append(this.z);
 		}
 		sb.append(']');

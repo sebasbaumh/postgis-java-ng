@@ -208,4 +208,15 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	{
 		return this.subgeoms.size();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return this.getClass().getSimpleName() + " [" + this.size() + " geometries]";
+	}
+
 }
