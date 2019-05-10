@@ -105,8 +105,8 @@ public final class BinaryParser
 	 */
 	private static Geometry parseGeometry(ValueGetter data)
 	{
-		// skip endian flag
-		data.getByte();
+		// read endian flag
+		data.readEncoding();
 		// and get the type
 		int typeword = data.getInt();
 		int geometryType = typeword & 0x1FFFFFFF; // cut off high flag bits

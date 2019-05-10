@@ -212,7 +212,7 @@ public class ParserTest extends DatabaseTest
 	}
 
 	/**
-	 * Tests with and without SRID prefix.
+	 * Tests with and without SRID prefix (using database).
 	 * @param wkt WKT
 	 * @throws SQLException
 	 */
@@ -222,8 +222,12 @@ public class ParserTest extends DatabaseTest
 		test(SRIDPREFIX + wkt, SRID);
 	}
 
+	/**
+	 * Test using a PostGIS database, will do nothing if no database is configured.
+	 * @throws Exception
+	 */
 	@Test
-	public void testParser() throws Exception
+	public void testParserUsingDb() throws Exception
 	{
 		if (!hasDatabase())
 		{

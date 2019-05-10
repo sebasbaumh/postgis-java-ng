@@ -29,7 +29,7 @@ import io.github.sebasbaumh.postgis.PostGisUtil;
 
 /**
  * Allows writing values as a string in little endian encoding and hex format.
- * @author sbaumhekel
+ * @author Sebastian Baumhekel
  */
 public class ValueSetter
 {

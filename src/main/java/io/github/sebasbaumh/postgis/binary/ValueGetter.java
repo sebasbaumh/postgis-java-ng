@@ -29,12 +29,47 @@ import io.github.sebasbaumh.postgis.PostGisUtil;
 
 /**
  * Allows reading values.
- * @author sbaumhekel
+ * @author Sebastian Baumhekel
  */
 public class ValueGetter
 {
-	private final IntBuilder funcInt;
-	private final LongBuilder funcLong;
+	/**
+	 * Int builder for big endian encoding.
+	 */
+	private static final IntBuilder INT_BUILDER_BIG_ENDIAN = (b1, b2, b3, b4) -> {
+		return (b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
+	};
+	/**
+	 * Int builder for little endian encoding.
+	 */
+	private static final IntBuilder INT_BUILDER_LITTLE_ENDIAN = (b1, b2, b3, b4) -> {
+		return (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
+	};
+	/**
+	 * Int builder for big endian encoding.
+	 */
+	private static final LongBuilder LONG_BUILDER_BIG_ENDIAN = (b1, b2, b3, b4, b5, b6, b7, b8) -> {
+		return (b1 << 56) + (b2 << 48) + (b3 << 40) + (b4 << 32) + (b5 << 24) + (b6 << 16) + (b7 << 8) + b8;
+	};
+	/**
+	 * Int builder for little endian encoding.
+	 */
+	private static final LongBuilder LONG_BUILDER_LITTLE_ENDIAN = (b1, b2, b3, b4, b5, b6, b7, b8) -> {
+		return (b8 << 56) + (b7 << 48) + (b6 << 40) + (b5 << 32) + (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
+	};
+
+	/**
+	 * Current encoding (default is little endian encoding).
+	 */
+	private int endian = PostGisUtil.LITTLE_ENDIAN;
+	/**
+	 * Int builder (default is little endian encoding).
+	 */
+	private IntBuilder funcInt = INT_BUILDER_LITTLE_ENDIAN;
+	/**
+	 * Long builder (default is little endian encoding).
+	 */
+	private LongBuilder funcLong = LONG_BUILDER_LITTLE_ENDIAN;
 	private int position;
 	private final String value;
 
@@ -46,57 +81,6 @@ public class ValueGetter
 	public ValueGetter(String value)
 	{
 		this.value = value;
-		//peek first byte for endian check
-		int endian = getNextByte();
-		//reset position
-		this.position=0;
-		switch (endian)
-		{
-			case PostGisUtil.LITTLE_ENDIAN:
-			{
-				this.funcInt = (b1, b2, b3, b4) -> {
-					return (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
-				};
-				this.funcLong = (b1, b2, b3, b4, b5, b6, b7, b8) -> {
-					return (b8 << 56) + (b7 << 48) + (b6 << 40) + (b5 << 32) + (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
-				};
-			}
-				break;
-			case PostGisUtil.BIG_ENDIAN:
-			{
-				this.funcInt = (b1, b2, b3, b4) -> {
-					return (b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
-				};
-				this.funcLong = (b1, b2, b3, b4, b5, b6, b7, b8) -> {
-					return (b1 << 56) + (b2 << 48) + (b3 << 40) + (b4 << 32) + (b5 << 24) + (b6 << 16) + (b7 << 8) + b8;
-				};
-			}
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown Endian type:" + endian);
-		}
-	}
-
-	/**
-	 * Gets a byte at the given index.
-	 * @return byte
-	 * @throws IndexOutOfBoundsException if the index is out of the range of the {@link String}
-	 */
-	private int getNextByte()
-	{
-		//get current position and advance it
-		int index=position*2;
-		position++;
-		return (PostGisUtil.toHexByte(value.charAt(index)) << 4) | PostGisUtil.toHexByte(value.charAt(index + 1));
-	}
-
-	/**
-	 * Get a byte, should be equal for all endians
-	 * @return the byte value
-	 */
-	public byte getByte()
-	{
-		return (byte) getNextByte();
 	}
 
 	/**
@@ -125,6 +109,51 @@ public class ValueGetter
 	{
 		return funcLong.getLong(getNextByte(), getNextByte(), getNextByte(), getNextByte(), getNextByte(),
 				getNextByte(), getNextByte(), getNextByte());
+	}
+
+	/**
+	 * Gets a byte at the given index.
+	 * @return byte
+	 * @throws IndexOutOfBoundsException if the index is out of the range of the {@link String}
+	 */
+	private int getNextByte()
+	{
+		// get current position and advance it
+		int index = position * 2;
+		position++;
+		return (PostGisUtil.toHexByte(value.charAt(index)) << 4) | PostGisUtil.toHexByte(value.charAt(index + 1));
+	}
+
+	/**
+	 * Reads the encoding and adjusts the internal decoder if necessary.
+	 * @throws IllegalArgumentException if the endian type is unknown
+	 */
+	public void readEncoding()
+	{
+		// get byte for endian check
+		int newEndian = getNextByte();
+		// only do something if encoding differs from the current setting
+		if (newEndian != this.endian)
+		{
+			this.endian = newEndian;
+			switch (newEndian)
+			{
+				case PostGisUtil.LITTLE_ENDIAN:
+				{
+					this.funcInt = INT_BUILDER_LITTLE_ENDIAN;
+					this.funcLong = LONG_BUILDER_LITTLE_ENDIAN;
+				}
+					break;
+				case PostGisUtil.BIG_ENDIAN:
+				{
+					this.funcInt = INT_BUILDER_BIG_ENDIAN;
+					this.funcLong = LONG_BUILDER_BIG_ENDIAN;
+				}
+					break;
+				default:
+					throw new IllegalArgumentException("Unknown Endian type:" + endian);
+			}
+		}
 	}
 
 	/**
