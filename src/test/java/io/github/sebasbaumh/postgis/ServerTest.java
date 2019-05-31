@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("javadoc")
-public class ServerTest extends DatabaseTest
+public class ServerTest extends DatabaseTestBase
 {
 
 	private static final String DATABASE_TABLE_NAME_PREFIX = "jdbc_test";

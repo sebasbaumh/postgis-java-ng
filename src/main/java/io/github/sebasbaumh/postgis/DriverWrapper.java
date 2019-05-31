@@ -25,6 +25,7 @@
 
 package io.github.sebasbaumh.postgis;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -119,8 +120,66 @@ public class DriverWrapper extends Driver
 	}
 
 	/**
+	 * Registers all datatypes on the given connection, supports wrapped connections unlike
+	 * {@link #registerDataTypes(PGConnection)}.
+	 * @param conn {@link Connection}
+	 * @throws SQLException if the {@link Connection} is neither an {@link org.postgresql.PGConnection}, nor a
+	 *             {@link Connection} wrapped around an {@link org.postgresql.PGConnection}.
+	 */
+	public static void registerDataTypes(@Nonnull Connection conn) throws SQLException
+	{
+		// try to get underlying PGConnection
+		PGConnection pgconn = tryUnwrap(conn);
+		// if instance is found, add the geometry types to the connection
+		if (pgconn != null)
+		{
+			registerDataTypes(pgconn);
+			return;
+		}
+		// try to unwrap connections coming from c3p0 connection pools
+		try
+		{
+			Class<?> clazzC3P0ProxyConnection = Class.forName("com.mchange.v2.c3p0.C3P0ProxyConnection");
+			if (clazzC3P0ProxyConnection.isInstance(conn))
+			{
+				// use method Object rawConnectionOperation(Method m, Object target, Object[] args)
+				Method mrawConnectionOperation = clazzC3P0ProxyConnection.getMethod("rawConnectionOperation",
+						new Class[] { Method.class, Object.class, Object[].class });
+				Method mAddDataType = PGConnection.class.getMethod("addDataType",
+						new Class[] { String.class, Class.class });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "geometry", io.github.sebasbaumh.postgis.PGgeometry.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "box2d", io.github.sebasbaumh.postgis.PGbox2d.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "box3d", io.github.sebasbaumh.postgis.PGbox3d.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "public.box2d", io.github.sebasbaumh.postgis.PGbox2d.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "public.box3d", io.github.sebasbaumh.postgis.PGbox3d.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "\"public\".\"geometry\"", io.github.sebasbaumh.postgis.PGgeometry.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "\"public\".\"box2d\"", io.github.sebasbaumh.postgis.PGbox2d.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "\"public\".\"box3d\"", io.github.sebasbaumh.postgis.PGbox3d.class } });
+				return;
+			}
+		}
+		catch (ReflectiveOperationException | SecurityException | IllegalArgumentException ex)
+		{
+			// ignore all errors here
+		}
+		// PGConnection could not be found
+		throw new SQLException(
+				"Connection is neither an org.postgresql.PGConnection, nor a Connection wrapped around an org.postgresql.PGConnection.");
+	}
+
+	/**
 	 * Registers all datatypes on the given connection.
-	 * @param pgconn {@link Connection}
+	 * @param pgconn {@link PGConnection}
 	 * @throws SQLException
 	 */
 	public static void registerDataTypes(@Nonnull PGConnection pgconn) throws SQLException
@@ -134,6 +193,38 @@ public class DriverWrapper extends Driver
 		pgconn.addDataType("\"public\".\"geometry\"", io.github.sebasbaumh.postgis.PGgeometry.class);
 		pgconn.addDataType("\"public\".\"box2d\"", io.github.sebasbaumh.postgis.PGbox2d.class);
 		pgconn.addDataType("\"public\".\"box3d\"", io.github.sebasbaumh.postgis.PGbox3d.class);
+	}
+
+	/**
+	 * Tries to turn the given {@link Connection} into a {@link PGConnection}, supports wrapped connections and
+	 * JBoss/WildFly WrappedConnections.
+	 * @param conn {@link Connection}
+	 * @return {@link PGConnection} on success, else null
+	 * @throws SQLException
+	 */
+	private static PGConnection tryUnwrap(@Nonnull Connection conn) throws SQLException
+	{
+		// short cut
+		if (conn instanceof PGConnection)
+		{
+			return (PGConnection) conn;
+		}
+		// try to get underlying PostgreSQL connection
+		if (conn.isWrapperFor(PGConnection.class))
+		{
+			return conn.unwrap(PGConnection.class);
+		}
+		// unwrap connection, e.g. in JBoss/WildFly
+		try
+		{
+			Method method = conn.getClass().getMethod("getUnderlyingConnection");
+			return (PGConnection) method.invoke(conn);
+		}
+		catch (Exception ex)
+		{
+			// just ignore exceptions
+		}
+		return null;
 	}
 
 	/**

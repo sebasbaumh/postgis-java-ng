@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Phillip Ross {@literal <phillip.r.g.ross@gmail.com>}
  */
 @SuppressWarnings("javadoc")
-public class EmptyGeometriesTest extends DatabaseTest
+public class EmptyGeometriesTest extends DatabaseTestBase
 {
 	private static final String[] castTypes = new String[] { "bytea", "text", "geometry" };
 

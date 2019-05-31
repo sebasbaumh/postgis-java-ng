@@ -1,5 +1,6 @@
 package io.github.sebasbaumh.postgis;
 
+import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +12,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
+import com.mchange.v2.c3p0.PooledDataSource;
 import com.mchange.v2.log.MLevel;
 import com.mchange.v2.log.MLog;
 
@@ -19,7 +22,7 @@ import com.mchange.v2.log.MLog;
  * A base class for tests relying on a database connection to a PostGIS database.
  * @author Sebastian Baumhekel
  */
-public abstract class DatabaseTest
+public abstract class DatabaseTestBase
 {
 	private static final String CONFIG_JDBC_PASSWORD = "testJdbcPassword";
 	private static final String CONFIG_JDBC_URL = "testJdbcUrl";
@@ -33,6 +36,24 @@ public abstract class DatabaseTest
 	private String jdbcPassword;
 	private String jdbcUrl;
 	private String jdbcUsername;
+
+	/**
+	 * Closes the given datasource.
+	 * @param ds datasource
+	 * @throws Exception
+	 */
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("JVR_JDBC_VENDOR_RELIANCE")
+	protected static void closeDataSource(DataSource ds) throws Exception
+	{
+		if (ds instanceof PooledDataSource)
+		{
+			DataSources.destroy(ds);
+		}
+		else if (ds instanceof AutoCloseable)
+		{
+			((AutoCloseable) ds).close();
+		}
+	}
 
 	/**
 	 * Will be called after the database has been setup.
@@ -59,8 +80,8 @@ public abstract class DatabaseTest
 	 */
 	protected Connection getConnection() throws SQLException
 	{
-		Assert.assertNotNull("the following property needs to be configured for using a connection: " + CONFIG_JDBC_URL,
-				ds);
+		Assert.assertNotNull("the following properties need to be configured for using a connection: " + CONFIG_JDBC_URL
+				+ ", " + CONFIG_JDBC_USERNAME + ", " + CONFIG_JDBC_PASSWORD, ds);
 		return ds.getConnection();
 	}
 
@@ -91,6 +112,53 @@ public abstract class DatabaseTest
 			}
 		}
 		throw new IllegalArgumentException("could not get geometry for wkt: " + wkt);
+	}
+
+	/**
+	 * Builds a pooled {@link DataSource} with the given properties.
+	 * @return {@link DataSource}
+	 * @throws SQLException
+	 */
+	protected DataSource getPooledDataSource() throws SQLException
+	{
+		Assert.assertNotNull("the following properties need to be configured for using a connection: " + CONFIG_JDBC_URL
+				+ ", " + CONFIG_JDBC_USERNAME + ", " + CONFIG_JDBC_PASSWORD, jdbcUrl);
+		Assert.assertNotNull("the following properties need to be configured for using a connection: " + CONFIG_JDBC_URL
+				+ ", " + CONFIG_JDBC_USERNAME + ", " + CONFIG_JDBC_PASSWORD, jdbcUsername);
+		Assert.assertNotNull("the following properties need to be configured for using a connection: " + CONFIG_JDBC_URL
+				+ ", " + CONFIG_JDBC_USERNAME + ", " + CONFIG_JDBC_PASSWORD, jdbcPassword);
+		try
+		{
+			ComboPooledDataSource pds = new ComboPooledDataSource();
+			// initialize the pooled connection
+			pds.setDriverClass(DRIVER_CLASS_NAME);
+			pds.setJdbcUrl(jdbcUrl);
+			pds.setUser(jdbcUsername);
+			pds.setPassword(jdbcPassword);
+			// set a timeout for checking out connections (30s)
+			pds.setCheckoutTimeout(30000);
+			return pds;
+		}
+		catch (PropertyVetoException e)
+		{
+			throw new SQLException(e);
+		}
+	}
+
+	/**
+	 * Builds an unpooled {@link DataSource} with the given properties.
+	 * @return {@link DataSource}
+	 * @throws SQLException
+	 */
+	protected DataSource getUnpooledDataSource() throws SQLException
+	{
+		Assert.assertNotNull("the following properties need to be configured for using a connection: " + CONFIG_JDBC_URL
+				+ ", " + CONFIG_JDBC_USERNAME + ", " + CONFIG_JDBC_PASSWORD, jdbcUrl);
+		Assert.assertNotNull("the following properties need to be configured for using a connection: " + CONFIG_JDBC_URL
+				+ ", " + CONFIG_JDBC_USERNAME + ", " + CONFIG_JDBC_PASSWORD, jdbcUsername);
+		Assert.assertNotNull("the following properties need to be configured for using a connection: " + CONFIG_JDBC_URL
+				+ ", " + CONFIG_JDBC_USERNAME + ", " + CONFIG_JDBC_PASSWORD, jdbcPassword);
+		return DataSources.unpooledDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
 	}
 
 	/**
@@ -154,6 +222,15 @@ public abstract class DatabaseTest
 	}
 
 	/**
+	 * Checks, if database credentials are available.
+	 * @return true on success, else false
+	 */
+	protected boolean hasDatabaseCredentials()
+	{
+		return ((jdbcUrl != null) && (jdbcUsername != null) && (jdbcPassword != null));
+	}
+
+	/**
 	 * Initializes the database.
 	 * @throws SQLException
 	 */
@@ -164,10 +241,10 @@ public abstract class DatabaseTest
 	{
 		// load connection details
 		jdbcUrl = System.getProperty(CONFIG_JDBC_URL);
-		if (jdbcUrl != null)
+		jdbcUsername = System.getProperty(CONFIG_JDBC_USERNAME);
+		jdbcPassword = System.getProperty(CONFIG_JDBC_PASSWORD);
+		if ((jdbcUrl != null) && (jdbcUsername != null) && (jdbcPassword != null))
 		{
-			jdbcUsername = System.getProperty(CONFIG_JDBC_USERNAME);
-			jdbcPassword = System.getProperty(CONFIG_JDBC_PASSWORD);
 			// load driver
 			try
 			{
@@ -187,14 +264,7 @@ public abstract class DatabaseTest
 			System.setProperty("com.mchange.v2.log.MLog", "log4j");
 
 			// construct datasource
-			if ((jdbcUsername != null) && !jdbcUsername.trim().isEmpty())
-			{
-				ds = DataSources.unpooledDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
-			}
-			else
-			{
-				ds = DataSources.unpooledDataSource(jdbcUrl);
-			}
+			ds = getUnpooledDataSource();
 			Assert.assertNotNull(ds);
 			afterDatabaseSetup();
 		}
@@ -208,10 +278,7 @@ public abstract class DatabaseTest
 	public void shutdownDatabase() throws Exception
 	{
 		beforeDatabaseShutdown();
-		if (ds instanceof AutoCloseable)
-		{
-			((AutoCloseable) ds).close();
-		}
+		closeDataSource(ds);
 	}
 
 }

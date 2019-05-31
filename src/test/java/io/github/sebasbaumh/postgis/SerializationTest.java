@@ -35,7 +35,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 @SuppressWarnings("javadoc")
-public class SerializationTest extends DatabaseTest
+public class SerializationTest extends DatabaseTestBase
 {
 
 	@Test

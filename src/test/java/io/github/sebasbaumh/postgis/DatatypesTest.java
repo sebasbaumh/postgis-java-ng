@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("javadoc")
-public class DatatypesTest extends DatabaseTest
+public class DatatypesTest extends DatabaseTestBase
 {
 
 	private static final String cr_str = "CIRCULARSTRING(-9 2,-8 3,-7 2)";

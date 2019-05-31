@@ -13,7 +13,7 @@ import org.junit.Test;
  * @author Sebastian Baumhekel
  */
 @SuppressWarnings("javadoc")
-public class PostgisDatabaseTest extends DatabaseTest
+public class PostgisDatabaseTest extends DatabaseTestBase
 {
 
 	@Test

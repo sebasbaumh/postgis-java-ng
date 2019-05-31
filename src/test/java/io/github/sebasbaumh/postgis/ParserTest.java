@@ -43,7 +43,7 @@ import io.github.sebasbaumh.postgis.binary.BinaryParser;
 import io.github.sebasbaumh.postgis.binary.BinaryWriter;
 
 @SuppressWarnings("javadoc")
-public class ParserTest extends DatabaseTest
+public class ParserTest extends DatabaseTestBase
 {
 	private static final Logger logger = LoggerFactory.getLogger(ParserTest.class);
 	/** The srid we use for the srid tests */

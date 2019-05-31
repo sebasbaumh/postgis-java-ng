@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * Prints out as much version information as available.
  */
 @SuppressWarnings("javadoc")
-public class VersionPrinter extends DatabaseTest
+public class VersionPrinter extends DatabaseTestBase
 {
 
 	private static final Logger logger = LoggerFactory.getLogger(VersionPrinter.class);
