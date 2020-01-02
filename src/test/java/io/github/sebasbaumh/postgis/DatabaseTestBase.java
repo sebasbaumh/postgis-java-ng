@@ -86,6 +86,60 @@ public abstract class DatabaseTestBase
 	}
 
 	/**
+	 * Converts the given WKT string to a {@link Geometry} of geography type.
+	 * @param wkt WKT
+	 * @return {@link Geometry}
+	 * @throws SQLException
+	 */
+	protected Geometry getGeographyGeometryFromWKT(String wkt) throws SQLException
+	{
+		try (Connection conn = getConnection())
+		{
+			try (PreparedStatement pst = conn.prepareStatement("SELECT st_geogfromtext(?)"))
+			{
+				pst.setString(1, wkt);
+				try (ResultSet rs = pst.executeQuery())
+				{
+					if (rs.next())
+					{
+						Object o = rs.getObject(1);
+						if (o instanceof PGgeography)
+						{
+							return ((PGgeography) o).getGeometry();
+						}
+					}
+				}
+			}
+		}
+		throw new IllegalArgumentException("could not get geometry for wkt: " + wkt);
+	}
+
+	/**
+	 * Converts the given WKT string to WKB using a geometry of geography type.
+	 * @param wkt WKT
+	 * @return WKB on success, else null
+	 * @throws SQLException
+	 */
+	protected String getGeographyWKBFromWKT(String wkt) throws SQLException
+	{
+		try (Connection conn = getConnection())
+		{
+			try (PreparedStatement pst = conn.prepareStatement("SELECT st_geogfromtext(?)"))
+			{
+				pst.setString(1, wkt);
+				try (ResultSet rs = pst.executeQuery())
+				{
+					if (rs.next())
+					{
+						return rs.getString(1);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Converts the given WKT string to a {@link Geometry}.
 	 * @param wkt WKT
 	 * @return {@link Geometry}
@@ -257,8 +311,7 @@ public abstract class DatabaseTestBase
 
 			// disable C3p0 log spamming
 			// the function is still working and the only workaround would be to set properties on the log4j logger, but
-			// it
-			// could also be another type if log4j is not available...
+			// it could also be another type if log4j is not available...
 			MLog.getLogger("com.mchange.v2").setLevel(MLevel.WARNING);
 			System.setProperty("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "WARNING");
 			System.setProperty("com.mchange.v2.log.MLog", "log4j");

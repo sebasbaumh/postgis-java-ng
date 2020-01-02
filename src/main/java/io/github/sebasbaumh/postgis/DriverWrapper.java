@@ -150,17 +150,23 @@ public class DriverWrapper extends Driver
 				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
 						new Object[] { "geometry", io.github.sebasbaumh.postgis.PGgeometry.class } });
 				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class } });
+						new Object[] { "geography", io.github.sebasbaumh.postgis.PGgeography.class } });
 				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
 						new Object[] { "box2d", io.github.sebasbaumh.postgis.PGbox2d.class } });
 				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
 						new Object[] { "box3d", io.github.sebasbaumh.postgis.PGbox3d.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "public.geography", io.github.sebasbaumh.postgis.PGgeography.class } });
 				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
 						new Object[] { "public.box2d", io.github.sebasbaumh.postgis.PGbox2d.class } });
 				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
 						new Object[] { "public.box3d", io.github.sebasbaumh.postgis.PGbox3d.class } });
 				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
 						new Object[] { "\"public\".\"geometry\"", io.github.sebasbaumh.postgis.PGgeometry.class } });
+				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
+						new Object[] { "\"public\".\"geography\"", io.github.sebasbaumh.postgis.PGgeography.class } });
 				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
 						new Object[] { "\"public\".\"box2d\"", io.github.sebasbaumh.postgis.PGbox2d.class } });
 				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
@@ -185,12 +191,15 @@ public class DriverWrapper extends Driver
 	public static void registerDataTypes(@Nonnull PGConnection pgconn) throws SQLException
 	{
 		pgconn.addDataType("geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
-		pgconn.addDataType("public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
+		pgconn.addDataType("geography", io.github.sebasbaumh.postgis.PGgeography.class);
 		pgconn.addDataType("box2d", io.github.sebasbaumh.postgis.PGbox2d.class);
 		pgconn.addDataType("box3d", io.github.sebasbaumh.postgis.PGbox3d.class);
+		pgconn.addDataType("public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
+		pgconn.addDataType("public.geography", io.github.sebasbaumh.postgis.PGgeography.class);
 		pgconn.addDataType("public.box2d", io.github.sebasbaumh.postgis.PGbox2d.class);
 		pgconn.addDataType("public.box3d", io.github.sebasbaumh.postgis.PGbox3d.class);
 		pgconn.addDataType("\"public\".\"geometry\"", io.github.sebasbaumh.postgis.PGgeometry.class);
+		pgconn.addDataType("\"public\".\"geography\"", io.github.sebasbaumh.postgis.PGgeography.class);
 		pgconn.addDataType("\"public\".\"box2d\"", io.github.sebasbaumh.postgis.PGbox2d.class);
 		pgconn.addDataType("\"public\".\"box3d\"", io.github.sebasbaumh.postgis.PGbox3d.class);
 	}

@@ -5,9 +5,10 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
 
 **Project goals and improvements to the existing [postgis-java](https://github.com/postgis/postgis-java):**
 * Support for geometries containing arcs like `CIRCULARSTRING` or `CURVEPOLYGON`
+* Support for PostGIS [geography datatype](https://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography)
 * Use generic Java types where possible and simplify/streamline API
 * Clean up code to basically only work on [WKB](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary)/EWKB implementations to reduce code duplication and focus on the actual database format
-* Support for the latest PostgreSQL (9.6+) and PostGIS versions (2.1+)
+* Support for the latest PostgreSQL (9.6+) and PostGIS versions (2.3+)
 * Support for JDK 8+
 * The license is still LGPL
 
@@ -31,11 +32,11 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 	<dependency>
 		<groupId>io.github.sebasbaumh</groupId>
 		<artifactId>postgis-java-ng</artifactId>
-		<version>1.0.8</version>
+		<version>1.1.0</version>
 	</dependency>
 
-The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java), the main point is a different namespace (`io.github.sebasbaumh.postgis`) as I might not be able to publish an artificat under the original namespace.
-In addition the class structure might be a bit different to support arc geometries and reduce boilerplate code, but you should be able to adapt to it easily.
+The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java), the main point is a different namespace (`io.github.sebasbaumh.postgis`) as I am not be able to publish an artificat under the original namespace.
+In addition the class structure is a bit different to support arc geometries and reduce boilerplate code, but you should be able to adapt to it easily.
 The implementations of the parser and writer for the geometries have been heavily reworked to speed up processing and reduce complexity.
 	
 ## How to run tests utilizing a PostgreSQL server
