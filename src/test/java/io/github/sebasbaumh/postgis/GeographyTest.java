@@ -1,12 +1,8 @@
 package io.github.sebasbaumh.postgis;
 
-import static org.junit.Assert.*;
-
 import java.sql.SQLException;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Test geometries of geography type.

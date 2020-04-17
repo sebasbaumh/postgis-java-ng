@@ -29,31 +29,21 @@ package io.github.sebasbaumh.postgis;
 
 import java.sql.SQLException;
 
-import javax.annotation.Nonnull;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.postgresql.util.PGobject;
-
-import io.github.sebasbaumh.postgis.binary.BinaryParser;
-import io.github.sebasbaumh.postgis.binary.BinaryWriter;
 
 /**
  * Basic geometry class.
  * @author Sebastian Baumhekel
  */
 @NonNullByDefault
-public class PGgeometry extends PGobject
+public class PGgeometry extends PGgeometrybase
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
 
-	private Geometry geom;
-
 	/**
 	 * Constructs an instance.
 	 */
-	@SuppressWarnings("null")
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
 	public PGgeometry()
 	{
 		this.setType("geometry");
@@ -65,8 +55,8 @@ public class PGgeometry extends PGobject
 	 */
 	public PGgeometry(Geometry geom)
 	{
-		this();
-		this.geom = geom;
+		super(geom);
+		this.setType("geometry");
 	}
 
 	/**
@@ -74,61 +64,16 @@ public class PGgeometry extends PGobject
 	 * @param value geometry
 	 * @throws SQLException
 	 */
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS")
 	public PGgeometry(String value) throws SQLException
 	{
-		this();
-		setValue(value);
+		super(value);
+		this.setType("geometry");
 	}
 
 	@Override
 	public Object clone()
 	{
-		return new PGgeometry(geom);
+		return new PGgeometry(geometry);
 	}
 
-	/**
-	 * Gets the underlying {@link Geometry}.
-	 * @return {@link Geometry}
-	 */
-	public Geometry getGeometry()
-	{
-		return geom;
-	}
-
-	/**
-	 * Gets the OGIS geometry type.
-	 * @return geometry type
-	 */
-	public int getGeoType()
-	{
-		return geom.getType();
-	}
-
-	@Override
-	public String getValue()
-	{
-		return BinaryWriter.writeHexed(geom);
-	}
-
-	/**
-	 * Sets the underlying {@link Geometry}.
-	 * @param newgeom {@link Geometry}
-	 */
-	public void setGeometry(Geometry newgeom)
-	{
-		this.geom = newgeom;
-	}
-
-	@Override
-	public void setValue(@SuppressWarnings("null") @Nonnull String value) throws SQLException
-	{
-		geom = BinaryParser.parse(value);
-	}
-
-	@Override
-	public String toString()
-	{
-		return geom.toString();
-	}
 }
