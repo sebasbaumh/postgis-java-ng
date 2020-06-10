@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sql.DataSource;
 
@@ -24,6 +25,10 @@ import com.mchange.v2.log.MLog;
  */
 public abstract class DatabaseTestBase
 {
+	/**
+	 * Flag for first run.
+	 */
+	private static final AtomicBoolean bFirstRunFlag = new AtomicBoolean();
 	private static final String CONFIG_JDBC_PASSWORD = "testJdbcPassword";
 	private static final String CONFIG_JDBC_URL = "testJdbcUrl";
 	private static final String CONFIG_JDBC_USERNAME = "testJdbcUsername";
@@ -293,33 +298,54 @@ public abstract class DatabaseTestBase
 	@Before
 	public void initializeDatabase() throws SQLException
 	{
-		// load connection details
-		jdbcUrl = System.getProperty(CONFIG_JDBC_URL);
-		jdbcUsername = System.getProperty(CONFIG_JDBC_USERNAME);
-		jdbcPassword = System.getProperty(CONFIG_JDBC_PASSWORD);
-		if ((jdbcUrl != null) && (jdbcUsername != null) && (jdbcPassword != null))
+		boolean bFirstRun = !bFirstRunFlag.getAndSet(true);
+		try
 		{
-			// load driver
-			try
+			// load connection details
+			jdbcUrl = System.getProperty(CONFIG_JDBC_URL);
+			jdbcUsername = System.getProperty(CONFIG_JDBC_USERNAME);
+			jdbcPassword = System.getProperty(CONFIG_JDBC_PASSWORD);
+			if ((jdbcUrl != null) && (jdbcUsername != null) && (jdbcPassword != null))
 			{
-				Class.forName(DRIVER_CLASS_NAME);
+				// load driver
+				try
+				{
+					Class.forName(DRIVER_CLASS_NAME);
+				}
+				catch (ClassNotFoundException e)
+				{
+					throw new SQLException(e);
+				}
+
+				// disable C3p0 log spamming
+				// the function is still working and the only workaround would be to set properties on the log4j logger,
+				// but
+				// it could also be another type if log4j is not available...
+				MLog.getLogger("com.mchange.v2").setLevel(MLevel.WARNING);
+				System.setProperty("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "WARNING");
+				System.setProperty("com.mchange.v2.log.MLog", "log4j");
+
+				// construct datasource
+				ds = getUnpooledDataSource();
+				Assert.assertNotNull(ds);
+				if (bFirstRun)
+				{
+					System.out.println("Tests are running with a database");
+				}
+				afterDatabaseSetup();
 			}
-			catch (ClassNotFoundException e)
+			else
 			{
-				throw new SQLException(e);
+				if (bFirstRun)
+				{
+					System.out.println("Tests are running without a database");
+				}
 			}
-
-			// disable C3p0 log spamming
-			// the function is still working and the only workaround would be to set properties on the log4j logger, but
-			// it could also be another type if log4j is not available...
-			MLog.getLogger("com.mchange.v2").setLevel(MLevel.WARNING);
-			System.setProperty("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "WARNING");
-			System.setProperty("com.mchange.v2.log.MLog", "log4j");
-
-			// construct datasource
-			ds = getUnpooledDataSource();
-			Assert.assertNotNull(ds);
-			afterDatabaseSetup();
+		}
+		catch (Exception ex)
+		{
+			System.err.println("Error setting up database for tests: " + ex.getMessage());
+			throw ex;
 		}
 	}
 

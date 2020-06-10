@@ -12,7 +12,7 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
 * Support for JDK 8+
 * The license is still LGPL
 
-**Supported [geometry types](http://postgis.net/docs/manual-2.5/using_postgis_dbmanagement.html#RefObject):**
+**Supported [geometry types](http://postgis.net/docs/manual-3.0/using_postgis_dbmanagement.html#RefObject):**
 * Point
 * LineString
 * CircularString
@@ -32,7 +32,7 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 	<dependency>
 		<groupId>io.github.sebasbaumh</groupId>
 		<artifactId>postgis-java-ng</artifactId>
-		<version>1.2.0</version>
+		<version>1.2.1</version>
 	</dependency>
 
 The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java), the main point is a different namespace (`io.github.sebasbaumh.postgis`) as I am not be able to publish an artificat under the original namespace.
@@ -52,4 +52,12 @@ To run the unit tests accessing the server, add the following to your VM argumen
 
 `-DtestJdbcUrl="jdbc:postgresql://MyServer/UnitTestDB" -DtestJdbcUsername="unittest" -DtestJdbcPassword="CHANGEME"`
 
-*There are also local tests contained in the project, so you are still able to test most parts without specifying a PostgreSQL server.*
+Or add the following Maven build parameters to the launch configuration in eclipse:
+
+|Parameter Name|Value|
+|--------------|-----|
+|`testJdbcUrl`|`jdbc:postgresql://MyServer/UnitTestDB`|
+|`testJdbcUsername`|`unittest`|
+|`testJdbcPassword`|`CHANGEME`|
+
+*There are also local tests contained in the project, so you are still able to test most parts without specifying a PostgreSQL server. And the test console output will show if tests were run with or without a database.*
