@@ -1,7 +1,8 @@
 # PostGIS Java bindings (Next Generation) #
 
-[![javadoc](https://javadoc.io/badge2/io.github.sebasbaumh/postgis-java-ng/javadoc.svg)](https://javadoc.io/doc/io.github.sebasbaumh/postgis-java-ng/latest/index.html)
+[![Build Status](https://travis-ci.org/sebasbaumh/postgis-java-ng.svg?branch=master)](https://travis-ci.org/sebasbaumh/postgis-java-ng)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.sebasbaumh/postgis-java-ng)](https://search.maven.org/artifact/io.github.sebasbaumh/postgis-java-ng)
+[![javadoc](https://javadoc.io/badge2/io.github.sebasbaumh/postgis-java-ng/javadoc.svg)](https://javadoc.io/doc/io.github.sebasbaumh/postgis-java-ng/latest/index.html)
 [![License](https://img.shields.io/github/license/sebasbaumh/postgis-java-ng.svg)](https://github.com/sebasbaumh/postgis-java-ng/blob/master/LICENSE)
 
 This project contains Java bindings for using [PostGIS](https://postgis.net/) geometries coming from a [PostgreSQL](https://www.postgresql.org/) database.
