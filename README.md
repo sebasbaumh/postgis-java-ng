@@ -12,7 +12,7 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
 * Support for JDK 8+
 * The license is still LGPL
 
-**Supported [geometry types](http://postgis.net/docs/manual-3.0/using_postgis_dbmanagement.html#RefObject):**
+**Supported [geometry types](https://postgis.net/docs/using_postgis_dbmanagement.html#RefObject):**
 * Point
 * LineString
 * CircularString
@@ -29,16 +29,22 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
 ## How to use it ##
 There is a Maven artifact in the official Maven repository, so just add this to your Maven POM:
 
-	<dependency>
-		<groupId>io.github.sebasbaumh</groupId>
-		<artifactId>postgis-java-ng</artifactId>
-		<version>1.2.1</version>
-	</dependency>
+```xml
+<dependency>
+	<groupId>io.github.sebasbaumh</groupId>
+	<artifactId>postgis-java-ng</artifactId>
+	<version>1.2.1</version>
+</dependency>
+```
 
-The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java), the main point is a different namespace (`io.github.sebasbaumh.postgis`) as I am not be able to publish an artificat under the original namespace.
-In addition the class structure is a bit different to support arc geometries and reduce boilerplate code, but you should be able to adapt to it easily.
+The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java) with the main point being a different namespace (`io.github.sebasbaumh.postgis`) as publishing a project to Maven Central requires to own that namespace.
+In addition the class structure is a bit different (see below) to support arc geometries and reduce boilerplate code, but you should be able to adapt to it easily.
 The implementations of the parser and writer for the geometries have been heavily reworked to speed up processing and reduce complexity.
 	
+##Hierarchy of geometry classes:##
+
+![Hierarchy of geometry classes](ClassHierarchy.png)
+
 ## How to run tests utilizing a PostgreSQL server
 
 You will need a PostgreSQL server with installed PostGIS extension for some of the tests.

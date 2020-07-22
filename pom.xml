@@ -191,6 +191,7 @@
                     <localCheckout>true</localCheckout>
                     <pushChanges>false</pushChanges>
                     <releaseProfiles>release-sign-artifacts</releaseProfiles>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
 			<plugin>
