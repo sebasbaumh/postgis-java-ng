@@ -3,7 +3,7 @@
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
 	<!-- version for release -->
-	<version>1.3.0-SNAPSHOT</version>
+	<version>1.3.0</version>
 	<packaging>jar</packaging>
 	<name>PostGIS Java bindings</name>
 	<description>This project contains Java bindings for using PostGIS geometries coming from a PostgreSQL database.</description>
@@ -28,7 +28,7 @@
 		<connection>scm:git:git://github.com/sebasbaumh/postgis-java-ng.git</connection>
 		<developerConnection>scm:git:ssh://github.com:sebasbaumh/postgis-java-ng.git</developerConnection>
 		<url>https://github.com/sebasbaumh/postgis-java-ng/tree/master</url>
-		<tag>HEAD</tag>
+		<tag>v1.3.0</tag>
 	</scm>
 	<!-- Sonatype repository -->
 	<distributionManagement>
