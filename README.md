@@ -41,11 +41,11 @@ The API differs a bit from [postgis-java](https://github.com/postgis/postgis-jav
 In addition the class structure is a bit different (see below) to support arc geometries and reduce boilerplate code, but you should be able to adapt to it easily.
 The implementations of the parser and writer for the geometries have been heavily reworked to speed up processing and reduce complexity.
 	
-##Hierarchy of geometry classes:##
+## Hierarchy of geometry classes: ##
 
 ![Hierarchy of geometry classes](ClassHierarchy.png)
 
-## How to run tests utilizing a PostgreSQL server
+## How to run tests utilizing a PostgreSQL server ##
 
 You will need a PostgreSQL server with installed PostGIS extension for some of the tests.
 
