@@ -54,6 +54,12 @@ import io.github.sebasbaumh.postgis.PolygonBase;
 public final class BinaryParser
 {
 
+	// prevent instantiating this class
+	@Deprecated
+	private BinaryParser()
+	{
+	}
+
 	/**
 	 * Parse a hex encoded geometry
 	 * @param value String containing the data to be parsed
@@ -182,17 +188,17 @@ public final class BinaryParser
 	 */
 	private static Point parsePoint(ValueGetter data, boolean haveZ, boolean haveM)
 	{
-		double X = data.getDouble();
-		double Y = data.getDouble();
+		double x = data.getDouble();
+		double y = data.getDouble();
 		Point result;
 		// parse z?
 		if (haveZ)
 		{
-			result = new Point(X, Y, data.getDouble());
+			result = new Point(x, y, data.getDouble());
 		}
 		else
 		{
-			result = new Point(X, Y);
+			result = new Point(x, y);
 		}
 		// parse measure?
 		if (haveM)

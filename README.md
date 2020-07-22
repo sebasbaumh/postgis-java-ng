@@ -5,6 +5,11 @@
 [![javadoc](https://javadoc.io/badge2/io.github.sebasbaumh/postgis-java-ng/javadoc.svg)](https://javadoc.io/doc/io.github.sebasbaumh/postgis-java-ng/latest/index.html)
 [![License](https://img.shields.io/github/license/sebasbaumh/postgis-java-ng.svg)](https://github.com/sebasbaumh/postgis-java-ng/blob/master/LICENSE)
 
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=sebasbaumh_postgis-java-ng&metric=ncloc)](https://sonarcloud.io/dashboard?id=sebasbaumh_postgis-java-ng)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=sebasbaumh_postgis-java-ng&metric=security_rating)](https://sonarcloud.io/dashboard?id=sebasbaumh_postgis-java-ng)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=sebasbaumh_postgis-java-ng&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=sebasbaumh_postgis-java-ng)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=sebasbaumh_postgis-java-ng&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=sebasbaumh_postgis-java-ng)
+
 This project contains Java bindings for using [PostGIS](https://postgis.net/) geometries coming from a [PostgreSQL](https://www.postgresql.org/) database.
 
 *This project is based on [postgis-java](https://github.com/postgis/postgis-java) and first of all I want to thank its authors for their work.*

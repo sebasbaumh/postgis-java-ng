@@ -30,6 +30,7 @@ package io.github.sebasbaumh.postgis;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 import org.postgresql.util.PGobject;
 
@@ -104,7 +105,7 @@ public abstract class PGboxbase extends PGobject
 	 * @param sb {@link StringBuilder}
 	 * @param p {@link Point}
 	 */
-	private static void formatPoint(StringBuffer sb, Point p)
+	private static void formatPoint(StringBuilder sb, Point p)
 	{
 		sb.append(formatCoord(p.getX()));
 		sb.append(' ');
@@ -155,7 +156,7 @@ public abstract class PGboxbase extends PGobject
 			return true;
 		}
 		// check for type and null
-		if ((obj == null) || !(obj instanceof PGboxbase))
+		if (!(obj instanceof PGboxbase))
 		{
 			return false;
 		}
@@ -198,7 +199,7 @@ public abstract class PGboxbase extends PGobject
 	@Override
 	public String getValue()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(getPrefix());
 		sb.append('(');
 		PGboxbase.formatPoint(sb, llb);
@@ -206,6 +207,12 @@ public abstract class PGboxbase extends PGobject
 		PGboxbase.formatPoint(sb, urt);
 		sb.append(')');
 		return sb.toString();
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return 31 * super.hashCode() + Objects.hash(llb, urt);
 	}
 
 	/**

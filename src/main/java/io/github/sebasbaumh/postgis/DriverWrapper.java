@@ -147,30 +147,30 @@ public class DriverWrapper extends Driver
 						new Class[] { Method.class, Object.class, Object[].class });
 				Method mAddDataType = PGConnection.class.getMethod("addDataType",
 						new Class[] { String.class, Class.class });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "geometry", io.github.sebasbaumh.postgis.PGgeometry.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "geography", io.github.sebasbaumh.postgis.PGgeography.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "box2d", io.github.sebasbaumh.postgis.PGbox2d.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "box3d", io.github.sebasbaumh.postgis.PGbox3d.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "public.geography", io.github.sebasbaumh.postgis.PGgeography.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "public.box2d", io.github.sebasbaumh.postgis.PGbox2d.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "public.box3d", io.github.sebasbaumh.postgis.PGbox3d.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "\"public\".\"geometry\"", io.github.sebasbaumh.postgis.PGgeometry.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "\"public\".\"geography\"", io.github.sebasbaumh.postgis.PGgeography.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "\"public\".\"box2d\"", io.github.sebasbaumh.postgis.PGbox2d.class } });
-				mrawConnectionOperation.invoke(conn, new Object[] { mAddDataType, null,
-						new Object[] { "\"public\".\"box3d\"", io.github.sebasbaumh.postgis.PGbox3d.class } });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "geometry", io.github.sebasbaumh.postgis.PGgeometry.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "geography", io.github.sebasbaumh.postgis.PGgeography.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "box2d", io.github.sebasbaumh.postgis.PGbox2d.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "box3d", io.github.sebasbaumh.postgis.PGbox3d.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "public.geometry", io.github.sebasbaumh.postgis.PGgeometry.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "public.geography", io.github.sebasbaumh.postgis.PGgeography.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "public.box2d", io.github.sebasbaumh.postgis.PGbox2d.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "public.box3d", io.github.sebasbaumh.postgis.PGbox3d.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "\"public\".\"geometry\"", io.github.sebasbaumh.postgis.PGgeometry.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "\"public\".\"geography\"", io.github.sebasbaumh.postgis.PGgeography.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "\"public\".\"box2d\"", io.github.sebasbaumh.postgis.PGbox2d.class });
+				mrawConnectionOperation.invoke(conn, mAddDataType, null,
+						new Object[] { "\"public\".\"box3d\"", io.github.sebasbaumh.postgis.PGbox3d.class });
 				return;
 			}
 		}

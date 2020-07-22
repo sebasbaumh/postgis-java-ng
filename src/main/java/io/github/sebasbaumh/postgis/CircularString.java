@@ -73,7 +73,7 @@ public class CircularString extends LineString
 	@Override
 	public double length()
 	{
-		// FIX: calculate length
+		// FIX: calculate length on arc
 		return super.length();
 	}
 

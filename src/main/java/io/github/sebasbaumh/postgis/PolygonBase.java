@@ -3,6 +3,7 @@ package io.github.sebasbaumh.postgis;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -207,6 +208,12 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 	public Point getStartPoint()
 	{
 		return lsOuterRing.getStartPoint();
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return 31 * super.hashCode() + Objects.hash(lsOuterRing, rings);
 	}
 
 	/*

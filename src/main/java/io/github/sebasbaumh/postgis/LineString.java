@@ -192,6 +192,12 @@ public class LineString extends Curve implements Iterable<Point>
 		return PostGisUtil.firstOrDefault(points);
 	}
 
+	@Override
+	public int hashCode()
+	{
+		return 31 * super.hashCode() + points.hashCode();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see io.github.sebasbaumh.postgis.Geometry#hasMeasure()
@@ -257,7 +263,7 @@ public class LineString extends Curve implements Iterable<Point>
 			{
 				Point p = points.get(i);
 				len += p0.distance(p);
-				p = p0;
+				p0 = p;
 			}
 		}
 		return len;

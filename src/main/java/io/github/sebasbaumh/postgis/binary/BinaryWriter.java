@@ -55,6 +55,12 @@ import io.github.sebasbaumh.postgis.PostGisUtil;
  */
 public final class BinaryWriter
 {
+	// prevent instantiating this class
+	@Deprecated
+	private BinaryWriter()
+	{
+	}
+
 	/**
 	 * Parse a geometry starting at offset.
 	 * @param geom the geometry to write

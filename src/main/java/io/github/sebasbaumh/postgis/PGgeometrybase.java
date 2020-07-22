@@ -23,8 +23,10 @@
 package io.github.sebasbaumh.postgis;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.postgresql.util.PGobject;
@@ -69,10 +71,26 @@ public abstract class PGgeometrybase extends PGobject
 	 * @throws SQLException
 	 */
 	@SuppressWarnings("null")
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS",
+			"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" })
 	protected PGgeometrybase(String value) throws SQLException
 	{
 		setValue(value);
+	}
+
+	@Override
+	public boolean equals(@Nullable Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (!super.equals(obj) || !(obj instanceof PGgeometrybase))
+		{
+			return false;
+		}
+		PGgeometrybase other = (PGgeometrybase) obj;
+		return Objects.equals(this.geometry, other.geometry);
 	}
 
 	/**
@@ -97,6 +115,12 @@ public abstract class PGgeometrybase extends PGobject
 	public String getValue()
 	{
 		return BinaryWriter.writeHexed(geometry);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return 31 * super.hashCode() + Objects.hashCode(geometry);
 	}
 
 	/**
