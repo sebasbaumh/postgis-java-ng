@@ -83,7 +83,8 @@ public class ServerTest extends DatabaseTestBase
 			return;
 		}
 
-		String dbtable = DATABASE_TABLE_NAME_PREFIX + "_" + UUID.randomUUID().toString().replaceAll("-", "");
+		String dbtable = DATABASE_TABLE_NAME_PREFIX + "_"
+				+ UUID.randomUUID().toString().replaceAll("-", "").toLowerCase();
 
 		String dropSQL = "drop table " + dbtable;
 		String createSQL = "create table " + dbtable + " (geom geometry, id int4)";
@@ -99,12 +100,12 @@ public class ServerTest extends DatabaseTestBase
 		logger.debug("Creating table with geometric types...");
 		boolean tableExists = false;
 		DatabaseMetaData databaseMetaData = connection.getMetaData();
-		try (ResultSet resultSet = databaseMetaData.getTables(null, null, dbtable.toLowerCase(),
-				new String[] { "TABLE" }))
+		try (ResultSet resultSet = databaseMetaData.getTables(null, null, dbtable, new String[] { "TABLE" }))
 		{
 			while (resultSet.next())
 			{
 				tableExists = true;
+				break;
 			}
 		}
 		if (tableExists)
@@ -112,22 +113,29 @@ public class ServerTest extends DatabaseTestBase
 			statement.execute(dropSQL);
 		}
 		statement.execute(createSQL);
-
-		logger.debug("Inserting point...");
-		statement.execute(insertPointSQL);
-
-		logger.debug("Inserting polygon...");
-		statement.execute(insertPolygonSQL);
-
-		logger.debug("Querying table...");
-		try (ResultSet resultSet = statement.executeQuery("select ST_AsText(geom),id from " + dbtable))
+		try
 		{
-			while (resultSet.next())
+			logger.debug("Inserting point...");
+			statement.execute(insertPointSQL);
+
+			logger.debug("Inserting polygon...");
+			statement.execute(insertPolygonSQL);
+
+			logger.debug("Querying table...");
+			try (ResultSet resultSet = statement.executeQuery("select ST_AsText(geom),id from " + dbtable))
 			{
-				Object obj = resultSet.getObject(1);
-				int id = resultSet.getInt(2);
-				logger.debug("Row {}: {}", id, obj);
+				while (resultSet.next())
+				{
+					Object obj = resultSet.getObject(1);
+					int id = resultSet.getInt(2);
+					logger.debug("Row {}: {}", id, obj);
+				}
 			}
+		}
+		finally
+		{
+			// make sure to remove the table afterwards
+			statement.execute(dropSQL);
 		}
 	}
 
