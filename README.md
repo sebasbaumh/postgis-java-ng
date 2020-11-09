@@ -44,7 +44,7 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 <dependency>
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
-	<version>1.3.0</version>
+	<version>1.3.1</version>
 </dependency>
 ```
 
