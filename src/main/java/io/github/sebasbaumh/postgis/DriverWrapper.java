@@ -270,9 +270,11 @@ public class DriverWrapper extends Driver
 	{
 		url = mangleURL(url);
 		Connection result = super.connect(url, info);
-		PGConnection pgconn = (PGConnection) result;
-		// add geometry and box types
-		registerDataTypes(pgconn);
+		if(result instanceof PGConnection)
+		{
+			// add geometry and box types
+			registerDataTypes((PGConnection) result);
+		}
 		return result;
 	}
 

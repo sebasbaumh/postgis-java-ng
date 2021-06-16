@@ -241,8 +241,7 @@ public class ParserTest extends DatabaseTestBase
 		testAll("POINT(10 10 20)");
 		// 3D with scientific notation
 		// NOTE: the original e-100 is a corner case in terms of precision on the latest PostGIS version (2.5.3), so we
-		// use a
-		// smaller exponent)
+		// use a smaller exponent)
 		// testAll("POINT(1e100 1.2345e-100 -2e-5)");
 		//@formatter:off
 		/* to proof just try that SQL in PostGIS:

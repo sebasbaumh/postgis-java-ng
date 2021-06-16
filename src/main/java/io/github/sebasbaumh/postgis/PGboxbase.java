@@ -32,6 +32,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 
+import javax.annotation.Nonnull;
+
 import org.postgresql.util.PGobject;
 
 /**
@@ -196,6 +198,7 @@ public abstract class PGboxbase extends PGobject
 		return urt;
 	}
 
+	@Nonnull
 	@Override
 	public String getValue()
 	{
