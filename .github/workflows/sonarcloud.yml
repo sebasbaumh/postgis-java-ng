@@ -14,7 +14,7 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
     - name: Analyze with SonarCloud
-      run: mvn --batch-mode verify sonar:sonar -Dsonar.projectKey=sebasbaumh_postgis-java-ng -Dsonar.organization=sebasbaumh -Dsonar.host.url=https://sonarcloud.io -Dsonar.login="$SONAR_TOKEN"
+      run: mvn --batch-mode verify sonar:sonar -Dsonar.projectKey=sebasbaumh_postgis-java-ng -Dsonar.organization=sebasbaumh -Dsonar.host.url=https://sonarcloud.io -Dsonar.login="1309a32d30dc080e89b0cfc19678298b9f34be15"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
