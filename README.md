@@ -20,7 +20,7 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
 * Use generic Java types where possible and simplify/streamline API
 * Clean up code to basically only work on [WKB](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary)/EWKB implementations to reduce code duplication and focus on the actual database format
 * Support for the latest PostgreSQL (9.6+) and PostGIS versions (2.3+)
-* Support for JDK 8+
+* Support for JDK 11+ (there is a [branch for JDK 8](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk8) though)
 * The license is still LGPL
 
 **Supported [geometry types](https://postgis.net/docs/using_postgis_dbmanagement.html#RefObject):**
@@ -44,7 +44,7 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 <dependency>
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
-	<version>1.3.2</version>
+	<version>2.0.0</version>
 </dependency>
 ```
 
