@@ -20,7 +20,7 @@ It is originally based on [postgis-java](https://github.com/postgis/postgis-java
 * Clean up code to basically only work on [WKB](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary)/EWKB implementations to reduce code duplication and focus on the actual database format
 * Support for the latest PostgreSQL and PostGIS versions
     * Recommended are PostgreSQL 14 and PostGIS 3.2.0
-    * Supported are versions starting from PostgreSQL 9.6 and PostGIS versions 2.3
+    * Supported are versions starting from PostgreSQL 9.6 and PostGIS 2.3
 * Support for JDK 11+ (there is an older [branch for JDK 8](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk8))
 * The license is still LGPL
 
@@ -45,9 +45,11 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 <dependency>
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
-	<version>21.0.0</version>
+	<version>22.0.0</version>
 </dependency>
 ```
+
+The version reflects the year of the release, e.g. 22.0.0 is a version released in 2022.
 
 The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java) with the main point being a different namespace (`io.github.sebasbaumh.postgis`) as publishing a project to Maven Central requires to own that namespace.
 In addition the class structure is a bit different (see below) to support arc geometries and reduce boilerplate code, but you should be able to adapt to it easily.
