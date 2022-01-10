@@ -10,17 +10,18 @@
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=sebasbaumh_postgis-java-ng&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=sebasbaumh_postgis-java-ng)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=sebasbaumh_postgis-java-ng&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=sebasbaumh_postgis-java-ng)
 
-This project contains Java bindings for using [PostGIS](https://postgis.net/) geometries coming from a [PostgreSQL](https://www.postgresql.org/) database.
+This project contains Java bindings for using [PostGIS](https://postgis.net/) geometries coming from a [PostgreSQL](https://www.postgresql.org/) database.  
+It is originally based on [postgis-java](https://github.com/postgis/postgis-java) and I want to thank its authors here for their work.
 
-*This project is based on [postgis-java](https://github.com/postgis/postgis-java) and first of all I want to thank its authors for their work.*
-
-**Project goals and improvements to the existing [postgis-java](https://github.com/postgis/postgis-java):**
+**Project goals and improvements:**
 * Support for geometries containing arcs like `CIRCULARSTRING` or `CURVEPOLYGON`
 * Support for PostGIS [geography datatype](https://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography)
 * Use generic Java types where possible and simplify/streamline API
 * Clean up code to basically only work on [WKB](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary)/EWKB implementations to reduce code duplication and focus on the actual database format
-* Support for the latest PostgreSQL (9.6+) and PostGIS versions (2.3+)
-* Support for JDK 11+ (there is a [branch for JDK 8](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk8) though)
+* Support for the latest PostgreSQL and PostGIS versions
+    * Recommended are PostgreSQL 14 and PostGIS 3.2.0
+    * Supported are versions starting from PostgreSQL 9.6 and PostGIS versions 2.3
+* Support for JDK 11+ (there is an older [branch for JDK 8](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk8))
 * The license is still LGPL
 
 **Supported [geometry types](https://postgis.net/docs/using_postgis_dbmanagement.html#RefObject):**
@@ -44,7 +45,7 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 <dependency>
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
-	<version>2.0.0</version>
+	<version>21.0.0</version>
 </dependency>
 ```
 
