@@ -18,7 +18,22 @@ public class ServiceTest
 	@Test
 	public void testWrapperService() throws SQLException
 	{
-		Driver driver = DriverManager.getDriver("jdbc:postgresql_postGIS:/");
+		String jdbcUrl = System.getProperty(DatabaseTestBase.CONFIG_JDBC_URL);
+		if (jdbcUrl == null)
+		{
+			System.out.println("Tests are running without a database");
+			return;
+		}
+
+		if (jdbcUrl.startsWith(DriverWrapper.POSTGRES_PROTOCOL))
+		{
+			jdbcUrl = DriverWrapper.POSTGIS_PROTOCOL + jdbcUrl.substring(DriverWrapper.POSTGRES_PROTOCOL.length());
+		}
+		else
+		{
+			throw new SQLException("Unknown protocol or subprotocol in url: " + jdbcUrl);
+		}
+		Driver driver = DriverManager.getDriver(jdbcUrl);
 		Assert.assertEquals(DriverWrapper.class, driver.getClass());
 	}
 

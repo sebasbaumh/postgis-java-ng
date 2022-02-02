@@ -78,8 +78,14 @@ public class DriverWrapper extends Driver
 {
 	private static final Logger logger = Logger.getLogger("io.github.sebasbaumh.postgis.DriverWrapper");
 	private static final Logger parentLogger = Logger.getLogger("io.github.sebasbaumh.postgis");
-	private static final String POSTGIS_PROTOCOL = "jdbc:postgresql_postGIS:";
-	private static final String POSTGRES_PROTOCOL = "jdbc:postgresql:";
+	/**
+	 * PostGIS custom JDBC protocol.
+	 */
+	public static final String POSTGIS_PROTOCOL = "jdbc:postgresql_postGIS:";
+	/**
+	 * PostgreSQL JDBC protocol.
+	 */
+	public static final String POSTGRES_PROTOCOL = "jdbc:postgresql:";
 
 	static
 	{
@@ -115,7 +121,7 @@ public class DriverWrapper extends Driver
 		}
 		else
 		{
-			throw new SQLException("Unknown protocol or subprotocol in url " + url);
+			throw new SQLException("Unknown protocol or subprotocol in url: " + url);
 		}
 	}
 
@@ -144,9 +150,8 @@ public class DriverWrapper extends Driver
 			{
 				// use method Object rawConnectionOperation(Method m, Object target, Object[] args)
 				Method mrawConnectionOperation = clazzC3P0ProxyConnection.getMethod("rawConnectionOperation",
-						new Class[] { Method.class, Object.class, Object[].class });
-				Method mAddDataType = PGConnection.class.getMethod("addDataType",
-						new Class[] { String.class, Class.class });
+						Method.class, Object.class, Object[].class);
+				Method mAddDataType = PGConnection.class.getMethod("addDataType", String.class, Class.class);
 				mrawConnectionOperation.invoke(conn, mAddDataType, null,
 						new Object[] { "geometry", io.github.sebasbaumh.postgis.PGgeometry.class });
 				mrawConnectionOperation.invoke(conn, mAddDataType, null,
@@ -270,7 +275,7 @@ public class DriverWrapper extends Driver
 	{
 		url = mangleURL(url);
 		Connection result = super.connect(url, info);
-		if(result instanceof PGConnection)
+		if (result instanceof PGConnection)
 		{
 			// add geometry and box types
 			registerDataTypes((PGConnection) result);

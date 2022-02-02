@@ -30,7 +30,10 @@ public abstract class DatabaseTestBase
 	 */
 	private static final AtomicBoolean bFirstRunFlag = new AtomicBoolean();
 	private static final String CONFIG_JDBC_PASSWORD = "testJdbcPassword";
-	private static final String CONFIG_JDBC_URL = "testJdbcUrl";
+	/**
+	 * Property for the JDBC URL to be used.
+	 */
+	public static final String CONFIG_JDBC_URL = "testJdbcUrl";
 	private static final String CONFIG_JDBC_USERNAME = "testJdbcUsername";
 	/**
 	 * Name of the JDBC driver.
