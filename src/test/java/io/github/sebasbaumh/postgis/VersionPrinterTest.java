@@ -41,10 +41,10 @@ import org.slf4j.LoggerFactory;
  * Prints out as much version information as available.
  */
 @SuppressWarnings("javadoc")
-public class VersionPrinter extends DatabaseTestBase
+public class VersionPrinterTest extends DatabaseTestBase
 {
 
-	private static final Logger logger = LoggerFactory.getLogger(VersionPrinter.class);
+	private static final Logger logger = LoggerFactory.getLogger(VersionPrinterTest.class);
 
 	private static String[] POSTGIS_FUNCTIONS = { "postgis_version", "postgis_proj_version",
 			"postgis_scripts_installed", "postgis_lib_version", "postgis_scripts_released", "postgis_uses_stats",
