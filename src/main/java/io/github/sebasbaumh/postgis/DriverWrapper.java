@@ -33,7 +33,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.postgresql.Driver;
 import org.postgresql.PGConnection;
 
@@ -74,6 +77,7 @@ import org.postgresql.PGConnection;
  * @author {@literal Markus Schaber <markus.schaber@logix-tt.com>}
  */
 //@formatter:on
+@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE })
 public class DriverWrapper extends Driver
 {
 	private static final Logger logger = Logger.getLogger("io.github.sebasbaumh.postgis.DriverWrapper");
@@ -110,10 +114,10 @@ public class DriverWrapper extends Driver
 	/**
 	 * Mangles the PostGIS URL to return the original PostGreSQL URL
 	 * @param url String containing the url to be "mangled"
-	 * @return "mangled" string
-	 * @throws SQLException when a SQLException occurs
+	 * @return "mangled" string on success, else null
 	 */
-	private static String mangleURL(String url) throws SQLException
+	@Nullable
+	private static String mangleURL(String url)
 	{
 		if (url.startsWith(POSTGIS_PROTOCOL))
 		{
@@ -121,7 +125,8 @@ public class DriverWrapper extends Driver
 		}
 		else
 		{
-			throw new SQLException("Unknown protocol or subprotocol in url: " + url);
+			// unknown protocol or subprotocol in url
+			return null;
 		}
 	}
 
@@ -132,7 +137,7 @@ public class DriverWrapper extends Driver
 	 * @throws SQLException if the {@link Connection} is neither an {@link org.postgresql.PGConnection}, nor a
 	 *             {@link Connection} wrapped around an {@link org.postgresql.PGConnection}.
 	 */
-	public static void registerDataTypes(@Nonnull Connection conn) throws SQLException
+	public static void registerDataTypes(Connection conn) throws SQLException
 	{
 		// try to get underlying PGConnection
 		PGConnection pgconn = tryUnwrap(conn);
@@ -193,7 +198,7 @@ public class DriverWrapper extends Driver
 	 * @param pgconn {@link PGConnection}
 	 * @throws SQLException
 	 */
-	public static void registerDataTypes(@Nonnull PGConnection pgconn) throws SQLException
+	public static void registerDataTypes(PGConnection pgconn) throws SQLException
 	{
 		pgconn.addDataType("geometry", io.github.sebasbaumh.postgis.PGgeometry.class);
 		pgconn.addDataType("geography", io.github.sebasbaumh.postgis.PGgeography.class);
@@ -216,7 +221,8 @@ public class DriverWrapper extends Driver
 	 * @return {@link PGConnection} on success, else null
 	 * @throws SQLException
 	 */
-	private static PGConnection tryUnwrap(@Nonnull Connection conn) throws SQLException
+	@Nullable
+	private static PGConnection tryUnwrap(Connection conn) throws SQLException
 	{
 		// short cut
 		if (conn instanceof PGConnection)
@@ -248,13 +254,9 @@ public class DriverWrapper extends Driver
 	 * @return true if this driver accepts the given URL
 	 */
 	@Override
-	public boolean acceptsURL(String url)
+	public boolean acceptsURL(@SuppressWarnings("null") @Nonnull String url)
 	{
-		try
-		{
-			url = mangleURL(url);
-		}
-		catch (SQLException e)
+		if (mangleURL(url) == null)
 		{
 			return false;
 		}
@@ -270,17 +272,23 @@ public class DriverWrapper extends Driver
 	 * @see java.sql.Driver#connect
 	 * @see org.postgresql.Driver
 	 */
+	@Nullable
 	@Override
-	public java.sql.Connection connect(String url, Properties info) throws SQLException
+	public java.sql.Connection connect(@SuppressWarnings("null") @Nonnull String url,
+			@SuppressWarnings("null") @Nonnull Properties info) throws SQLException
 	{
-		url = mangleURL(url);
-		Connection result = super.connect(url, info);
-		if (result instanceof PGConnection)
+		String mangledURL = mangleURL(url);
+		if (mangledURL != null)
 		{
-			// add geometry and box types
-			registerDataTypes((PGConnection) result);
+			Connection result = super.connect(mangledURL, info);
+			if (result instanceof PGConnection)
+			{
+				// add geometry and box types
+				registerDataTypes((PGConnection) result);
+			}
+			return result;
 		}
-		return result;
+		return null;
 	}
 
 	@Override
