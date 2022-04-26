@@ -29,12 +29,18 @@ package io.github.sebasbaumh.postgis;
 
 import java.sql.SQLException;
 
+import org.postgresql.util.PGobject;
+
 /**
  * BOX2D representing the maximum extents of the geometry.
  * @author Sebastian Baumhekel
  */
 public class PGbox2d extends PGboxbase
 {
+	/**
+	 * Type of the {@link PGobject}.
+	 */
+	private static final String PG_TYPE = "box2d";
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
 
@@ -43,7 +49,7 @@ public class PGbox2d extends PGboxbase
 	 */
 	public PGbox2d()
 	{
-		super();
+		super(PG_TYPE);
 	}
 
 	/**
@@ -53,7 +59,7 @@ public class PGbox2d extends PGboxbase
 	 */
 	public PGbox2d(Point llb, Point urt)
 	{
-		super(llb, urt);
+		super(PG_TYPE, llb, urt);
 	}
 
 	/**
@@ -63,13 +69,13 @@ public class PGbox2d extends PGboxbase
 	 */
 	public PGbox2d(String value) throws SQLException
 	{
-		super(value);
+		super(PG_TYPE, value);
 	}
 
 	@Override
-	public String getPGtype()
+	public PGbox2d clone()
 	{
-		return "box2d";
+		return new PGbox2d(llb.copy(), urt.copy());
 	}
 
 	@Override
@@ -79,9 +85,9 @@ public class PGbox2d extends PGboxbase
 	}
 
 	@Override
-	protected PGboxbase newInstance()
+	public boolean is3d()
 	{
-		return new PGbox2d();
+		return false;
 	}
 
 	@Override

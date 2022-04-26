@@ -33,13 +33,17 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.postgresql.util.PGobject;
 
 /**
  * Base class for bounding boxes.
  * @author Sebastian Baumhekel
  */
+@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE })
 public abstract class PGboxbase extends PGobject
 {
 	/* JDK 1.5 Serialization */
@@ -57,49 +61,60 @@ public abstract class PGboxbase extends PGobject
 
 	/**
 	 * Constructs an instance.
+	 * @param type type of this {@link PGobject}
 	 */
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS")
-	protected PGboxbase()
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS",
+			"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" })
+	protected PGboxbase(String type)
 	{
-		this.setType(getPGtype());
+		this.setType(type);
 	}
 
 	/**
 	 * Constructs an instance.
+	 * @param type type of this {@link PGobject}
 	 * @param llb lower left {@link Point}
 	 * @param urt upper right {@link Point}
 	 */
-	protected PGboxbase(Point llb, Point urt)
+	protected PGboxbase(String type, Point llb, Point urt)
 	{
-		this();
+		this.setType(type);
 		this.llb = llb;
 		this.urt = urt;
 	}
 
 	/**
 	 * Constructs an instance.
+	 * @param type type of this {@link PGobject}
 	 * @param value WKT
 	 * @throws SQLException
 	 */
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS")
-	protected PGboxbase(String value) throws SQLException
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS",
+			"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" })
+	protected PGboxbase(String type, String value) throws SQLException
 	{
-		this();
+		this.setType(type);
 		setValue(value);
 	}
 
 	/**
-	 * Formats a coordinate to a string omitting empty decimal places.
-	 * @param d coordinate
-	 * @return string
+	 * Appends a double value to a {@link StringBuilder}. In contrast to {@link StringBuilder#append(double)} it omits a
+	 * 0 decimal like "1.0" it will output "1".
+	 * @param sb {@link StringBuilder}
+	 * @param d double
 	 */
-	private static String formatCoord(double d)
+	private static void appendDouble(StringBuilder sb, double d)
 	{
-		if (d % 1.0 != 0)
+		// check for fractional digits (or if the double exceeds the long range)
+		if (((d % 1.0) != 0) || (d >= Long.MAX_VALUE) || (d <= Long.MIN_VALUE))
 		{
-			return String.format("%s", d);
+			sb.append(d);
 		}
-		return String.format("%.0f", d);
+		else
+		{
+			// omit 0-digit
+			sb.append((long) d);
+		}
 	}
 
 	/**
@@ -107,15 +122,15 @@ public abstract class PGboxbase extends PGobject
 	 * @param sb {@link StringBuilder}
 	 * @param p {@link Point}
 	 */
-	private static void formatPoint(StringBuilder sb, Point p)
+	private static void appendPoint(StringBuilder sb, Point p)
 	{
-		sb.append(formatCoord(p.getX()));
+		PGboxbase.appendDouble(sb, p.getX());
 		sb.append(' ');
-		sb.append(formatCoord(p.getY()));
+		PGboxbase.appendDouble(sb, p.getY());
 		if (p.is3d())
 		{
 			sb.append(' ');
-			sb.append(formatCoord(p.getZ()));
+			PGboxbase.appendDouble(sb, p.getZ());
 		}
 	}
 
@@ -140,17 +155,7 @@ public abstract class PGboxbase extends PGobject
 	}
 
 	@Override
-	public Object clone()
-	{
-		PGboxbase obj = newInstance();
-		obj.llb = this.llb;
-		obj.urt = this.urt;
-		obj.setType(type);
-		return obj;
-	}
-
-	@Override
-	public boolean equals(Object obj)
+	public boolean equals(@Nullable Object obj)
 	{
 		// short cut
 		if (this == obj)
@@ -177,17 +182,20 @@ public abstract class PGboxbase extends PGobject
 	}
 
 	/**
-	 * The Postgres type we have (same construct as getPrefix())
-	 * @return String containing the name of the type for this box.
-	 */
-	public abstract String getPGtype();
-
-	/**
 	 * The Prefix we have in WKT rep. I use an abstract method here so we do not need to replicate the String object in
 	 * every instance.
 	 * @return the prefix, as a string
 	 */
 	protected abstract String getPrefix();
+
+	/**
+	 * The OGIS geometry type number of this geometry.
+	 * @return the SRID of this geometry
+	 */
+	public int getSrid()
+	{
+		return this.llb.getSrid();
+	}
 
 	/**
 	 * Returns the upper right top corner of the box as a Point object
@@ -203,11 +211,20 @@ public abstract class PGboxbase extends PGobject
 	public String getValue()
 	{
 		StringBuilder sb = new StringBuilder();
+		// add SRID?
+		int srid = getSrid();
+		if (srid != Geometry.UNKNOWN_SRID)
+		{
+			sb.append("SRID=");
+			sb.append(srid);
+			sb.append(';');
+		}
+		// write prefix and points
 		sb.append(getPrefix());
 		sb.append('(');
-		PGboxbase.formatPoint(sb, llb);
+		PGboxbase.appendPoint(sb, llb);
 		sb.append(',');
-		PGboxbase.formatPoint(sb, urt);
+		PGboxbase.appendPoint(sb, urt);
 		sb.append(')');
 		return sb.toString();
 	}
@@ -215,20 +232,36 @@ public abstract class PGboxbase extends PGobject
 	@Override
 	public int hashCode()
 	{
-		return 31 * super.hashCode() + Objects.hash(llb, urt);
+		return Objects.hash(llb, urt);
 	}
 
 	/**
-	 * Obtain a new instance of a PGboxbase We could have used this.getClass().newInstance() here, but this forces us
-	 * dealing with InstantiationException and IllegalAccessException. Due to the PGObject.clone() brokennes that does
-	 * not allow clone() to throw CloneNotSupportedException, we cannot even pass this exceptions down to callers in a
-	 * sane way.
-	 * @return a new instance of PGboxbase
+	 * Checks if this box is 3d.
+	 * @return true on success, else false
 	 */
-	protected abstract PGboxbase newInstance();
+	public abstract boolean is3d();
+
+	/**
+	 * Ist this box empty, so does it contain no coordinates?
+	 * @return true on success, else false
+	 */
+	public boolean isEmpty()
+	{
+		return llb.isEmpty() && urt.isEmpty();
+	}
+
+	/**
+	 * Recursively sets the srid on this geometry and all contained subgeometries
+	 * @param srid the SRID for this geometry
+	 */
+	public void setSrid(int srid)
+	{
+		this.llb.setSrid(srid);
+		this.urt.setSrid(srid);
+	}
 
 	@Override
-	public void setValue(String value) throws SQLException
+	public void setValue(@SuppressWarnings("null") @Nonnull String value) throws SQLException
 	{
 		try
 		{

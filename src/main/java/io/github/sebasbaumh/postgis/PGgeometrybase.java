@@ -85,7 +85,7 @@ public abstract class PGgeometrybase extends PGobject
 		{
 			return true;
 		}
-		if (!super.equals(obj) || !(obj instanceof PGgeometrybase))
+		if (!(obj instanceof PGgeometrybase))
 		{
 			return false;
 		}
@@ -120,7 +120,7 @@ public abstract class PGgeometrybase extends PGobject
 	@Override
 	public int hashCode()
 	{
-		return 31 * super.hashCode() + Objects.hashCode(geometry);
+		return Objects.hashCode(geometry);
 	}
 
 	/**

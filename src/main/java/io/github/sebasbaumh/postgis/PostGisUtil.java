@@ -1,10 +1,8 @@
 package io.github.sebasbaumh.postgis;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -22,6 +20,10 @@ public final class PostGisUtil
 	 * Big endian encoding.
 	 */
 	public static final byte BIG_ENDIAN = 0;
+	/**
+	 * Epsilon/tolerance for comparing double values.
+	 */
+	private static double EPSILON = 1e-15;
 	/**
 	 * Characters for converting data to hex strings.
 	 */
@@ -121,11 +123,21 @@ public final class PostGisUtil
 	 */
 	public static boolean equalsDouble(double a, double b)
 	{
+		// check if both values are NaN
 		if (Double.isNaN(a) && Double.isNaN(b))
 		{
 			return true;
 		}
-		return (a == b);
+		// check which value is larger to avoid a call to Math.abs, use a tolerance to avoid rounding errors
+		// if any of the values is NaN, the comparision below will return false anyway
+		if (a < b)
+		{
+			return (b - a) <= EPSILON;
+		}
+		else
+		{
+			return (a - b) <= EPSILON;
+		}
 	}
 
 	/**
@@ -228,35 +240,6 @@ public final class PostGisUtil
 			return s.substring(iStart, iEnd + 1);
 		}
 		return s;
-	}
-
-	/**
-	 * Returns the number of elements in this collection. If this collection contains more than
-	 * <tt>Integer.MAX_VALUE</tt> elements, returns <tt>Integer.MAX_VALUE</tt>.
-	 * @param col collection
-	 * @return the number of elements in this collection
-	 * @see Collection#size()
-	 */
-	public static <T> int size(Iterable<T> col)
-	{
-		// short cuts
-		if (col instanceof Collection<?>)
-		{
-			return ((Collection<?>) col).size();
-		}
-		if (col instanceof Map<?, ?>)
-		{
-			return ((Map<?, ?>) col).size();
-		}
-		// walk through all elements
-		Iterator<T> it = col.iterator();
-		int i = 0;
-		while (it.hasNext())
-		{
-			it.next();
-			i++;
-		}
-		return i;
 	}
 
 	/**

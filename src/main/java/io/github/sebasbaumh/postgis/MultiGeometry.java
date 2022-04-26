@@ -79,8 +79,8 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	@Override
 	public boolean equals(@Nullable Object other)
 	{
-		// check parent
-		if (super.equals(other) && (other instanceof MultiGeometry<?>))
+		// check type and parent
+		if ((other instanceof MultiGeometry<?>) && super.equals(other))
 		{
 			MultiGeometry<?> cother = (MultiGeometry<?>) other;
 			return PostGisUtil.equalsIterable(this.subgeoms, cother.subgeoms);
@@ -133,7 +133,7 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	@Override
 	public int hashCode()
 	{
-		return subgeoms.hashCode();
+		return 31 * super.hashCode() + subgeoms.hashCode();
 	}
 
 	/*

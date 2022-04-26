@@ -296,7 +296,6 @@ public abstract class DatabaseTestBase
 	 * Initializes the database.
 	 * @throws SQLException
 	 */
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("FCBL_FIELD_COULD_BE_LOCAL")
 	@SuppressWarnings("deprecation")
 	@Before
 	public void initializeDatabase() throws SQLException

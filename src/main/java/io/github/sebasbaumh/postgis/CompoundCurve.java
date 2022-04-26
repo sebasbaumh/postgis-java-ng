@@ -130,8 +130,8 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 	@Override
 	public boolean equals(@Nullable Object other)
 	{
-		// check parent
-		if (super.equals(other) && (other instanceof CompoundCurve))
+		// check type and parent
+		if ((other instanceof CompoundCurve) && super.equals(other))
 		{
 			CompoundCurve cother = (CompoundCurve) other;
 			return PostGisUtil.equalsIterable(this.subgeoms, cother.subgeoms);
@@ -216,7 +216,7 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 	@Override
 	public int hashCode()
 	{
-		return subgeoms.hashCode();
+		return 31 * super.hashCode() + subgeoms.hashCode();
 	}
 
 	/*

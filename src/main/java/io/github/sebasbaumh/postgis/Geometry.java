@@ -117,9 +117,9 @@ public abstract class Geometry implements Serializable
 		{
 			return false;
 		}
-		// check all properties specific to this instance
+		// check all properties specific to this instance, rest is checked by subclasses
 		Geometry other = (Geometry) obj;
-		return other.getClass().equals(this.getClass()) && (this.type == other.type) && (this.srid == other.srid);
+		return (this.type == other.type) && (this.srid == other.srid);
 	}
 
 	/**
@@ -127,18 +127,6 @@ public abstract class Geometry implements Serializable
 	 * @return coordinates
 	 */
 	public abstract Iterable<Point> getCoordinates();
-
-	/**
-	 * Queries the number of geometric dimensions of this geometry. This does not include measures, as opposed to the
-	 * server.
-	 * @deprecated use {@link #is3d()} instead
-	 * @return The dimensionality (eg, 2D or 3D) of this geometry.
-	 */
-	@Deprecated
-	public int getDimension()
-	{
-		return is3d() ? 3 : 2;
-	}
 
 	/**
 	 * Gets the number of coordinates of this {@link Geometry}.
@@ -191,17 +179,6 @@ public abstract class Geometry implements Serializable
 	 * @return true on success, else false
 	 */
 	public abstract boolean isEmpty();
-
-	/**
-	 * Return the number of Points of the geometry
-	 * @return number of points in the geometry
-	 * @deprecated use {@link #getNumberOfCoordinates()} instead
-	 */
-	@Deprecated
-	public final int numPoints()
-	{
-		return this.getNumberOfCoordinates();
-	}
 
 	/**
 	 * Recursively sets the srid on this geometry and all contained subgeometries

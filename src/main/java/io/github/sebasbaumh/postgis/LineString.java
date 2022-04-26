@@ -140,8 +140,8 @@ public class LineString extends Curve implements Iterable<Point>
 	@Override
 	public boolean equals(@Nullable Object other)
 	{
-		// check parent
-		if (super.equals(other) && (other instanceof LineString))
+		// check type and parent
+		if ((other instanceof LineString) && super.equals(other))
 		{
 			LineString ls = (LineString) other;
 			// check all points

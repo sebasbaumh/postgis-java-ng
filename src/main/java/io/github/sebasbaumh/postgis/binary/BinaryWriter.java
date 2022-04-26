@@ -191,10 +191,10 @@ public final class BinaryWriter
 	 * @param geom geometry
 	 * @param dest writer
 	 */
-	private static void writePoints(Iterable<Point> geom, ValueSetter dest)
+	private static void writePoints(LineString geom, ValueSetter dest)
 	{
 		// number of points
-		dest.setInt(PostGisUtil.size(geom));
+		dest.setInt(geom.getNumberOfCoordinates());
 		for (Point p : geom)
 		{
 			writePoint(p, dest);
@@ -223,7 +223,7 @@ public final class BinaryWriter
 			// polygon linear rings are just written as a plain set of points
 			if (ring instanceof LinearRing)
 			{
-				writePoints(ring.getCoordinates(), dest);
+				writePoints((LinearRing) ring, dest);
 			}
 			else
 			{

@@ -16,6 +16,7 @@ It is originally based on [postgis-java](https://github.com/postgis/postgis-java
 **Project goals and improvements:**
 * Support for geometries containing arcs like `CIRCULARSTRING` or `CURVEPOLYGON`
 * Support for PostGIS [geography datatype](https://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography)
+* Extended support for bounding boxes, i.e. box2/box3 PostGIS data types (as PGbox2d/PGbox3d).
 * Use generic Java types where possible and simplify/streamline API
 * Clean up code to basically only work on [WKB](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary)/EWKB implementations to reduce code duplication and focus on the actual database format
 * Support for the latest PostgreSQL and PostGIS versions
@@ -37,6 +38,8 @@ It is originally based on [postgis-java](https://github.com/postgis/postgis-java
 * MultiPolygon
 * MultiSurface
 * GeometryCollection
+* [box2d](https://postgis.net/docs/box2d_type.html)
+* [box3d](https://postgis.net/docs/box3d_type.html)
 
 ## How to use it ##
 There is a Maven artifact in the official Maven repository, so just add this to your Maven POM:
@@ -45,11 +48,11 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 <dependency>
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
-	<version>22.0.1</version>
+	<version>22.1.0</version>
 </dependency>
 ```
 
-The version reflects the year of the release, e.g. `22.0.0` is a version released in 2022.
+The version reflects the year of the release, e.g. `22.1.0` is a version released in 2022.
 
 The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java) with the main point being a different namespace (`io.github.sebasbaumh.postgis`) as publishing a project to Maven Central requires to own that namespace.
 In addition the class structure is a bit different (see below) to support arc geometries and reduce boilerplate code, but you should be able to adapt to it easily.
@@ -79,5 +82,17 @@ Or add the following Maven build parameters to the launch configuration in eclip
 |`testJdbcUrl`|`jdbc:postgresql://MyServer/UnitTestDB`|
 |`testJdbcUsername`|`unittest`|
 |`testJdbcPassword`|`CHANGEME`|
+
+If it works, you will see this line in the build output:
+
+```
+Tests are running with a database
+```
+
+else
+
+```
+Tests are running without a database
+```
 
 *There are also local tests contained in the project, so you are still able to test most parts without specifying a PostgreSQL server. And the test console output will show if tests were run with or without a database.*

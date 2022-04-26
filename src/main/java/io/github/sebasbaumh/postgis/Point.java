@@ -91,7 +91,7 @@ public class Point extends Geometry
 	 * Constructs a new Point
 	 * @param x the longitude / x ordinate
 	 * @param y the latitude / y ordinate
-	 * @param z the radius / height / elevation / z ordinate
+	 * @param z the radius / height / elevation / z ordinate (can be {@link Double#NaN} for no coordinate)
 	 */
 	public Point(double x, double y, double z)
 	{
@@ -102,7 +102,7 @@ public class Point extends Geometry
 	 * Constructs a new Point
 	 * @param x the longitude / x ordinate
 	 * @param y the latitude / y ordinate
-	 * @param z the radius / height / elevation / z ordinate
+	 * @param z the radius / height / elevation / z ordinate (can be {@link Double#NaN} for no coordinate)
 	 * @param m measure (4th dimension)
 	 */
 	public Point(double x, double y, double z, double m)
@@ -164,8 +164,8 @@ public class Point extends Geometry
 	@Override
 	public boolean equals(@Nullable Object other)
 	{
-		// check parent
-		if (super.equals(other) && (other instanceof Point))
+		// check type and parent
+		if ((other instanceof Point) && super.equals(other))
 		{
 			return coordsAreEqual((Point) other);
 		}
