@@ -29,15 +29,18 @@ package io.github.sebasbaumh.postgis;
 
 import java.sql.SQLException;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.postgresql.util.PGobject;
 
 /**
- * Basic geometry class.
+ * Geometry class.
  * @author Sebastian Baumhekel
  */
-@NonNullByDefault
 public class PGgeometry extends PGgeometrybase
 {
+	/**
+	 * Type of the {@link PGobject}.
+	 */
+	private static final String PG_TYPE = "geometry";
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
 
@@ -46,7 +49,7 @@ public class PGgeometry extends PGgeometrybase
 	 */
 	public PGgeometry()
 	{
-		this.setType("geometry");
+		super(PG_TYPE);
 	}
 
 	/**
@@ -55,8 +58,7 @@ public class PGgeometry extends PGgeometrybase
 	 */
 	public PGgeometry(Geometry geom)
 	{
-		super(geom);
-		this.setType("geometry");
+		super(PG_TYPE, geom);
 	}
 
 	/**
@@ -66,8 +68,7 @@ public class PGgeometry extends PGgeometrybase
 	 */
 	public PGgeometry(String value) throws SQLException
 	{
-		super(value);
-		this.setType("geometry");
+		super(PG_TYPE, value);
 	}
 
 	@Override

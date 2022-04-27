@@ -28,6 +28,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.postgresql.util.PGobject;
 
@@ -35,11 +36,11 @@ import io.github.sebasbaumh.postgis.binary.BinaryParser;
 import io.github.sebasbaumh.postgis.binary.BinaryWriter;
 
 /**
- * A PostgreSQL JDBC PGobject extension data type modeling a "geo" type. This class serves as a common superclass for
- * classes such as PGgeometry and PGgeography which model more specific type semantics.
+ * A PostgreSQL JDBC {@link PGobject} extension data type modeling a "geo" type. This class serves as a common
+ * superclass for classes such as {@link PGgeometry} and {@link PGgeography} which model more specific type semantics.
  * @author Phillip Ross
  */
-@NonNullByDefault
+@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE })
 public abstract class PGgeometrybase extends PGobject
 {
 	/* JDK 1.5 Serialization */
@@ -49,32 +50,36 @@ public abstract class PGgeometrybase extends PGobject
 
 	/**
 	 * Constructs an instance.
+	 * @param type type of this {@link PGobject}
 	 */
-	@SuppressWarnings("null")
 	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
-	protected PGgeometrybase()
+	protected PGgeometrybase(String type)
 	{
+		this.setType(type);
 	}
 
 	/**
 	 * Constructs an instance.
+	 * @param type type of this {@link PGobject}
 	 * @param geom {@link Geometry}
 	 */
-	protected PGgeometrybase(Geometry geom)
+	protected PGgeometrybase(String type, Geometry geom)
 	{
+		this.setType(type);
 		this.geometry = geom;
 	}
 
 	/**
 	 * Constructs an instance.
+	 * @param type type of this {@link PGobject}
 	 * @param value geometry
 	 * @throws SQLException
 	 */
-	@SuppressWarnings("null")
 	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS",
 			"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" })
-	protected PGgeometrybase(String value) throws SQLException
+	protected PGgeometrybase(String type, String value) throws SQLException
 	{
+		this.setType(type);
 		setValue(value);
 	}
 
@@ -100,15 +105,6 @@ public abstract class PGgeometrybase extends PGobject
 	public Geometry getGeometry()
 	{
 		return geometry;
-	}
-
-	/**
-	 * Gets the OGIS geometry type.
-	 * @return geometry type
-	 */
-	public int getGeoType()
-	{
-		return geometry.getType();
 	}
 
 	@Override

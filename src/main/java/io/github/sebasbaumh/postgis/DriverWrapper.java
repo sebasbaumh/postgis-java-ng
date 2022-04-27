@@ -40,48 +40,33 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.postgresql.Driver;
 import org.postgresql.PGConnection;
 
-//@formatter:off
 /**
- *
- * DriverWrapper
- *
- * Wraps the PostGreSQL Driver to transparently add the PostGIS Object Classes.
- * This avoids the need of explicit addDataType() calls from the driver users
- * side.
- *
- * This method currently works with J2EE DataSource implementations, and with
- * DriverManager framework.
- *
- * Simply replace the "jdbc:postgresql:" with a "jdbc:postgresql_postGIS:" in
- * the jdbc URL.
- *
- * When using the drivermanager, you need to initialize DriverWrapper instead of
- * (or in addition to) org.postgresql.Driver. When using a J2EE DataSource
- * implementation, set the driver class property in the datasource config, the
- * following works for jboss:
- *
- * <code>
+ * Wraps the PostGreSQL Driver to transparently add the PostGIS Object Classes. This avoids the need of explicit
+ * addDataType() calls from the driver users side.
+ * <p>
+ * This method currently works with J2EE DataSource implementations, and with DriverManager framework.
+ * <p>
+ * Simply replace the "jdbc:postgresql:" with a "jdbc:postgresql_postGIS:" in the jdbc URL.
+ * <p>
+ * When using the drivermanager, you need to initialize {@link DriverWrapper} instead of (or in addition to)
+ * {@link org.postgresql.Driver}. When using a J2EE DataSource implementation, set the driver class property in the
+ * datasource config, the following works for jboss: <code>
  * &lt;driver-class&gt;io.github.sebasbaumh.postgis.DriverWrapper&lt;/driver-class&gt;
  * </code>
- * If you don't like or want to use the DriverWrapper, you have two
- * alternatives, see the README file.
- *
- * Also note that the addDataType() methods known from earlier pgjdbc versions
- * are deprecated in pgjdbc 8.0, see the commented code variants in the
- * addGisTypes() method.
- *
- * This wrapper always uses EWKT as canonical text representation, and thus
- * works against PostGIS 1.x servers as well as 0.x (tested with 0.8, 0.9 and
- * 1.0).
- *
- * @author {@literal Markus Schaber <markus.schaber@logix-tt.com>}
+ * <p>
+ * If you don't like or want to use the {@link DriverWrapper}, you can just call {@link #registerDataTypes(Connection)}
+ * on your {@link Connection}.
+ * <p>
+ * This wrapper always uses EWKB as representation, and thus works against PostGIS servers starting from 2.3.
+ * <p>
+ * original author {@literal Markus Schaber <markus.schaber@logix-tt.com>}
+ * <p>
+ * reworked by Sebastian Baumhekel
  */
-//@formatter:on
 @NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE })
 public class DriverWrapper extends Driver
 {
 	private static final Logger logger = Logger.getLogger("io.github.sebasbaumh.postgis.DriverWrapper");
-	private static final Logger parentLogger = Logger.getLogger("io.github.sebasbaumh.postgis");
 	/**
 	 * PostGIS custom JDBC protocol.
 	 */
@@ -91,6 +76,9 @@ public class DriverWrapper extends Driver
 	 */
 	public static final String POSTGRES_PROTOCOL = "jdbc:postgresql:";
 
+	/**
+	 * Static constructor registering the driver.
+	 */
 	static
 	{
 		try
@@ -105,7 +93,7 @@ public class DriverWrapper extends Driver
 	}
 
 	/**
-	 * Default constructor. This also loads the appropriate TypesAdder for our SQL Driver instance.
+	 * Default constructor.
 	 */
 	public DriverWrapper()
 	{
@@ -256,11 +244,14 @@ public class DriverWrapper extends Driver
 	@Override
 	public boolean acceptsURL(@SuppressWarnings("null") @Nonnull String url)
 	{
-		if (mangleURL(url) == null)
+		// try to get URL for PostgreSQL
+		String mangledURL = mangleURL(url);
+		if (mangledURL != null)
 		{
-			return false;
+			return super.acceptsURL(url);
 		}
-		return super.acceptsURL(url);
+		// unknown URL
+		return false;
 	}
 
 	/**
@@ -277,9 +268,11 @@ public class DriverWrapper extends Driver
 	public java.sql.Connection connect(@SuppressWarnings("null") @Nonnull String url,
 			@SuppressWarnings("null") @Nonnull Properties info) throws SQLException
 	{
+		// try to get URL for PostgreSQL
 		String mangledURL = mangleURL(url);
 		if (mangledURL != null)
 		{
+			// connect to URL
 			Connection result = super.connect(mangledURL, info);
 			if (result instanceof PGConnection)
 			{
@@ -288,12 +281,13 @@ public class DriverWrapper extends Driver
 			}
 			return result;
 		}
+		// unknown URL, just return null to the caller (don't throw an exception)
 		return null;
 	}
 
 	@Override
 	public Logger getParentLogger()
 	{
-		return parentLogger;
+		return logger;
 	}
 }

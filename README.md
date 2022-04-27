@@ -16,7 +16,8 @@ It is originally based on [postgis-java](https://github.com/postgis/postgis-java
 **Project goals and improvements:**
 * Support for geometries containing arcs like `CIRCULARSTRING` or `CURVEPOLYGON`
 * Support for PostGIS [geography datatype](https://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography)
-* Extended support for bounding boxes, i.e. box2/box3 PostGIS data types (as PGbox2d/PGbox3d).
+* Extended support for bounding boxes, i.e. [box2d](https://postgis.net/docs/box2d_type.html)/[box3d](https://postgis.net/docs/box3d_type.html) PostGIS data types (as PGbox2d/PGbox3d)
+* Support for wrapped connections (like used in WildFly and c3p0 connection pooling)
 * Use generic Java types where possible and simplify/streamline API
 * Clean up code to basically only work on [WKB](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary)/EWKB implementations to reduce code duplication and focus on the actual database format
 * Support for the latest PostgreSQL and PostGIS versions
@@ -38,8 +39,8 @@ It is originally based on [postgis-java](https://github.com/postgis/postgis-java
 * MultiPolygon
 * MultiSurface
 * GeometryCollection
-* [box2d](https://postgis.net/docs/box2d_type.html)
-* [box3d](https://postgis.net/docs/box3d_type.html)
+* box2d
+* box3d
 
 ## How to use it ##
 There is a Maven artifact in the official Maven repository, so just add this to your Maven POM:
@@ -61,6 +62,8 @@ The implementations of the parser and writer for the geometries have been heavil
 ## Hierarchy of geometry classes: ##
 
 ![Hierarchy of geometry classes](ClassHierarchy.png)
+
+![Hierarchy of bounding box classes](ClassHierarchy2.png)
 
 ## How to run tests utilizing a PostgreSQL server ##
 
