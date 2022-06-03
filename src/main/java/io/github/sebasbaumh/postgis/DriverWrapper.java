@@ -248,7 +248,7 @@ public class DriverWrapper extends Driver
 		String mangledURL = mangleURL(url);
 		if (mangledURL != null)
 		{
-			return super.acceptsURL(url);
+			return super.acceptsURL(mangledURL);
 		}
 		// unknown URL
 		return false;
