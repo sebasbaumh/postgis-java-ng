@@ -27,8 +27,15 @@ package io.github.sebasbaumh.postgis;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,6 +46,9 @@ import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.postgresql.Driver;
 import org.postgresql.PGConnection;
+import org.postgresql.core.BaseConnection;
+import org.postgresql.core.Oid;
+import org.postgresql.core.QueryExecutor;
 
 /**
  * Wraps the PostGreSQL Driver to transparently add the PostGIS Object Classes. This avoids the need of explicit
@@ -97,6 +107,43 @@ public class DriverWrapper extends Driver
 	 */
 	public DriverWrapper()
 	{
+	}
+
+	/**
+	 * Tries to get a {@link QueryExecutor} from the given {@link Connection}, supports wrapped connections.
+	 * @param conn {@link Connection}
+	 * @return {@link QueryExecutor}
+	 * @throws SQLException if the {@link Connection} is no {@link BaseConnection}.
+	 */
+	private static QueryExecutor getQueryExecutor(Connection conn) throws SQLException
+	{
+		// try to get underlying PGConnection
+		PGConnection pgconn = tryUnwrap(conn);
+		// if instance is found, add the geometry types to the connection
+		if (pgconn instanceof BaseConnection)
+		{
+			return ((BaseConnection) pgconn).getQueryExecutor();
+		}
+		// try to unwrap connections coming from c3p0 connection pools
+		try
+		{
+			Class<?> clazzC3P0ProxyConnection = Class.forName("com.mchange.v2.c3p0.C3P0ProxyConnection");
+			if (clazzC3P0ProxyConnection.isInstance(conn))
+			{
+				// use method Object rawConnectionOperation(Method m, Object target, Object[] args)
+				Method mrawConnectionOperation = clazzC3P0ProxyConnection.getMethod("rawConnectionOperation",
+						Method.class, Object.class, Object[].class);
+				Method mAddDataType = BaseConnection.class.getMethod("getQueryExecutor");
+				return (QueryExecutor) mrawConnectionOperation.invoke(conn, mAddDataType, null, null);
+			}
+		}
+		catch (ReflectiveOperationException | SecurityException | IllegalArgumentException ex)
+		{
+			// ignore all errors here
+		}
+		// BaseConnection could not be found
+		throw new SQLException(
+				"Connection is neither an org.postgresql.core.BaseConnection, nor a Connection wrapped around an org.postgresql.core.BaseConnection.");
 	}
 
 	/**
@@ -200,6 +247,57 @@ public class DriverWrapper extends Driver
 		pgconn.addDataType("\"public\".\"geography\"", io.github.sebasbaumh.postgis.PGgeography.class);
 		pgconn.addDataType("\"public\".\"box2d\"", io.github.sebasbaumh.postgis.PGbox2d.class);
 		pgconn.addDataType("\"public\".\"box3d\"", io.github.sebasbaumh.postgis.PGbox3d.class);
+	}
+
+	/**
+	 * Registers all datatypes for binary transfer on the given connection, supports wrapped connections.
+	 * <p>
+	 * NOTE: this is experimental and only necessary until PostgreSQL JDBC driver is able to register types for binary
+	 * transfer.
+	 * @param conn {@link Connection}
+	 * @throws SQLException if the {@link Connection} is no {@link BaseConnection}.
+	 */
+	// FIX: this is experimental and only necessary until PostgreSQL JDBC driver is able to register types for binary
+	// transfer
+	// see https://github.com/pgjdbc/pgjdbc/pull/2556
+	public static void registerDataTypesForBinaryTransfer(Connection conn) throws SQLException
+	{
+		// try to get query executor
+		QueryExecutor executor = getQueryExecutor(conn);
+		// collect oids of geometry types
+		ArrayList<Integer> geometryOids = new ArrayList<Integer>();
+		try (Statement st = conn.createStatement())
+		{
+			try (ResultSet rs = st
+					.executeQuery("SELECT oid,typname FROM pg_type WHERE typname IN ('geometry','geography')"))
+			{
+				while (rs.next())
+				{
+					geometryOids.add(rs.getInt(1));
+				}
+			}
+		}
+
+		// this is kind of a hack as it currently is not possible to get already enabled oids from the connection get
+		// base oids like in PgConnection
+		Collection<Integer> supportedBinaryOids = Arrays.asList(Oid.BYTEA, Oid.INT2, Oid.INT4, Oid.INT8, Oid.FLOAT4,
+				Oid.FLOAT8, Oid.NUMERIC, Oid.TIME, Oid.DATE, Oid.TIMETZ, Oid.TIMESTAMP, Oid.TIMESTAMPTZ,
+				Oid.BYTEA_ARRAY, Oid.INT2_ARRAY, Oid.INT4_ARRAY, Oid.INT8_ARRAY, Oid.OID_ARRAY, Oid.FLOAT4_ARRAY,
+				Oid.FLOAT8_ARRAY, Oid.VARCHAR_ARRAY, Oid.TEXT_ARRAY, Oid.POINT, Oid.BOX, Oid.UUID);
+		Set<Integer> receiveOids = new HashSet<Integer>(supportedBinaryOids);
+		Set<Integer> sendOids = new HashSet<Integer>(supportedBinaryOids);
+		// do the same as the original PostgreSQL JDBC driver
+		sendOids.remove(Oid.DATE);
+
+		// add geometry oids
+		receiveOids.addAll(geometryOids);
+		sendOids.addAll(geometryOids);
+
+		// finally set oids
+		// TODO: this replaces the already set oids and should be changed later (when additional API functions are
+		// merged to pgjdbc)
+		executor.setBinaryReceiveOids(receiveOids);
+		executor.setBinarySendOids(sendOids);
 	}
 
 	/**

@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.postgresql.util.PGBinaryObject;
 import org.postgresql.util.PGobject;
 
 import io.github.sebasbaumh.postgis.binary.BinaryParser;
@@ -41,12 +42,22 @@ import io.github.sebasbaumh.postgis.binary.BinaryWriter;
  * @author Phillip Ross
  */
 @NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE })
-public abstract class PGgeometrybase extends PGobject
+public abstract class PGgeometrybase extends PGobject implements PGBinaryObject
 {
 	/* JDK 1.5 Serialization */
 	private static final long serialVersionUID = 0x100;
 
+	/**
+	 * Underlying geometry.
+	 */
+	@Nullable
 	protected Geometry geometry;
+
+	/**
+	 * Geometry data as bytes.
+	 */
+	@Nullable
+	private byte[] geometryData;
 
 	/**
 	 * Constructs an instance.
@@ -99,18 +110,48 @@ public abstract class PGgeometrybase extends PGobject
 	}
 
 	/**
-	 * Gets the underlying {@link Geometry}.
-	 * @return {@link Geometry}
+	 * Gets the binary value.
+	 * @return binary value on success, else null
 	 */
+	@Nullable
+	private byte[] getBinaryValue()
+	{
+		// short cut
+		if (this.geometryData != null)
+		{
+			return this.geometryData;
+		}
+		// check if geometry is there
+		if (this.geometry != null)
+		{
+			// build geometry data and remember it
+			byte[] data = BinaryWriter.writeBinary(geometry);
+			this.geometryData = data;
+			return data;
+		}
+		// no geometry
+		return null;
+	}
+
+	/**
+	 * Gets the underlying {@link Geometry}.
+	 * @return {@link Geometry} on success, else null
+	 */
+	@Nullable
 	public Geometry getGeometry()
 	{
 		return geometry;
 	}
 
+	@Nullable
 	@Override
 	public String getValue()
 	{
-		return BinaryWriter.writeHexed(geometry);
+		if (geometry != null)
+		{
+			return BinaryWriter.writeHexed(geometry);
+		}
+		return null;
 	}
 
 	@Override
@@ -119,25 +160,72 @@ public abstract class PGgeometrybase extends PGobject
 		return Objects.hashCode(geometry);
 	}
 
+	@Override
+	public int lengthInBytes()
+	{
+		byte[] data = getBinaryValue();
+		if (data != null)
+		{
+			return data.length;
+		}
+		// no geometry
+		return 0;
+	}
+
+	@Override
+	public void setByteValue(@SuppressWarnings("null") byte[] value, int offset) throws SQLException
+	{
+		// parse the given bytes
+		this.geometry = BinaryParser.parse(value, offset);
+	}
+
 	/**
 	 * Sets the underlying {@link Geometry}.
-	 * @param newgeom {@link Geometry}
+	 * @param newgeom {@link Geometry} (can be null)
 	 */
-	public void setGeometry(Geometry newgeom)
+	public void setGeometry(@Nullable Geometry newgeom)
 	{
 		this.geometry = newgeom;
+		// reset binary data
+		this.geometryData = null;
 	}
 
 	@Override
 	public void setValue(@SuppressWarnings("null") @Nonnull String value) throws SQLException
 	{
-		geometry = BinaryParser.parse(value);
+		this.geometry = BinaryParser.parse(value);
+		// reset binary data
+		this.geometryData = null;
+	}
+
+	@Override
+	public void toBytes(@SuppressWarnings("null") byte[] bytes, int offset)
+	{
+		byte[] data = getBinaryValue();
+		if (data != null)
+		{
+			// make sure array is large enough
+			if ((bytes.length - offset) <= data.length)
+			{
+				// copy data
+				System.arraycopy(data, 0, bytes, offset, data.length);
+			}
+			else
+			{
+				throw new IllegalArgumentException(
+						"byte array is too small, expected: " + data.length + " got: " + (bytes.length - offset));
+			}
+		}
+		else
+		{
+			throw new IllegalStateException("no geometry has been set");
+		}
 	}
 
 	@Override
 	public String toString()
 	{
-		return geometry.toString();
+		return String.valueOf(geometry);
 	}
 
 }

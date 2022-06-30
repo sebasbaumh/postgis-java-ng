@@ -62,6 +62,20 @@ public final class BinaryWriter
 	}
 
 	/**
+	 * Write a binary encoded geometry. The geometry you put in must be consistent, geom.checkConsistency() must return
+	 * true. If not, the result may be invalid WKB.
+	 * @see Geometry#checkConsistency() the consistency checker
+	 * @param geom the geometry to be written
+	 * @return byte arrray containing the encoded geometry
+	 */
+	public static byte[] writeBinary(Geometry geom)
+	{
+		BinaryValueSetter bytes = new BinaryValueSetter();
+		writeGeometry(geom, bytes);
+		return bytes.getValue();
+	}
+
+	/**
 	 * Parse a geometry starting at offset.
 	 * @param geom the geometry to write
 	 * @param dest the value setting to be used for writing
@@ -136,7 +150,7 @@ public final class BinaryWriter
 	}
 
 	/**
-	 * Write a hex encoded geometry The geometry you put in must be consistent, geom.checkConsistency() must return
+	 * Write a hex encoded geometry. The geometry you put in must be consistent, geom.checkConsistency() must return
 	 * true. If not, the result may be invalid WKB.
 	 * @see Geometry#checkConsistency() the consistency checker
 	 * @param geom the geometry to be written
@@ -144,9 +158,9 @@ public final class BinaryWriter
 	 */
 	public static String writeHexed(Geometry geom)
 	{
-		ValueSetter bytes = new ValueSetter();
+		StringValueSetter bytes = new StringValueSetter();
 		writeGeometry(geom, bytes);
-		return bytes.toString();
+		return bytes.getValue();
 	}
 
 	/**

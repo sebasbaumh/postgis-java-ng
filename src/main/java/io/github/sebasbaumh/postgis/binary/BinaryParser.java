@@ -62,13 +62,25 @@ public final class BinaryParser
 
 	/**
 	 * Parse a hex encoded geometry
+	 * @param value byte array containing the data to be parsed
+	 * @param offset offset
+	 * @return resulting geometry for the parsed data
+	 * @throws IllegalArgumentException if a contained geometry is of the wrong type or the encoding type is unknown
+	 */
+	public static Geometry parse(byte[] value, int offset)
+	{
+		return parseGeometry(new BinaryValueGetter(value, offset));
+	}
+
+	/**
+	 * Parse a hex encoded geometry
 	 * @param value String containing the data to be parsed
 	 * @return resulting geometry for the parsed data
 	 * @throws IllegalArgumentException if a contained geometry is of the wrong type or the encoding type is unknown
 	 */
 	public static Geometry parse(String value)
 	{
-		return parseGeometry(new ValueGetter(value));
+		return parseGeometry(new StringValueGetter(value));
 	}
 
 	/**

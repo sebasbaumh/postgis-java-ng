@@ -28,11 +28,12 @@ package io.github.sebasbaumh.postgis.binary;
 import io.github.sebasbaumh.postgis.PostGisUtil;
 
 /**
- * Allows reading values.
+ * A base class for value readers.
  * @author Sebastian Baumhekel
  */
-public class ValueGetter
+public abstract class ValueGetter
 {
+
 	/**
 	 * Int builder for big endian encoding.
 	 */
@@ -61,31 +62,26 @@ public class ValueGetter
 	/**
 	 * Current encoding (default is little endian encoding).
 	 */
-	private int endian = PostGisUtil.LITTLE_ENDIAN;
+	protected int endian = PostGisUtil.LITTLE_ENDIAN;
 	/**
-	 * Int builder (default is little endian encoding).
+	 * Builder for integer values respecting the current encoding (default is little endian encoding).
 	 */
-	private IntBuilder funcInt = INT_BUILDER_LITTLE_ENDIAN;
+	protected IntBuilder funcInt = INT_BUILDER_LITTLE_ENDIAN;
 	/**
-	 * Long builder (default is little endian encoding).
+	 * Builder for long values respecting the current encoding (default is little endian encoding).
 	 */
-	private LongBuilder funcLong = LONG_BUILDER_LITTLE_ENDIAN;
-	private int position;
-	private final String value;
+	protected LongBuilder funcLong = LONG_BUILDER_LITTLE_ENDIAN;
 
 	/**
 	 * Constructs an instance.
-	 * @param value value as hex string
-	 * @throws IllegalArgumentException if the endian type is unknown
 	 */
-	public ValueGetter(String value)
+	public ValueGetter()
 	{
-		this.value = value;
 	}
 
 	/**
-	 * Get a double.
-	 * @return the double value
+	 * Get a double value.
+	 * @return double value
 	 */
 	public double getDouble()
 	{
@@ -93,8 +89,8 @@ public class ValueGetter
 	}
 
 	/**
-	 * Get an integer.
-	 * @return integer
+	 * Get an integer value.
+	 * @return integer value
 	 */
 	public int getInt()
 	{
@@ -102,8 +98,8 @@ public class ValueGetter
 	}
 
 	/**
-	 * Get a long.
-	 * @return long
+	 * Get a long value.
+	 * @return long value
 	 */
 	public long getLong()
 	{
@@ -112,17 +108,11 @@ public class ValueGetter
 	}
 
 	/**
-	 * Gets a byte at the given index.
+	 * Gets a byte at the current index.
 	 * @return byte
-	 * @throws IndexOutOfBoundsException if the index is out of the range of the {@link String}
+	 * @throws IndexOutOfBoundsException if the current index is out of the range
 	 */
-	private int getNextByte()
-	{
-		// get current position and advance it
-		int index = position * 2;
-		position++;
-		return (PostGisUtil.toHexByte(value.charAt(index)) << 4) | PostGisUtil.toHexByte(value.charAt(index + 1));
-	}
+	protected abstract int getNextByte();
 
 	/**
 	 * Reads the encoding and adjusts the internal decoder if necessary.
@@ -160,7 +150,7 @@ public class ValueGetter
 	 * Builder for an int from a byte sequence.
 	 */
 	@FunctionalInterface
-	private interface IntBuilder
+	protected interface IntBuilder
 	{
 		/**
 		 * Get an integer.
@@ -177,7 +167,7 @@ public class ValueGetter
 	 * Builder for a long from a byte sequence.
 	 */
 	@FunctionalInterface
-	private interface LongBuilder
+	protected interface LongBuilder
 	{
 		/**
 		 * Get a long.

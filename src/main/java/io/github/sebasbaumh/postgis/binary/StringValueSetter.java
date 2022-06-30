@@ -25,61 +25,37 @@
 
 package io.github.sebasbaumh.postgis.binary;
 
+import io.github.sebasbaumh.postgis.PostGisUtil;
+
 /**
- * A base class for value setters.
+ * Allows writing values as a string in little endian encoding and hex format.
  * @author Sebastian Baumhekel
  */
-public abstract class ValueSetter
+public class StringValueSetter extends ValueSetter
 {
+	private final StringBuilder sb = new StringBuilder();
 
 	/**
 	 * Constructs an instance.
 	 */
-	public ValueSetter()
+	public StringValueSetter()
 	{
 	}
 
 	/**
-	 * Sets a byte.
-	 * @param b byte value to set with
+	 * Gets the written value.
+	 * @return value
 	 */
-	public abstract void setByte(byte b);
-
-	/**
-	 * Writes a double.
-	 * @param data double value to be set with
-	 */
-	public void setDouble(double data)
+	public String getValue()
 	{
-		setLong(Double.doubleToLongBits(data));
+		return sb.toString();
 	}
 
-	/**
-	 * Sets a 32-Bit integer
-	 * @param value int value to be set with
-	 */
-	public void setInt(int value)
+	@Override
+	public void setByte(byte b)
 	{
-		setByte((byte) value);
-		setByte((byte) (value >> 8));
-		setByte((byte) (value >> 16));
-		setByte((byte) (value >> 24));
-	}
-
-	/**
-	 * Sets a long value. This is not needed directly, but as a nice side-effect from setDouble.
-	 * @param value value value to be set with
-	 */
-	public void setLong(long value)
-	{
-		setByte((byte) value);
-		setByte((byte) (value >> 8));
-		setByte((byte) (value >> 16));
-		setByte((byte) (value >> 24));
-		setByte((byte) (value >> 32));
-		setByte((byte) (value >> 40));
-		setByte((byte) (value >> 48));
-		setByte((byte) (value >> 56));
+		sb.append(PostGisUtil.HEX_CHAR[(b >> 4) & 0xF]);
+		sb.append(PostGisUtil.HEX_CHAR[b & 0xF]);
 	}
 
 }

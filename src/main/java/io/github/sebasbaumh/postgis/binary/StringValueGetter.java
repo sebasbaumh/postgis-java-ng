@@ -1,5 +1,5 @@
 /*
- * ValueSetter.java
+ * ValueGetter.java
  *
  * PostGIS extension for PostgreSQL JDBC driver - Binary Parser
  *
@@ -25,61 +25,34 @@
 
 package io.github.sebasbaumh.postgis.binary;
 
+import io.github.sebasbaumh.postgis.PostGisUtil;
+
 /**
- * A base class for value setters.
+ * Allows reading values from a string.
  * @author Sebastian Baumhekel
  */
-public abstract class ValueSetter
+public class StringValueGetter extends ValueGetter
 {
+	private int position;
+	private final String value;
 
 	/**
 	 * Constructs an instance.
+	 * @param value value as hex string
 	 */
-	public ValueSetter()
+	public StringValueGetter(String value)
 	{
+		this.value = value;
 	}
 
-	/**
-	 * Sets a byte.
-	 * @param b byte value to set with
-	 */
-	public abstract void setByte(byte b);
-
-	/**
-	 * Writes a double.
-	 * @param data double value to be set with
-	 */
-	public void setDouble(double data)
+	@Override
+	protected int getNextByte()
 	{
-		setLong(Double.doubleToLongBits(data));
-	}
-
-	/**
-	 * Sets a 32-Bit integer
-	 * @param value int value to be set with
-	 */
-	public void setInt(int value)
-	{
-		setByte((byte) value);
-		setByte((byte) (value >> 8));
-		setByte((byte) (value >> 16));
-		setByte((byte) (value >> 24));
-	}
-
-	/**
-	 * Sets a long value. This is not needed directly, but as a nice side-effect from setDouble.
-	 * @param value value value to be set with
-	 */
-	public void setLong(long value)
-	{
-		setByte((byte) value);
-		setByte((byte) (value >> 8));
-		setByte((byte) (value >> 16));
-		setByte((byte) (value >> 24));
-		setByte((byte) (value >> 32));
-		setByte((byte) (value >> 40));
-		setByte((byte) (value >> 48));
-		setByte((byte) (value >> 56));
+		// get current position (and respect that every byte consists of 2 hex characters)
+		int index = position * 2;
+		// then advance the position to the next byte
+		position++;
+		return ((PostGisUtil.toHexByte(value.charAt(index)) << 4) | PostGisUtil.toHexByte(value.charAt(index + 1)));
 	}
 
 }

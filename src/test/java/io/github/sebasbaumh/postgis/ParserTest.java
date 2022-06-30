@@ -81,6 +81,29 @@ public class ParserTest extends DatabaseTestBase
 	}
 
 	/**
+	 * Tests, if the given {@link Geometry} supports a binary transfer.
+	 * @param geom
+	 * @throws SQLException
+	 */
+	private static void testBinaryObject(Geometry geom) throws SQLException
+	{
+		// create a PGgeometry to be able to get the binary form.
+		PGgeometry pgeom = new PGgeometry(geom);
+		int length = pgeom.lengthInBytes();
+		Assert.assertTrue("length is 0!", length > 0);
+		// get the binary data
+		byte[] data = new byte[length];
+		pgeom.toBytes(data, 0);
+		// create a new PGgeometry
+		PGgeometry pgeom2 = new PGgeometry();
+		// set the byte data
+		pgeom2.setByteValue(data, 0);
+		// get the geometry and make sure it equals the given one
+		Geometry geom2 = pgeom2.getGeometry();
+		Assert.assertEquals(geom, geom2);
+	}
+
+	/**
 	 * Pass a geometry representation through the SQL server via prepared statement
 	 */
 	private static Geometry viaPrepSQL(Geometry geom, Connection conn) throws SQLException
@@ -140,14 +163,24 @@ public class ParserTest extends DatabaseTestBase
 
 	private void test(String WKT, int srid) throws SQLException
 	{
+		// first get the geometry from the WKT string
 		logger.debug("Original: {} ", WKT);
 		Geometry geom = getGeometryFromWKT(WKT);
 		Assert.assertEquals("SRIDs are not equal", srid, geom.getSrid());
+
+		// check binary object (without actually requiring binary transfer to the database)
+		testBinaryObject(geom);
+
+		// turn geometry into WKT
 		String parsed = getWKTFromGeometry(geom);
 		logger.debug("Parsed: {}", parsed);
+		// and parse that again
 		Geometry regeom = getGeometryFromWKT(parsed);
+		// get WKT of that reparsed geometry (do not compare to given WKT as that might not match the WKT build by the
+		// parsing function)
 		String reparsed = getWKTFromGeometry(regeom);
 		logger.debug("Re-Parsed: {}", reparsed);
+		// make sure geometries and WKT are equal
 		Assert.assertEquals("Geometries are not equal", geom, regeom);
 		Assert.assertEquals("Text Reps are not equal", reparsed, parsed);
 
