@@ -11,7 +11,7 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=sebasbaumh_postgis-java-ng&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=sebasbaumh_postgis-java-ng)
 
 This project contains Java bindings for using [PostGIS](https://postgis.net/) geometries coming from a [PostgreSQL](https://www.postgresql.org/) database.  
-It is originally based on [postgis-java](https://github.com/postgis/postgis-java) and I want to thank its authors here for their work.
+*It is originally based on [postgis-java](https://github.com/postgis/postgis-java) and I want to thank its authors for their work.*
 
 **Project goals and improvements:**
 * Support for geometries containing arcs like `CIRCULARSTRING` or `CURVEPOLYGON`
@@ -28,20 +28,20 @@ It is originally based on [postgis-java](https://github.com/postgis/postgis-java
 * The license is still LGPL
 
 **Supported [geometry types](https://postgis.net/docs/using_postgis_dbmanagement.html#RefObject):**
-* Point
-* LineString
-* CircularString
-* CompoundCurve
-* Polygon
-* CurvePolygon
-* MultiPoint
-* MultiLineString
-* MultiCurve
-* MultiPolygon
-* MultiSurface
-* GeometryCollection
-* box2d
-* box3d
+* `Point`
+* `LineString`
+* `CircularString`
+* `CompoundCurve`
+* `Polygon`
+* `CurvePolygon`
+* `MultiPoint`
+* `MultiLineString`
+* `MultiCurve`
+* `MultiPolygon`
+* `MultiSurface`
+* `GeometryCollection`
+* `box2d`
+* `box3d`
 
 ## How to use it ##
 There is a Maven artifact in the official Maven repository, so just add this to your Maven POM:
