@@ -24,7 +24,10 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
 * Support for the latest PostgreSQL and PostGIS versions
     * Recommended are PostgreSQL 14 and PostGIS 3.2.1
     * Supported are versions starting from PostgreSQL 9.6 and PostGIS 2.3
-* Support for JDK 11+ (there is an older [branch for JDK 8](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk8))
+* Support for current JDKs
+  * JDK 11 ([main branch](https://github.com/sebasbaumh/postgis-java-ng/tree/master))
+  * JDK 17 ([unreleased branch](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk17), but already working)
+  * JDK 8 ([older branch](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk8))
 * The license is still LGPL
 
 **Supported [geometry types](https://postgis.net/docs/using_postgis_dbmanagement.html#RefObject):**
