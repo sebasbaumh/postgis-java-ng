@@ -4,7 +4,7 @@
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
 	<!-- version for release -->
-	<version>22.3.1</version>
+	<version>22.3.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>PostGIS Java bindings</name>
@@ -30,7 +30,7 @@
 		<connection>scm:git:git://github.com/sebasbaumh/postgis-java-ng.git</connection>
 		<developerConnection>scm:git:ssh://github.com:sebasbaumh/postgis-java-ng.git</developerConnection>
 		<url>https://github.com/sebasbaumh/postgis-java-ng/tree/master</url>
-		<tag>v22.3.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<!-- Sonatype repository -->
 	<distributionManagement>
