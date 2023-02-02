@@ -30,7 +30,7 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
   * JDK 17 ([unreleased branch](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk17), but already working)
   * JDK 8 ([deprecated branch](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk8))
 * The [license](https://github.com/sebasbaumh/postgis-java-ng/blob/master/LICENSE) is still LGPL
-* The authors are listed [here]((https://github.com/sebasbaumh/postgis-java-ng/blob/master/AUTHORS))
+* The authors are listed [here](https://github.com/sebasbaumh/postgis-java-ng/blob/master/AUTHORS)
 
 **Supported [geometry types](https://postgis.net/docs/using_postgis_dbmanagement.html#RefObject):**
 * `Point`
