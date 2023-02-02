@@ -20,15 +20,17 @@ This project contains Java bindings for using [PostGIS](https://postgis.net/) ge
 * Support for wrapped connections (like used in WildFly and c3p0 connection pooling)
 * Use generic Java types where possible and simplify/streamline API
 * Clean up code to basically only work on [WKB](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary)/EWKB implementations to reduce code duplication and focus on the actual database format
-* Support for binary transfer of geometry data (if enabled in PostgreSQL JDBC driver, see [PR#2556](https://github.com/pgjdbc/pgjdbc/pull/2556))
+* Support for binary transfer of geometry data (if enabled in PostgreSQL JDBC driver)
+  * use PostgreSQL JDBC driver [42.5.1](https://jdbc.postgresql.org/changelogs/2023-01-31-42.5.2-release/) or later to enable it automatically
 * Support for the latest PostgreSQL and PostGIS versions
-    * Recommended are PostgreSQL 14 and PostGIS 3.2.1
-    * Supported are versions starting from PostgreSQL 9.6 and PostGIS 2.3
+  * Recommended are PostgreSQL 15.1 and PostGIS 3.2.2
+  * Supported are versions starting from PostgreSQL 9.6 and PostGIS 2.3
 * Support for current JDKs
-  * JDK 11 ([main branch](https://github.com/sebasbaumh/postgis-java-ng/tree/master))
+  * JDK 11 ([main branch](https://github.com/sebasbaumh/postgis-java-ng/tree/master), works also with JDK 17 applications)
   * JDK 17 ([unreleased branch](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk17), but already working)
-  * JDK 8 ([older branch](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk8))
-* The license is still LGPL
+  * JDK 8 ([deprecated branch](https://github.com/sebasbaumh/postgis-java-ng/tree/jdk8))
+* The [license](https://github.com/sebasbaumh/postgis-java-ng/blob/master/LICENSE) is still LGPL
+* The authors are listed [here]((https://github.com/sebasbaumh/postgis-java-ng/blob/master/AUTHORS))
 
 **Supported [geometry types](https://postgis.net/docs/using_postgis_dbmanagement.html#RefObject):**
 * `Point`
@@ -53,7 +55,7 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 <dependency>
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
-	<version>22.3.1</version>
+	<version>23.1.0</version>
 </dependency>
 ```
 
