@@ -1,11 +1,10 @@
 /*
- * BinaryParser.java
+ * PostGIS extension for PostgreSQL JDBC driver
  *
- * PostGIS extension for PostgreSQL JDBC driver - Binary Parser
- *
+ * (C) 2004 Paul Ramsey, pramsey@refractions.net
  * (C) 2005 Markus Schaber, markus.schaber@logix-tt.com
- *
  * (C) 2015 Phillip Ross, phillip.w.g.ross@gmail.com
+ * (C) 2018-2023 Sebastian Baumhekel, sebastian.baumhekel@gmail.com
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,10 +17,9 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * License along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
+
 package io.github.sebasbaumh.postgis.binary;
 
 import java.util.ArrayList;
