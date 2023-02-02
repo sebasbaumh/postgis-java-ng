@@ -46,12 +46,8 @@ import io.github.sebasbaumh.postgis.PolygonBase;
 import io.github.sebasbaumh.postgis.PostGisUtil;
 
 /**
- * Create binary representation of geometries. Currently, only text rep (hexed) implementation is tested. It should be
- * easy to add char[] and CharSequence ByteGetter instances, although the latter one is not compatible with older jdks.
- * I did not implement real unsigned 32-bit integers or emulate them with long, as both java Arrays and Strings
- * currently can have only 2^31-1 elements (bytes), so we cannot even get or build Geometries with more than approx.
- * 2^28 coordinates (8 bytes each).
- * @author markus.schaber@logi-track.com
+ * A writer for building a binary or hex string representation of geometries.
+ * @author Sebastian Baumhekel
  */
 public final class BinaryWriter
 {

@@ -45,11 +45,8 @@ import io.github.sebasbaumh.postgis.Polygon;
 import io.github.sebasbaumh.postgis.PolygonBase;
 
 /**
- * Parse binary representation of geometries. It should be easy to add char[] and CharSequence ByteGetter instances,
- * although the latter one is not compatible with older jdks. I did not implement real unsigned 32-bit integers or
- * emulate them with long, as both java Arrays and Strings currently can have only 2^31-1 elements (bytes), so we cannot
- * even get or build Geometries with more than approx. 2^28 coordinates (8 bytes each).
- * @author {@literal Markus Schaber <markus.schaber@logix-tt.com>}
+ * A parser for reading geometries from a binary or hex string representation.
+ * @author Sebastian Baumhekel
  */
 public final class BinaryParser
 {
