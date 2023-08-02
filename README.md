@@ -55,11 +55,11 @@ There is a Maven artifact in the official Maven repository, so just add this to 
 <dependency>
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
-	<version>23.1.0</version>
+	<version>23.2.0</version>
 </dependency>
 ```
 
-The version reflects the year of the release, e.g. `22.3.0` is a version released in 2022.
+The version reflects the year of the release, e.g. `23.2.0` is a version released in 2023.
 
 The API differs a bit from [postgis-java](https://github.com/postgis/postgis-java) with the main point being a different namespace (`io.github.sebasbaumh.postgis`) as publishing a project to Maven Central requires to own that namespace.
 In addition the class structure is a bit different (see below) to support arc geometries and reduce boilerplate code, but you should be able to adapt to it easily.
