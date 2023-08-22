@@ -229,9 +229,9 @@ public final class BinaryWriter
 		for (T ring : rings)
 		{
 			// polygon linear rings are just written as a plain set of points
-			if (ring instanceof LinearRing)
+			if (ring instanceof LinearRing lr)
 			{
-				writePoints((LinearRing) ring, dest);
+				writePoints(lr, dest);
 			}
 			else
 			{

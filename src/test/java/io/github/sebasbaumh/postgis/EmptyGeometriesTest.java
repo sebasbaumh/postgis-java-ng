@@ -99,6 +99,7 @@ public class EmptyGeometriesTest extends DatabaseTestBase
 	}
 
 	@Test
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("SQL_INJECTION_JDBC")
 	public void testSqlStatements() throws SQLException
 	{
 		if (!hasDatabase())
@@ -120,7 +121,6 @@ public class EmptyGeometriesTest extends DatabaseTestBase
 					logger.debug("returned resultSetObject {} => (class=[{}]) {}", i,
 							resultSetObject.getClass().getName(), resultSetObject);
 				}
-				resultSet.close();
 			}
 		}
 	}

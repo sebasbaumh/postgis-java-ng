@@ -160,9 +160,9 @@ public class Point extends Geometry
 	public boolean equals(@Nullable Object other)
 	{
 		// check type and parent
-		if ((other instanceof Point) && super.equals(other))
+		if ((other instanceof Point p) && super.equals(other))
 		{
-			return coordsAreEqual((Point) other);
+			return coordsAreEqual(p);
 		}
 		return false;
 	}

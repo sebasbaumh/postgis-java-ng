@@ -155,9 +155,8 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 	public boolean equals(@Nullable Object other)
 	{
 		// check type and parent
-		if ((other instanceof PolygonBase<?>) && super.equals(other))
+		if ((other instanceof PolygonBase<?> poly) && super.equals(other))
 		{
-			PolygonBase<?> poly = (PolygonBase<?>) other;
 			return PostGisUtil.equalsIterable(this.rings, poly.rings);
 		}
 		return false;

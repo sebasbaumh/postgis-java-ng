@@ -347,7 +347,8 @@ public class ParserTest extends DatabaseTestBase
 	}
 
 	/** Pass a geometry representation through the SQL server */
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({ "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+			"SQL_INJECTION_JDBC" })
 	private Geometry viaSQL(String rep) throws SQLException
 	{
 		logger.trace("Geometry viaSQL(String rep)");

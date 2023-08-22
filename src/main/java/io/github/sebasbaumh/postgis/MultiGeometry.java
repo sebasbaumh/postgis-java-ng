@@ -102,9 +102,8 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 	public boolean equals(@Nullable Object other)
 	{
 		// check type and parent
-		if ((other instanceof MultiGeometry<?>) && super.equals(other))
+		if ((other instanceof MultiGeometry<?> cother) && super.equals(other))
 		{
-			MultiGeometry<?> cother = (MultiGeometry<?>) other;
 			return PostGisUtil.equalsIterable(this.subgeoms, cother.subgeoms);
 		}
 		return false;

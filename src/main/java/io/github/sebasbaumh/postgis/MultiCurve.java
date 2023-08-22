@@ -71,9 +71,9 @@ public class MultiCurve extends MultiGeometry<Curve>
 		double d = 0;
 		for (Geometry ls : subgeoms)
 		{
-			if (ls instanceof LineBasedGeometry)
+			if (ls instanceof LineBasedGeometry lbg)
 			{
-				d += ((LineBasedGeometry) ls).length();
+				d += lbg.length();
 			}
 		}
 		return d;

@@ -127,9 +127,8 @@ public class CompoundCurve extends Curve implements Iterable<LineString>
 	public boolean equals(@Nullable Object other)
 	{
 		// check type and parent
-		if ((other instanceof CompoundCurve) && super.equals(other))
+		if ((other instanceof CompoundCurve cother) && super.equals(other))
 		{
-			CompoundCurve cother = (CompoundCurve) other;
 			return PostGisUtil.equalsIterable(this.subgeoms, cother.subgeoms);
 		}
 		return false;

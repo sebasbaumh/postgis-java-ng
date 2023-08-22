@@ -119,6 +119,7 @@ public class VersionPrinterTest extends DatabaseTestBase
 	}
 
 	@Test
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("CRLF_INJECTION_LOGS")
 	public void test() throws Exception
 	{
 		if (!hasDatabase())
@@ -152,19 +153,16 @@ public class VersionPrinterTest extends DatabaseTestBase
 
 		// Print PostgreSQL server versions
 		Assert.assertNotNull(connection);
-		try (Statement statement = connection.createStatement())
-		{
-			logger.info("*** PostgreSQL Server ***");
-			String versionString = getVersionString("version");
-			logger.info("\t version: {}", versionString);
+		logger.info("*** PostgreSQL Server ***");
+		String versionString = getVersionString("version");
+		logger.info("\t version: {}", versionString);
 
-			// Print PostGIS versions
-			logger.info("*** PostGIS Server ***");
-			for (String GISVERSION : POSTGIS_FUNCTIONS)
-			{
-				versionString = getVersionString(GISVERSION);
-				logger.info("\t {} version: {}", GISVERSION, versionString);
-			}
+		// Print PostGIS versions
+		logger.info("*** PostGIS Server ***");
+		for (String GISVERSION : POSTGIS_FUNCTIONS)
+		{
+			versionString = getVersionString(GISVERSION);
+			logger.info("\t {} version: {}", GISVERSION, versionString);
 		}
 	}
 

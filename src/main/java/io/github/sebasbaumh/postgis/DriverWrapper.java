@@ -210,9 +210,9 @@ public class DriverWrapper extends Driver
 	private static PGConnection tryUnwrap(Connection conn) throws SQLException
 	{
 		// short cut
-		if (conn instanceof PGConnection)
+		if (conn instanceof PGConnection pgconnection)
 		{
-			return (PGConnection) conn;
+			return pgconnection;
 		}
 		// try to get underlying PostgreSQL connection
 		if (conn.isWrapperFor(PGConnection.class))
@@ -271,10 +271,10 @@ public class DriverWrapper extends Driver
 		{
 			// connect to URL
 			Connection result = super.connect(mangledURL, info);
-			if (result instanceof PGConnection)
+			if (result instanceof PGConnection pgconnection)
 			{
 				// add geometry and box types
-				registerDataTypes((PGConnection) result);
+				registerDataTypes(pgconnection);
 			}
 			return result;
 		}
