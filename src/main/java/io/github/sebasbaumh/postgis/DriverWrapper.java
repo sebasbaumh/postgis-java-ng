@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Owning;
 import org.postgresql.Driver;
 import org.postgresql.PGConnection;
 
@@ -261,6 +262,7 @@ public class DriverWrapper extends Driver
 	 * @see org.postgresql.Driver
 	 */
 	@Nullable
+	@Owning
 	@Override
 	public java.sql.Connection connect(@SuppressWarnings("null") @Nonnull String url,
 			@SuppressWarnings("null") @Nonnull Properties info) throws SQLException

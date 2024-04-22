@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sql.DataSource;
 
+import org.eclipse.jdt.annotation.Owning;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -108,6 +109,7 @@ public abstract class DatabaseTestBase
 	 * @return {@link Connection}
 	 * @throws SQLException
 	 */
+	@Owning
 	protected Connection getConnection() throws SQLException
 	{
 		Assert.assertNotNull("the following properties need to be configured for using a connection: " + CONFIG_JDBC_URL
@@ -203,6 +205,7 @@ public abstract class DatabaseTestBase
 	 * @return {@link DataSource}
 	 * @throws SQLException
 	 */
+	@Owning
 	protected DataSource getPooledDataSource() throws SQLException
 	{
 		Assert.assertNotNull("the following properties need to be configured for using a connection: " + CONFIG_JDBC_URL
