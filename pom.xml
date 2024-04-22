@@ -4,7 +4,7 @@
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
 	<!-- version for release -->
-	<version>23.2.1-SNAPSHOT</version>
+	<version>24.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>PostGIS Java bindings</name>
@@ -30,7 +30,7 @@
 		<connection>scm:git:git://github.com/sebasbaumh/postgis-java-ng.git</connection>
 		<developerConnection>scm:git:ssh://github.com:sebasbaumh/postgis-java-ng.git</developerConnection>
 		<url>https://github.com/sebasbaumh/postgis-java-ng/tree/master</url>
-		<tag>HEAD</tag>
+		<tag>v24.1.0</tag>
 	</scm>
 	<!-- Sonatype repository -->
 	<distributionManagement>
@@ -181,8 +181,8 @@
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>3.2.3</version>
                 <configuration>
-                	<!-- use gpg2 -->
-                	<executable>gpg2.exe</executable>
+                	<!-- use gpg2 (Windows) -->
+                	<!--<executable>gpg2.exe</executable>-->
                 </configuration>
             </plugin>
 			<plugin>
