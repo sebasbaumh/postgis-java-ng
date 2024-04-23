@@ -4,7 +4,7 @@
 	<groupId>io.github.sebasbaumh</groupId>
 	<artifactId>postgis-java-ng</artifactId>
 	<!-- version for release -->
-	<version>24.1.0</version>
+	<version>24.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>PostGIS Java bindings</name>
