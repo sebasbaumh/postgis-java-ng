@@ -149,6 +149,16 @@ public abstract class PGboxbase extends PGobject
 	}
 
 	@Override
+	public PGboxbase clone() throws CloneNotSupportedException
+	{
+		PGboxbase o = (PGboxbase) super.clone();
+		o.setType(this.getType());
+		o.llb = llb.copy();
+		o.urt = urt.copy();
+		return o;
+	}
+
+	@Override
 	public boolean equals(@Nullable Object obj)
 	{
 		// short cut

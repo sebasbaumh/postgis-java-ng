@@ -68,9 +68,9 @@ public class PGbox2d extends PGboxbase
 	}
 
 	@Override
-	public PGbox2d clone()
+	public PGbox2d clone() throws CloneNotSupportedException
 	{
-		return new PGbox2d(llb.copy(), urt.copy());
+		return (PGbox2d)super.clone();
 	}
 
 	@Override

@@ -45,7 +45,7 @@ public final class PostGisUtil
 	/**
 	 * Epsilon/tolerance for comparing double values.
 	 */
-	private static double EPSILON = 1e-15;
+	private static final double EPSILON = 1e-15;
 	/**
 	 * Characters for converting data to hex strings.
 	 */

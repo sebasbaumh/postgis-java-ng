@@ -95,6 +95,15 @@ public abstract class PGgeometrybase extends PGobject implements PGBinaryObject
 	}
 
 	@Override
+	public PGgeometrybase clone() throws CloneNotSupportedException
+	{
+		PGgeometrybase o = (PGgeometrybase) super.clone();
+		o.setType(this.getType());
+		o.setGeometry(this.getGeometry());
+		return o;
+	}
+
+	@Override
 	public boolean equals(@Nullable Object obj)
 	{
 		if (this == obj)

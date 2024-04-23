@@ -67,9 +67,9 @@ public class PGgeography extends PGgeometrybase
 	}
 
 	@Override
-	public Object clone()
+	public PGgeography clone() throws CloneNotSupportedException
 	{
-		return new PGgeography(geometry);
+		return (PGgeography) super.clone();
 	}
 
 }

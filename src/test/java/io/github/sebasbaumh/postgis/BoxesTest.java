@@ -26,10 +26,29 @@ import java.sql.SQLException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.postgresql.util.PGobject;
 
 @SuppressWarnings({ "javadoc", "static-method" })
 public class BoxesTest
 {
+
+	private static <T extends PGobject> void cloneTest(T o)
+	{
+		try
+		{
+			Object o2 = o.clone();
+			Assert.assertEquals(o.getClass(), o2.getClass());
+			@SuppressWarnings("unchecked")
+			T t2 = (T) o2;
+			Assert.assertEquals(o, o2);
+			Assert.assertEquals(o.getType(), t2.getType());
+			Assert.assertNotSame(o, o2);
+		}
+		catch (CloneNotSupportedException ex)
+		{
+			Assert.fail("Clone not supported: " + ex.getMessage());
+		}
+	}
 
 	@Test
 	public void testBox2d() throws SQLException
@@ -79,6 +98,14 @@ public class BoxesTest
 		Assert.assertEquals(4, p1.getX(), 0.0001);
 		Assert.assertEquals(5, p1.getY(), 0.0001);
 		Assert.assertFalse(p1.is3d());
+	}
+
+	@Test
+	public void testClone() throws SQLException
+	{
+		cloneTest(new PGbox2d("BOX(1 2,3 4)"));
+		cloneTest(new PGbox3d("BOX3D(1 2 3,4 5 6)"));
+		cloneTest(new PGbox3d("BOX3D(1 2,4 5)"));
 	}
 
 }

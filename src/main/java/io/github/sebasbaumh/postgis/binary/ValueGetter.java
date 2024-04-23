@@ -34,27 +34,26 @@ public abstract class ValueGetter
 	/**
 	 * Int builder for big endian encoding.
 	 */
-	private static final IntBuilder INT_BUILDER_BIG_ENDIAN = (b1, b2, b3, b4) -> {
-		return (b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
-	};
+	private static final IntBuilder INT_BUILDER_BIG_ENDIAN = (b1, b2, b3, b4) ->
+		(b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
+
 	/**
 	 * Int builder for little endian encoding.
 	 */
-	private static final IntBuilder INT_BUILDER_LITTLE_ENDIAN = (b1, b2, b3, b4) -> {
-		return (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
-	};
+	private static final IntBuilder INT_BUILDER_LITTLE_ENDIAN = (b1, b2, b3, b4) ->
+		(b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
+
 	/**
 	 * Int builder for big endian encoding.
 	 */
-	private static final LongBuilder LONG_BUILDER_BIG_ENDIAN = (b1, b2, b3, b4, b5, b6, b7, b8) -> {
-		return (b1 << 56) + (b2 << 48) + (b3 << 40) + (b4 << 32) + (b5 << 24) + (b6 << 16) + (b7 << 8) + b8;
-	};
+	private static final LongBuilder LONG_BUILDER_BIG_ENDIAN = (b1, b2, b3, b4, b5, b6, b7, b8) ->
+		(b1 << 56) + (b2 << 48) + (b3 << 40) + (b4 << 32) + (b5 << 24) + (b6 << 16) + (b7 << 8) + b8;
+
 	/**
 	 * Int builder for little endian encoding.
 	 */
-	private static final LongBuilder LONG_BUILDER_LITTLE_ENDIAN = (b1, b2, b3, b4, b5, b6, b7, b8) -> {
-		return (b8 << 56) + (b7 << 48) + (b6 << 40) + (b5 << 32) + (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
-	};
+	private static final LongBuilder LONG_BUILDER_LITTLE_ENDIAN = (b1, b2, b3, b4, b5, b6, b7, b8) -> 
+		(b8 << 56) + (b7 << 48) + (b6 << 40) + (b5 << 32) + (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
 
 	/**
 	 * Current encoding (default is little endian encoding).
