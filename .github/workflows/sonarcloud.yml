@@ -15,6 +15,7 @@ jobs:
       with:
         java-version: 21
         distribution: temurin
+        cache: maven
     - name: Analyze with sonarcloud
       run: mvn --batch-mode verify sonar:sonar -Dsonar.projectKey=sebasbaumh_postgis-java-ng -Dsonar.organization=sebasbaumh -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{  secrets.SONAR_TOKEN  }}
       env:
