@@ -45,6 +45,7 @@ jobs:
       with:
         java-version: 21
         distribution: temurin
+        cache: maven
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
