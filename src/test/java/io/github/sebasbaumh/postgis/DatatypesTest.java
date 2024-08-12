@@ -32,21 +32,21 @@ import org.slf4j.LoggerFactory;
 public class DatatypesTest extends DatabaseTestBase
 {
 
-	private static final String cr_str = "CIRCULARSTRING(-9 2,-8 3,-7 2)";
+	private static final String CR_STR = "CIRCULARSTRING(-9 2,-8 3,-7 2)";
 
-	private static final String cr_str2 = "CIRCULARSTRING(0 -1,-1 0,0 1,1 0,0 -1)";
+	private static final String CR_STR2 = "CIRCULARSTRING(0 -1,-1 0,0 1,1 0,0 -1)";
 
-	private static final String lng_str = "LINESTRING  (10 10 20,20 20 20, 50 50 50, 34 34 34)";
+	private static final String LNG_STR = "LINESTRING  (10 10 20,20 20 20, 50 50 50, 34 34 34)";
 
 	private static final Logger logger = LoggerFactory.getLogger(DatatypesTest.class);
 
-	private static final String mlng_str = "MULTILINESTRING ((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))";
+	private static final String MLNG_STR = "MULTILINESTRING ((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))";
 
-	private static final String mplg_str = "MULTIPOLYGON (((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))";
+	private static final String MPLG_STR = "MULTIPOLYGON (((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))";
 
-	private static final String plg_str = "POLYGON ((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))";
+	private static final String PLG_STR = "POLYGON ((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))";
 
-	private static final String ptg_str = "POINT(10 10 20)";
+	private static final String PTG_STR = "POINT(10 10 20)";
 
 	@SuppressWarnings("unchecked")
 	private <T extends Geometry> T assertGeometry(Class<T> clazz, String wkt) throws SQLException
@@ -68,8 +68,8 @@ public class DatatypesTest extends DatabaseTestBase
 			return;
 		}
 		logger.trace("void testCircularString()");
-		logger.debug(cr_str);
-		CircularString lng = assertGeometry(CircularString.class, cr_str);
+		logger.debug(CR_STR);
+		CircularString lng = assertGeometry(CircularString.class, CR_STR);
 		logger.debug(lng.toString());
 	}
 
@@ -81,8 +81,8 @@ public class DatatypesTest extends DatabaseTestBase
 			return;
 		}
 		logger.trace("void testCircularString2()");
-		logger.debug(cr_str2);
-		CircularString lng = assertGeometry(CircularString.class, cr_str2);
+		logger.debug(CR_STR2);
+		CircularString lng = assertGeometry(CircularString.class, CR_STR2);
 		logger.debug(lng.toString());
 	}
 
@@ -94,8 +94,8 @@ public class DatatypesTest extends DatabaseTestBase
 			return;
 		}
 		logger.trace("void testLineString()");
-		logger.debug(lng_str);
-		LineString lng = assertGeometry(LineString.class, lng_str);
+		logger.debug(LNG_STR);
+		LineString lng = assertGeometry(LineString.class, LNG_STR);
 		logger.debug(lng.toString());
 	}
 
@@ -107,8 +107,8 @@ public class DatatypesTest extends DatabaseTestBase
 			return;
 		}
 		logger.trace("void testMultiLineString()");
-		logger.debug(mlng_str);
-		MultiLineString mlng = assertGeometry(MultiLineString.class, mlng_str);
+		logger.debug(MLNG_STR);
+		MultiLineString mlng = assertGeometry(MultiLineString.class, MLNG_STR);
 		logger.debug(mlng.toString());
 	}
 
@@ -120,8 +120,8 @@ public class DatatypesTest extends DatabaseTestBase
 			return;
 		}
 		logger.trace("void testMultiPolygon()");
-		logger.debug(mplg_str);
-		MultiPolygon mplg = assertGeometry(MultiPolygon.class, mplg_str);
+		logger.debug(MPLG_STR);
+		MultiPolygon mplg = assertGeometry(MultiPolygon.class, MPLG_STR);
 		logger.debug(mplg.toString());
 	}
 
@@ -133,8 +133,8 @@ public class DatatypesTest extends DatabaseTestBase
 			return;
 		}
 		logger.trace("void testPGgeometry()");
-		logger.debug(mlng_str);
-		PGgeometry pgf = new PGgeometry(getWKBFromWKT(mlng_str));
+		logger.debug(MLNG_STR);
+		PGgeometry pgf = new PGgeometry(getWKBFromWKT(MLNG_STR));
 		logger.debug(pgf.toString());
 	}
 
@@ -146,8 +146,8 @@ public class DatatypesTest extends DatabaseTestBase
 			return;
 		}
 		logger.trace("void testPoint()");
-		logger.debug(ptg_str);
-		Point ptg = assertGeometry(Point.class, ptg_str);
+		logger.debug(PTG_STR);
+		Point ptg = assertGeometry(Point.class, PTG_STR);
 		logger.debug(ptg.toString());
 	}
 
@@ -159,8 +159,8 @@ public class DatatypesTest extends DatabaseTestBase
 			return;
 		}
 		logger.trace("void testPolygon()");
-		logger.debug(plg_str);
-		Polygon plg = assertGeometry(Polygon.class, plg_str);
+		logger.debug(PLG_STR);
+		Polygon plg = assertGeometry(Polygon.class, PLG_STR);
 		logger.debug(plg.toString());
 	}
 

@@ -43,7 +43,7 @@ public class VersionPrinterTest extends DatabaseTestBase
 
 	private static final Logger logger = LoggerFactory.getLogger(VersionPrinterTest.class);
 
-	private static String[] POSTGIS_FUNCTIONS = { "postgis_version", "postgis_proj_version",
+	private static final String[] POSTGIS_FUNCTIONS = { "postgis_version", "postgis_proj_version",
 			"postgis_scripts_installed", "postgis_lib_version", "postgis_scripts_released", "postgis_uses_stats",
 			"postgis_geos_version", "postgis_scripts_build_date", "postgis_lib_build_date", "postgis_full_version",
 			"postgis_gdal_version", "postgis_libjson_version", "postgis_libxml_version", "postgis_raster_lib_version",

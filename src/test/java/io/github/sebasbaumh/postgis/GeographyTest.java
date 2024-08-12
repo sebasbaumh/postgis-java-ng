@@ -33,15 +33,15 @@ import org.junit.Test;
 @SuppressWarnings("javadoc")
 public class GeographyTest extends PostgisDatabaseTest
 {
-	private static final String lng_str = "LINESTRING  (10 10 20,20 20 20, 50 50 50, 34 34 34)";
+	private static final String LNG_STR = "LINESTRING  (10 10 20,20 20 20, 50 50 50, 34 34 34)";
 
-	private static final String mlng_str = "MULTILINESTRING ((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))";
+	private static final String MLNG_STR = "MULTILINESTRING ((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))";
 
-	private static final String mplg_str = "MULTIPOLYGON (((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))";
+	private static final String MPLG_STR = "MULTIPOLYGON (((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)),((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0)))";
 
-	private static final String plg_str = "POLYGON ((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))";
+	private static final String PLG_STR = "POLYGON ((10 10 0,20 10 0,20 20 0,20 10 0,10 10 0),(5 5 0,5 6 0,6 6 0,6 5 0,5 5 0))";
 
-	private static final String ptg_str = "POINT(10 10 20)";
+	private static final String PTG_STR = "POINT(10 10 20)";
 
 	@SuppressWarnings("unchecked")
 	private <T extends Geometry> T assertGeometry(Class<T> clazz, String wkt) throws SQLException
@@ -62,7 +62,7 @@ public class GeographyTest extends PostgisDatabaseTest
 		{
 			return;
 		}
-		assertGeometry(LineString.class, lng_str);
+		assertGeometry(LineString.class, LNG_STR);
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class GeographyTest extends PostgisDatabaseTest
 		{
 			return;
 		}
-		assertGeometry(MultiLineString.class, mlng_str);
+		assertGeometry(MultiLineString.class, MLNG_STR);
 	}
 
 	@Test
@@ -82,7 +82,7 @@ public class GeographyTest extends PostgisDatabaseTest
 		{
 			return;
 		}
-		assertGeometry(MultiPolygon.class, mplg_str);
+		assertGeometry(MultiPolygon.class, MPLG_STR);
 	}
 
 	@SuppressWarnings("unused")
@@ -94,7 +94,7 @@ public class GeographyTest extends PostgisDatabaseTest
 		{
 			return;
 		}
-		new PGgeometry(getWKBFromWKT(mlng_str));
+		new PGgeometry(getWKBFromWKT(MLNG_STR));
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class GeographyTest extends PostgisDatabaseTest
 		{
 			return;
 		}
-		assertGeometry(Point.class, ptg_str);
+		assertGeometry(Point.class, PTG_STR);
 	}
 
 	@Test
@@ -114,7 +114,7 @@ public class GeographyTest extends PostgisDatabaseTest
 		{
 			return;
 		}
-		assertGeometry(Polygon.class, plg_str);
+		assertGeometry(Polygon.class, PLG_STR);
 	}
 
 }
