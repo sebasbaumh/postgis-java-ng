@@ -7,7 +7,7 @@
     <booleanAttribute key="M2_OFFLINE" value="false"/>
     <stringAttribute key="M2_PROFILES" value=""/>
     <listAttribute key="M2_PROPERTIES">
-        <listEntry value="maven.home=/opt/homebrew/Cellar/maven/3.9.6/"/>
+        <listEntry value="maven.home=/opt/homebrew/Cellar/maven/3.9.8/"/>
     </listAttribute>
     <stringAttribute key="M2_RUNTIME" value="EMBEDDED"/>
     <booleanAttribute key="M2_SKIP_TESTS" value="false"/>
