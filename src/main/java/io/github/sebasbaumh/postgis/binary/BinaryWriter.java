@@ -229,10 +229,16 @@ public final class BinaryWriter
 		for (T ring : rings)
 		{
 			// polygon linear rings are just written as a plain set of points
-			if (ring instanceof LinearRing lr)
-			{
+//			if (ring instanceof LinearRing lr)
+//			{
+//				writePoints(lr, dest);
+//			}
+
+			if (ring instanceof LinearRing) {
+				LinearRing lr = (LinearRing) ring;  // 手动转换类型
 				writePoints(lr, dest);
 			}
+
 			else
 			{
 				// curve polygons can have different geometries

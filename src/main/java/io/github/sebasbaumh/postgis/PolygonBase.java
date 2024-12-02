@@ -151,16 +151,30 @@ public abstract class PolygonBase<T extends Curve> extends Geometry implements I
 		}
 	}
 
+//	@Override
+//	public boolean equals(@Nullable Object other)
+//	{
+//		// check type and parent
+//		if ((other instanceof PolygonBase<?> poly) && super.equals(other))
+//		{
+//			return PostGisUtil.equalsIterable(this.rings, poly.rings);
+//		}
+//		return false;
+//	}
+
+
 	@Override
-	public boolean equals(@Nullable Object other)
-	{
+	public boolean equals(@Nullable Object other) {
 		// check type and parent
-		if ((other instanceof PolygonBase<?> poly) && super.equals(other))
-		{
-			return PostGisUtil.equalsIterable(this.rings, poly.rings);
+		if (other instanceof PolygonBase) {
+			PolygonBase<?> poly = (PolygonBase<?>) other;  // 手动转换类型
+			if (super.equals(other)) {
+				return PostGisUtil.equalsIterable(this.rings, poly.rings);
+			}
 		}
 		return false;
 	}
+
 
 	/*
 	 * (non-Javadoc)

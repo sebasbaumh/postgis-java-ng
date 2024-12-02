@@ -132,17 +132,31 @@ public class LineString extends Curve implements Iterable<Point>
 		}
 	}
 
+//	@Override
+//	public boolean equals(@Nullable Object other)
+//	{
+//		// check type and parent
+//		if ((other instanceof LineString ls) && super.equals(other))
+//		{
+//			// check all points
+//			return PostGisUtil.equalsIterable(this.points, ls.points);
+//		}
+//		return false;
+//	}
+
 	@Override
-	public boolean equals(@Nullable Object other)
-	{
+	public boolean equals(@Nullable Object other) {
 		// check type and parent
-		if ((other instanceof LineString ls) && super.equals(other))
-		{
-			// check all points
-			return PostGisUtil.equalsIterable(this.points, ls.points);
+		if (other instanceof LineString) {
+			LineString ls = (LineString) other;  // 手动转换类型
+			if (super.equals(other)) {
+				// check all points
+				return PostGisUtil.equalsIterable(this.points, ls.points);
+			}
 		}
 		return false;
 	}
+
 
 	/*
 	 * (non-Javadoc)

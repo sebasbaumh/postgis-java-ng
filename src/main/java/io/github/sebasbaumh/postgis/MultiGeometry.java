@@ -98,16 +98,29 @@ public abstract class MultiGeometry<T extends Geometry> extends Geometry impleme
 		return PostGisUtil.checkConsistency(subgeoms);
 	}
 
+//	@Override
+//	public boolean equals(@Nullable Object other)
+//	{
+//		// check type and parent
+//		if ((other instanceof MultiGeometry<?> cother) && super.equals(other))
+//		{
+//			return PostGisUtil.equalsIterable(this.subgeoms, cother.subgeoms);
+//		}
+//		return false;
+//	}
+
 	@Override
-	public boolean equals(@Nullable Object other)
-	{
+	public boolean equals(@Nullable Object other) {
 		// check type and parent
-		if ((other instanceof MultiGeometry<?> cother) && super.equals(other))
-		{
-			return PostGisUtil.equalsIterable(this.subgeoms, cother.subgeoms);
+		if (other instanceof MultiGeometry) {
+			MultiGeometry<?> cother = (MultiGeometry<?>) other;  // 手动转换类型
+			if (super.equals(other)) {
+				return PostGisUtil.equalsIterable(this.subgeoms, cother.subgeoms);
+			}
 		}
 		return false;
 	}
+
 
 	/*
 	 * (non-Javadoc)

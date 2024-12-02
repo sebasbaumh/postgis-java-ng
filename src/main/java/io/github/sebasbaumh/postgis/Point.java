@@ -156,16 +156,29 @@ public class Point extends Geometry
 		return Math.sqrt(d);
 	}
 
+//	@Override
+//	public boolean equals(@Nullable Object other)
+//	{
+//		// check type and parent
+//		if ((other instanceof Point p) && super.equals(other))
+//		{
+//			return coordsAreEqual(p);
+//		}
+//		return false;
+//	}
+
 	@Override
-	public boolean equals(@Nullable Object other)
-	{
+	public boolean equals(@Nullable Object other) {
 		// check type and parent
-		if ((other instanceof Point p) && super.equals(other))
-		{
-			return coordsAreEqual(p);
+		if (other instanceof Point) {
+			Point p = (Point) other;  // 手动转换类型
+			if (super.equals(other)) {
+				return coordsAreEqual(p);
+			}
 		}
 		return false;
 	}
+
 
 	/*
 	 * (non-Javadoc)

@@ -66,17 +66,29 @@ public class MultiCurve extends MultiGeometry<Curve>
 	 * Gets the length of this line.
 	 * @return length
 	 */
-	public double length()
-	{
+//	public double length()
+//	{
+//		double d = 0;
+//		for (Geometry ls : subgeoms)
+//		{
+//			if (ls instanceof LineBasedGeometry lbg)
+//			{
+//				d += lbg.length();
+//			}
+//		}
+//		return d;
+//	}
+
+	public double length() {
 		double d = 0;
-		for (Geometry ls : subgeoms)
-		{
-			if (ls instanceof LineBasedGeometry lbg)
-			{
+		for (Geometry ls : subgeoms) {
+			if (ls instanceof LineBasedGeometry) {
+				LineBasedGeometry lbg = (LineBasedGeometry) ls;  // 手动转换类型
 				d += lbg.length();
 			}
 		}
 		return d;
 	}
+
 
 }
