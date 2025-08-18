@@ -38,7 +38,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     # setup Java 21 using Eclipse Temurin/Adoptium
     - uses: actions/setup-java@v4
